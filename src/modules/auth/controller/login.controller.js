@@ -107,7 +107,6 @@ async function verifyJWT(token) {
 }
 
 
-
 module.exports = {
     loginUser,
     verifyJWT

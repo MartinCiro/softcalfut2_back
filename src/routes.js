@@ -1,8 +1,7 @@
 const { Router } = require('express');
 
 const authRoutes = require('./modules/auth/routes/auth.routes');
-const usuarioRoutes = require('./modules/usuarios/routes/usuarios.routes');
-const productoRoutes = require('./modules/productos/routes/productos.routes');
+const permisoRoutes = require('./modules/permisos/routes/permisos.routes');
 
 
 const router = Router();
@@ -13,7 +12,6 @@ router.get('/api-status', (req, res) => {
 });
 
 router.use(authRoutes);
-router.use(usuarioRoutes);
-router.use(productoRoutes);
+router.use(permisoRoutes);
 
 module.exports = router;
