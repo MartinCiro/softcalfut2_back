@@ -57,13 +57,12 @@ async function crearPermisos(options) {
 }
 
 
-async function deletePermisos(iden) {
-  const { id, tipo } = iden;
+async function deletePermisos(options) {
+  const { id } = options;
 
-  permisoUtils.validar(id, "el id");
-  permisoUtils.validar(tipo, "el tipo");
+  generic.validar(id, "el id");
   try {
-    return await permisoUtils.deletePermisos({ id, tipo });
+    return await permisoUtils.deletePermisos({ id });
   } catch (error) {
     if (error.status_cod) throw error;
     console.log(error);
