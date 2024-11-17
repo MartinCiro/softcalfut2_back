@@ -21,6 +21,25 @@ async function getPermiso(options) {
   }
 }
 
+/**
+ * @param {{
+*          descripcion: string,
+*          monto: float,
+*          fecha_ingreso: Date,
+*      }} ingreso
+*/
+async function insertarPermiso({ nombre, descripcion }) {
+ try {
+  return await generic.insertarDatos("permiso", {
+     nombre,
+     descripcion,
+     estado: 1 
+   });
+ } catch (error) {
+   console.error("Error al insertar el permiso:", error);
+ }
+}
+
 
 async function actualizaPerfil(data) {
   const { id } = data;
@@ -45,57 +64,27 @@ async function actualizaPerfil(data) {
   `;
   
   try {
-    const resultado = await generic.ejecutarConsulta(consulta, valores, 
+    return await generic.ejecutarConsulta(consulta, valores, 
       "Error al actualizar el permiso", 
       "Perfil actualizado correctamente");
-
-    return resultado; 
   } catch (error) {
     throw error; 
   }
 }
 
-/**
- * @param {{
- *          descripcion: string,
- *          monto: float,
- *          fecha_ingreso: Date,
- *      }} ingreso
- */
-async function insertarPermiso({ nombre, descripcion }) {
-  try {
-    const respuesta = await generic.insertarDatos("permiso", {
-      nombre,
-      descripcion,
-      estado: 1 
-    });
-    return respuesta;
-  } catch (error) {
-    console.error("Error al insertar el permiso:", error);
-  }
-}
 
-async function deleteFechas(dato) {
+async function deletePermisos(dato) {
   const pool = await getConnection();
   const params = [dato.id];
-  return pool
-    .query(`delete from ${dato.tipo} where id=$1`, params)
-    .then((data) => {
-      return data.rowCount > 0
-        ? `El ${dato.tipo} se elimino correctamente`
-        : `El ${dato.tipo} no existe`;
-    })
-    .catch((error) => {
-      console.log(error);
-      if (error.status_cod) throw error;
-      error.status_cod ? error : null;
-      throw {
-        ok: false,
-        status_cod: 500,
-        data: "Ha ocurrido un error consultando la información en la base de datos",
-      };
-    })
-    .finally(() => pool.end());
+  query = `delete from permiso where id=$1`;
+  
+  try {
+    return await generic.ejecutarConsulta(query, params, 
+      "Error al eliminar el permiso", 
+      "Permiso eliminado correctamente"); 
+  } catch (error) {
+    throw error;
+  }
 }
 
 
@@ -103,5 +92,5 @@ module.exports = {
   getPermiso,
   actualizaPerfil,
   insertarPermiso,
-  deleteFechas
+  deletePermisos
 };

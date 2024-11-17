@@ -36,7 +36,6 @@ const actualizarPermisosAPI = (req, res) => {
  */
 const listarPermisosAPI = async (req, res) => {
   const { id } = req.body;
-  console.log(id);
   return generic.manejarOperacion(req, res, listarPermisos,
     { id  },
     { mensajeError: "Ocurrió un error al consultar los permisos." }
@@ -44,25 +43,11 @@ const listarPermisosAPI = async (req, res) => {
 };
 
 const deletePermisosAPI = async (req, res) => {
-  const {id, tipo}  = req.body;
-  let message;
-  try {
-    const resultado = await deleteFechas({id, tipo});
-    message = new ResponseBody(true, 200, resultado);
-  } catch (error) {
-    if (error.status_cod) {
-      message = new ResponseBody(error.ok, error.status_cod, error.data);
-    } else {
-      console.log(error);
-      message = new ResponseBody(
-        false,
-        500,
-        "Ocurrió un error en el proceso para listar las fechas"
-      );
-    }
-  }
-
-  return res.json(message);
+  const { id }  = req.body;
+  return generic.manejarOperacion(req, res, deletePermisos,
+    { id  },
+    { mensajeError: "Ocurrió un error al eliminar los permisos." }
+  );
 };
 
 module.exports = {
