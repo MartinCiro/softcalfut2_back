@@ -1,9 +1,9 @@
-const permisoUtils = require("../utils/permisos.utils");
+const permisoUtils = require("../utils/roles.utils");
 const generic = require("../../generic");
 
-async function listarPermisos(options) {
+async function listarRoles(options) {
   try {
-    return await permisoUtils.getPermiso(options);
+    return await permisoUtils.getRoles(options);
   } catch (error) {
     if (error.status_cod) throw error;
     throw {
@@ -24,13 +24,13 @@ async function listarPermisos(options) {
  * @param {number[]} obligaciones_tributarias
  */
 
-async function modificarPermisos(options) {
-  const { id, nombre, descripcion, estado} = options;
+async function modificarRoles(options) {
+  const { id, nombre, descripcion, estado, permisos} = options;
 
   generic.validar(id, "el identificador del permiso");
+  generic.validar(permisos, "el identificador del permiso");
   
-  const campos = { nombre, descripcion, estado };
-
+  const campos = { nombre, descripcion, estado, permisos };
   const camposDefinidos = Object.values(campos).filter(value => value !== undefined && value !== null);
 
   if (camposDefinidos.length === 0) throw {
@@ -39,30 +39,31 @@ async function modificarPermisos(options) {
       data: "No se ha proporcionado ningún valor a actualizar",
     };
 
-  return generic.manejarOperacionGenerica(permisoUtils.actualizaPerfil, options, {
+  return generic.manejarOperacionGenerica(permisoUtils.actualizaRoles, options, {
     mensajeError: "Ocurrió un error inesperado al modificar el permiso",
-    mensajeExito: "Permiso actualizado correctamente"
+    mensajeExito: "Role actualizado correctamente"
   });
 }
 
-async function crearPermisos(options) {
-  const { nombre, descripcion } = options;
+async function crearRoles(options) {
+  const { nombre, descripcion, id_permiso } = options;
   generic.validar(nombre, "el nombre del permiso");
   generic.validar(descripcion, "la descripción");
+  generic.validar(id_permiso, "el id del permiso");
 
-  return generic.manejarOperacionGenerica(permisoUtils.insertarPermiso, options, {
+  return generic.manejarOperacionGenerica(permisoUtils.insertarRoles, options, {
     mensajeError: "Ocurrió un error inesperado y el registro no ha sido creado",
     mensajeExito: "Registro creado correctamente"
   });
 }
 
 
-async function deletePermisos(options) {
+async function deleteRoles(options) {
   const { id } = options;
 
   generic.validar(id, "el id");
   try {
-    return await permisoUtils.deletePermisos({ id });
+    return await permisoUtils.deleteRoles({ id });
   } catch (error) {
     if (error.status_cod) throw error;
     console.log(error);
@@ -75,8 +76,8 @@ async function deletePermisos(options) {
 }
 
 module.exports = {
-  listarPermisos,
-  modificarPermisos,
-  crearPermisos,
-  deletePermisos
+  listarRoles,
+  modificarRoles,
+  crearRoles,
+  deleteRoles
 };

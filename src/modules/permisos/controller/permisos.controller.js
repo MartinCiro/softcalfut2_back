@@ -39,7 +39,7 @@ async function modificarPermisos(options) {
       data: "No se ha proporcionado ningún valor a actualizar",
     };
 
-  return generic.manejarOperacionGenerica(permisoUtils.actualizaPerfil, options, {
+  return generic.manejarOperacionGenerica(permisoUtils.actualizaPermiso, options, {
     mensajeError: "Ocurrió un error inesperado al modificar el permiso",
     mensajeExito: "Permiso actualizado correctamente"
   });

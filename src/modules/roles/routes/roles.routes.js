@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
 // api handlers
-const { crearPermisosAPI, actualizarPermisosAPI, listarPermisosAPI, deletePermisosAPI } = require('../api/permisos.api');
+const { crearRolesAPI, actualizarRolesAPI, listarRolesAPI, deleteRolesAPI } = require('../api/roles.api');
 const { isAuthenticatedMW, checkPermissions } = require('../../auth/api/auth.api');
 
 const router = Router();
@@ -19,10 +19,10 @@ const router = Router();
  *      }
  *  }
  */
-router.get('/permisos', listarPermisosAPI)
+router.get('/roles', listarRolesAPI)
 
-router.post('/permisos', crearPermisosAPI)
-router.patch('/permisos', actualizarPermisosAPI)
-router.delete('/permisos', deletePermisosAPI)
+router.post('/roles', crearRolesAPI)
+router.patch('/roles', actualizarRolesAPI)
+router.delete('/roles', deleteRolesAPI)
 
 module.exports = router;

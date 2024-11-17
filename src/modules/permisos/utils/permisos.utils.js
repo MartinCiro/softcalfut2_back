@@ -41,7 +41,7 @@ async function insertarPermiso({ nombre, descripcion }) {
 }
 
 
-async function actualizaPerfil(data) {
+async function actualizaPermiso(data) {
   const { id } = data;
   const columnas = {
     nombre: data.nombre,
@@ -66,7 +66,7 @@ async function actualizaPerfil(data) {
   try {
     return await generic.ejecutarConsulta(consulta, valores, 
       "Error al actualizar el permiso", 
-      "Perfil actualizado correctamente");
+      "Permiso actualizado correctamente");
   } catch (error) {
     throw error; 
   }
@@ -87,10 +87,9 @@ async function deletePermisos(dato) {
   }
 }
 
-
 module.exports = {
   getPermiso,
-  actualizaPerfil,
+  actualizaPermiso,
   insertarPermiso,
   deletePermisos
 };
