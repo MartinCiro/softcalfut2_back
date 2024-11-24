@@ -19,10 +19,10 @@ const router = Router();
  *      }
  *  }
  */
-router.get('/roles', listarRolesAPI)
+router.get('/roles', isAuthenticatedMW, checkPermissions([1, 2]), listarRolesAPI)
 
-router.post('/roles', crearRolesAPI)
-router.patch('/roles', actualizarRolesAPI)
-router.delete('/roles', deleteRolesAPI)
+router.post('/roles', isAuthenticatedMW, checkPermissions([1, 2]), crearRolesAPI)
+router.patch('/roles', isAuthenticatedMW, checkPermissions([1, 2]), actualizarRolesAPI)
+router.delete('/roles', isAuthenticatedMW, checkPermissions([1, 2]), deleteRolesAPI)
 
 module.exports = router;

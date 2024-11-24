@@ -10,12 +10,11 @@ const crearRolesAPI = (req, res) => {
   const {
     nombre,
     descripcion,
-    id_permiso,
     permisos
   } = req.body;
-  
+
   return generic.manejarOperacion(req, res, crearRoles, 
-    { nombre, descripcion, id_permiso, permisos }, 
+    { nombre, descripcion, permisos }, 
     { mensajeError: "Ocurrió un error al crear el rol." }
   );
 };

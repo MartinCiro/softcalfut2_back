@@ -2,7 +2,6 @@ const config = require('../../../config.js');
 const { insertNewUser, updateUsuario, validator } = require('../utils/manager.utils.js');
 const Usuario = require('../model/usuario.js');
 
-const managerUtils = require("../utils/manager.utils.js");
 
 /**
  * Método para crear un nuevo usuario
@@ -21,21 +20,18 @@ const managerUtils = require("../utils/manager.utils.js");
  * @param {number[] || string[]} clientes 
  */
 async function createUser(nuevoUsuario) {
-    validator(nuevoUsuario.user, 'el usuario');
-    validator(nuevoUsuario.pass, 'la contrasena');
-    validator(nuevoUsuario.id_rol, 'el rol');
-    validator(nuevoUsuario.nombres, 'los nombres');
-    validator(nuevoUsuario.apellidos, 'los apellidos');
+    const { username, passwd, id_rol, status, nombre, apellidos, numero_documento, correo, numero_contacto, fecha_nacimiento, info_p } = nuevoUsuario;
+    validator(username, 'el usuario');
+    validator(passwd, 'la contraseña');
+    validator(id_rol, 'el rol');
+    validator(correo, 'el correo');
+    validator(numero_contacto, 'el numero de contacto');
+    validator(numero_documento, 'el numero de documento');
+    validator(nombre, 'el nombre');
+    validator(apellidos, 'los apellidos');
+    validator(fecha_nacimiento, 'la fecha de nacimiento');
 
-    const usuario = Usuario(
-        nuevoUsuario.user,
-        nuevoUsuario.pass,
-        nuevoUsuario.id_rol,
-        nuevoUsuario.status
-    );
-
-    usuario.nombres = nuevoUsuario.nombres;
-    usuario.apellidos = nuevoUsuario.apellidos;
+    const usuario = Usuario(username, passwd, id_rol, status, nombre, apellidos, numero_documento, correo, numero_contacto, fecha_nacimiento, info_p);
 
     const id_usuario = await insertNewUser({ ...usuario })
         .catch(error => {
@@ -58,21 +54,6 @@ async function createUser(nuevoUsuario) {
     }
 }
 
-async function listarUsuarios() {
-    let usuarios = await managerUtils.fetchUsuarios()
-        .catch(error => {
-            if (error.status_cod) throw error;
-            console.log(error);
-            throw {
-                ok: false,
-                status_cod: 500,
-                data: 'Ocurrió un error inesperado consultando usuarios'
-            }
-        });
-
-    return usuarios;
-}
-
 /**
  * @param {{
  *      correo:string, 
@@ -85,15 +66,15 @@ async function listarUsuarios() {
  *  }} options 
  */
 async function modificarUsuario(options) {
-    const { id, id_rol, estado, nombres, username, apellidos } = options;
+    const { username, id_rol, status, nombres, apellidos, numero_documento, correo, numero_contacto, fecha_nacimiento, info_p } = options;
 
-    validator(id, 'el identificador del usuario');
+    validator(numero_documento, 'el identificador del usuario');
+    validator(id_rol, 'el rol');
 
     await updateUsuario(options)
         .then(() => { actualizado = true; })
         .catch(error => {
             if (error.status_cod) throw error;
-            console.log(error);
             throw {
                 ok: false,
                 status_cod: 500,
@@ -105,59 +86,8 @@ async function modificarUsuario(options) {
         message: 'El usuario fue actualizado con éxito'
     }
 }
-async function listarPermisos() {
-    let permisos = await managerUtils.fetchPermisos()
-        .catch(error => {
-            if (error.status_cod) throw error;
-            console.log(error);
-            throw {
-                ok: false,
-                status_cod: 500,
-                data: 'Ocurrió un error inesperado consultando permisos'
-            }
-        });
-
-    return permisos;
-}
-
-async function listarRoles() {
-    let permisos = await managerUtils.fetchroles()
-        .catch(error => {
-            if (error.status_cod) throw error;
-            console.log(error);
-            throw {
-                ok: false,
-                status_cod: 500,
-                data: 'Ocurrió un error inesperado consultando roles'
-            }
-        });
-
-    return permisos;
-}
-
-async function listarPermisoXUsuario(id_rol, id_usuario) {
-
-    validator(id_rol, 'el rol');
-    validator(id_usuario, 'el identificador de usuario');
-
-    let permisosXusuario = await managerUtils.usuarioXpermisos(id_rol, id_usuario)
-        .catch(error => {
-            if (error.status_cod) throw error;
-            console.log(error);
-            throw {
-                ok: false,
-                status_cod: 500,
-                data: 'Ocurrió un error inesperado consultando permisos'
-            }
-        });
-    return permisosXusuario;
-}
 
 module.exports = {
     createUser,
-    listarUsuarios,
-    modificarUsuario,
-    listarPermisos,
-    listarPermisoXUsuario,
-    listarRoles
+    modificarUsuario
 }

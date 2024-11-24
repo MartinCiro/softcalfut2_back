@@ -3,6 +3,7 @@ const Usuario = require('../model/usuario.js');
 const { retrieveUser } = require('../utils/login.utils.js');
 const jwt = require('jsonwebtoken');
 const { validator } = require('../utils/manager.utils.js');
+const bcrypt = require('bcrypt');
 
 /**
  * 
@@ -11,22 +12,24 @@ const { validator } = require('../utils/manager.utils.js');
 async function loginUser(usuario) {
     let usuarioRetrieved;
     const INVALIDMESSAGE = 'Usuario o contraseña inválida';
+    
     validator(usuario.user, "el usuario");
     validator(usuario.pass, "la contraseña");
-    const usuarioLogin = Usuario(usuario.user, usuario.pass);
-    // Retrieve user
+
+    const usuarioLogin = Usuario(usuario.user, usuario.pass); 
     usuarioRetrieved = await retrieveUser(usuarioLogin);
 
-    if (!usuarioRetrieved) {
-        throw new Error(INVALIDMESSAGE);
-    }
+    if (!usuarioRetrieved) throw new Error(INVALIDMESSAGE);
 
-    // Create JWT
+    const passwordMatch = await bcrypt.compare(usuario.pass, usuarioRetrieved.contrasena);
+    if (!passwordMatch) throw new Error(INVALIDMESSAGE);
+
     const token = jwt.sign(
-        { id_user: usuarioRetrieved.id_user, username: usuarioRetrieved.usuario, id_rol: usuarioRetrieved.id_rol },
+        { username: usuarioRetrieved.usuario, id_rol: usuarioRetrieved.id_rol },
         config.JWT_SECRETO,
         { expiresIn: config.JWT_TIEMPO_EXPIRA }
     );
+    console.log(token);
     return {
         ok: true,
         status_cod: 200,
@@ -61,18 +64,11 @@ async function verifyJWT(token) {
     const decodificada = jwt.decode(token);
 
     // Regla de excepción de verificación de JWT para el entorno local
-    if (config.env === 'Dev') {
-        console.log(decodificada);
-        return { userInfo: decodificada };
-    }
-
+    if (config.env === 'Dev') return { userInfo: decodificada };
+    
     // Verificar que el JWT decodificado contenga id_user
-    if (!decodificada.id_user) {        
-        throw { message: 'El JWT es incorrecto'};
-    }
+    if (!decodificada.id_rol) throw { message: 'El JWT es incorrecto'}
 
-
-    // Verificar integridad del token
     try {
         // Verificar el token usando la clave secreta
         const verified = jwt.verify(token, config.JWT_SECRETO);

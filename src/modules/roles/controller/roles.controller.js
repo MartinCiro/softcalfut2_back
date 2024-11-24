@@ -46,10 +46,10 @@ async function modificarRoles(options) {
 }
 
 async function crearRoles(options) {
-  const { nombre, descripcion, id_permiso } = options;
+  const { nombre, descripcion, permisos } = options;
   generic.validar(nombre, "el nombre del permiso");
   generic.validar(descripcion, "la descripción");
-  generic.validar(id_permiso, "el id del permiso");
+  generic.validar(permisos, "ningun permiso");
 
   return generic.manejarOperacionGenerica(permisoUtils.insertarRoles, options, {
     mensajeError: "Ocurrió un error inesperado y el registro no ha sido creado",

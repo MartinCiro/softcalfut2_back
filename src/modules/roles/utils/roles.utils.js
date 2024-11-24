@@ -44,7 +44,8 @@ async function obtenerPermisosDelRol(id_rol) {
 *          fecha_ingreso: Date,
 *      }} ingreso
 */
-async function insertarRoles({ nombre, descripcion, id_permiso }) {
+async function insertarRoles(data) {
+  const { nombre, descripcion, permisos } = data;
   let id_rol = 0;
   try {
     const result = await generic.insertarDatos("rol", {
@@ -52,16 +53,16 @@ async function insertarRoles({ nombre, descripcion, id_permiso }) {
       descripcion,
       estado: 1,
     });
-    if (result > 0) id_rol = result
+    result > 0 ? id_rol = result : (() => { throw new Error('No se pudo crear el rol'); })();
+    const permisosList = permisos.split(',').map(Number).filter(Number);
 
-    const permisos = id_permiso.split(',').map(Number).filter(Number);
-    const insertPermisosPromises = permisos.map(id_permiso => {
-      return generic.insertarDatos("rolxpermiso", {
+    const insertPermisosPromises = permisosList.map(async (id_permiso) => {
+      console.log(`Insertando permiso ${id_permiso} para rol ${id_rol}`);
+      await generic.insertarDatos("rolxpermiso", {
         id_rol,
         id_permiso
       });
     });
-
     await Promise.all(insertPermisosPromises);
 
     return { result: "Rol y permisos insertados correctamente", ok: true, status_cod: 200 };
@@ -86,7 +87,7 @@ async function actualizaRoles(data) {
     .join(', ');
 
   const valores = columnasFiltradas.map(([_, value]) => value);
-  valores.push(id);  // Se agrega el id al final
+  valores.push(id); 
 
   const consulta = `
     UPDATE rol
@@ -111,7 +112,6 @@ async function actualizaRoles(data) {
       const permisosAAgregar = permisosNuevos.filter(p => !permisosActuales.includes(p));
       
       const permisosAEliminar = permisosActuales.filter(p => !permisosNuevos.includes(p));
-      console.log(permisosAEliminar);
 
       // 3. Eliminar permisos antiguos
       if (permisosAEliminar.length > 0) {
@@ -135,7 +135,6 @@ async function actualizaRoles(data) {
 
     return { result: "Rol y permisos actualizados correctamente", ok: true, status_cod: 200 };
   } catch (error) {
-    console.error("Error al actualizar el rol y permisos:", error.message);
     return {
       result: `Ocurrió un error al actualizar el rol y permisos: ${error.message}`,
       ok: false,
@@ -143,6 +142,7 @@ async function actualizaRoles(data) {
     };
   }
 }
+
 
 async function obtenerPermisosDelRol(id_rol) {
   const consulta = `

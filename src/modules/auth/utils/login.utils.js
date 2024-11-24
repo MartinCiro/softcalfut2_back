@@ -20,11 +20,10 @@ async function retrieveUser(usuario) {
     let queryWHERE;
     if (usuario.user) {
         params.push(usuario.user);
-        queryWHERE = 'WHERE LOWER(u.username) = LOWER($1)';
+        queryWHERE = 'WHERE LOWER(u.nom_user) = LOWER($1)';
     } else if (usuario.id_user) {
         params.push(usuario.id_user);
-        // Usamos el campo 'id' para buscar por ID
-        queryWHERE = 'WHERE u.id = $1';
+        queryWHERE = 'WHERE u.documento = $1';
     } else {
         throw {
             ok: false,
@@ -35,13 +34,13 @@ async function retrieveUser(usuario) {
     return pool
         .query(`
         SELECT 
-            u.id AS id_user, 
-            u.username AS usuario, 
-            u.pass AS contrasena, 
+            u.documento AS id_user,
+            u.nom_user AS usuario,
+            u.pass AS contrasena,
             u.nombres, 
-            u.apellidos,
-            u.id_rol AS id_rol
-        FROM users u
+            u.apellido,
+            u.id_rol
+        FROM usuario u
         ${queryWHERE}
         `, params)
         .then(data => {

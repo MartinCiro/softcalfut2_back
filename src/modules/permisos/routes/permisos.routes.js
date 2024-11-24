@@ -1,5 +1,4 @@
 const { Router } = require('express');
-const express = require('express');
 const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
@@ -19,10 +18,9 @@ const router = Router();
  *      }
  *  }
  */
-router.get('/permisos', listarPermisosAPI)
-
-router.post('/permisos', crearPermisosAPI)
-router.patch('/permisos', actualizarPermisosAPI)
-router.delete('/permisos', deletePermisosAPI)
+router.get('/permisos', isAuthenticatedMW, checkPermissions([1, 2]), listarPermisosAPI)
+router.post('/permisos', isAuthenticatedMW, checkPermissions([1, 2]), crearPermisosAPI)
+router.patch('/permisos', isAuthenticatedMW, checkPermissions([1, 2]), actualizarPermisosAPI)
+router.delete('/permisos', isAuthenticatedMW, checkPermissions([1, 2]), deletePermisosAPI)
 
 module.exports = router;

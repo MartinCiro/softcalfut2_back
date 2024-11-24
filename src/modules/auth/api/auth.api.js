@@ -1,7 +1,6 @@
 const { loginUser, verifyJWT } = require("../controller/login.controller");
 const ResponseBody = require('../../../shared/model/ResponseBody.model');
 const { createUser, listarUsuarios, modificarUsuario, listarPermisos, listarPermisoXUsuario, listarRoles } = require("../controller/manager.controller");
-const { Usuario } = require("../../auth/model/usuario");
 const config = require('../../../config.js');
 
 /**
@@ -17,16 +16,10 @@ const loginAPI = async (req, res) => {
         loginResponse = await loginUser({ user: username, pass: password });
         message = new ResponseBody(loginResponse.ok, loginResponse.status_cod, loginResponse.data);
     } catch (error) {
-        if (error.data) {
-            message = new ResponseBody(error.ok, error.status_cod, error.data);
-        } else {
-            console.log(error);
-            message = new ResponseBody(false, 500, { message: 'Ocurrió un error inesperado. Por favor inténtelo más tarde o comuníquese con el administrador' });
-        }
+        error.message === 'Usuario o contraseña inválida' ? message = new ResponseBody(false, 401, { message: 'Usuario o contraseña incorrectos' }) : message = new ResponseBody(false, 500, { message: 'Ocurrido un error inesperado. Por favor intente nuevamente o comuníquese con el administrador' });
     }
-
     return res.json(message);
-}
+};
 
 /**
  * Callback para el endpoint `/auth/create/user`
@@ -40,23 +33,14 @@ const loginAPI = async (req, res) => {
  * @param { Express.Response } res 
  */
 const createUserAPI = async (req, res) => {
-    const { user, pass, id_rol, status, nombres, apellidos } = req.body;
-    
+    const { username, passwd, id_rol, status, nombre, apellidos, numero_documento, correo, numero_contacto, fecha_nacimiento, info_p  } = req.body;
     let message, createUserResponse;
-
     try {
-        // Crear el usuario con la contraseña encriptada
-        createUserResponse = await createUser({ user, pass, status, id_rol, nombres, apellidos });
+        createUserResponse = await createUser({ username, passwd, id_rol, status, nombre, apellidos, numero_documento, correo, numero_contacto, fecha_nacimiento, info_p });
         message = new ResponseBody(createUserResponse.ok, createUserResponse.status_cod, createUserResponse.data);
     } catch (error) {
-        if (error.status_cod) {
-            message = new ResponseBody(error.ok, error.status_cod, error.data);
-        } else {
-            console.log(error);
-            message = new ResponseBody(false, 500, 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde.');
-        }
+        error.status_cod ? message = new ResponseBody(error.ok, error.status_cod, error.data) : message = new ResponseBody(false, 500, { message: 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde.' });
     }
-
     return res.json(message);
 }
 
@@ -78,34 +62,18 @@ const isAuthenticatedMW = async (req, res, next) => {
 
     const token = req.get("jwt") || req.get("Authorization");
 
-    if (!token) {
-        return res.json(
-            new ResponseBody(false, 403, { message: 'No se ha proporcionado token' })
-        );
-    }
+    if (!token) return res.json( new ResponseBody(false, 403, { message: 'No se ha proporcionado token' }) );
 
     // Este condicional valida que el jwt proporcionado
     // tenga formato de jwt y no sea una cadena cualquiera
-    if (!jwtRegex.test(token)) {
-        return res.json(
-            new ResponseBody(false, 403, { message: 'No se ha proporcionado un token válido' })
-        );
-    }
-
+    if (!jwtRegex.test(token))  return res.json( new ResponseBody(false, 403, { message: 'No se ha proporcionado un token válido' }) );
+    
     let verifyResponse;
 
-    // Verificar el JWT y obtener una respuesta para asignar a la variable req
     try {
-        
         verifyResponse = await verifyJWT(token);
-        
     } catch (error) {
-        console.log(error)
-        if (error.message) {
-            return res.json(new ResponseBody(false, 403, error));
-        } else {
-            return res.json(new ResponseBody(false, 500, { message: 'Ocurrió un error validando el token del cliente. Por favor intente más tarde' }));
-        }
+        return error.message ? res.json(new ResponseBody(false, 403, error)) : res.json(new ResponseBody(false, 500, { message: 'Ocurrió un error validando el token del cliente. Por favor intente más tarde' }));
     }
 
     /**
@@ -120,10 +88,7 @@ const isAuthenticatedMW = async (req, res, next) => {
     req.userData = verifyResponse.userInfo;
 
     // Asignación a los headers de la respuesta el nuevo token auto-regenerado
-    if (verifyResponse && verifyResponse.jwt) {
-        res.set('new_token', verifyResponse.jwt);
-    }
-
+    if (verifyResponse && verifyResponse.jwt) res.set('new_token', verifyResponse.jwt)
     next();
 }
 
@@ -166,23 +131,6 @@ const checkPermissions = (roles) => {
     }
 }
 
-const listarUsuariosAPI = async (req, res) => {
-    try {
-        const listarUsuarioResponse = await listarUsuarios();
-        message = new ResponseBody(true, 200, { usuarios: listarUsuarioResponse });
-    } catch (error) {
-        if (error.data) {
-            message = new ResponseBody(error.ok, error.status_cod, error.data);
-        } else {
-            console.log(error);
-            message = new ResponseBody(false, 500, { message: 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde' });
-        }
-    }
-
-    return res.json(message);
-}
-
-
 /**
  * 
  * @param {{body: {
@@ -199,72 +147,14 @@ const listarUsuariosAPI = async (req, res) => {
  * @returns 
  */
 const actualizarUsuarioAPI = async (req, res) => {
-    const { id, id_rol, estado, nombres, username, apellidos } = req.body;
+    const { username, id_rol, status, nombres, apellidos, numero_documento, correo, numero_contacto, fecha_nacimiento, info_p } = req.body;
 
     try {
-        const updateUsuarioResponse = await modificarUsuario({ id, id_rol, estado, nombres, username, apellidos });
+        const updateUsuarioResponse = await modificarUsuario({ username, id_rol, status, nombres, apellidos, numero_documento, correo, numero_contacto, fecha_nacimiento, info_p });
         message = new ResponseBody(true, 200, updateUsuarioResponse);
     } catch (error) {
-        if (error.status_cod) {
-            message = new ResponseBody(error.ok, error.status_cod, error.data);
-        } else {
-            console.log(error);
-            message = new ResponseBody(false, 500, { message: 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde.' });
-        }
+        error.status_cod ? message = new ResponseBody(error.ok, error.status_cod, error.data) : message = new ResponseBody(false, 500, { message: 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde.' });
     }
-
-    return res.json(message);
-}
-
-const listarPermisosAPI = async (req, res) => {
-
-    try {
-        const listarPermisosResponse = await listarPermisos();
-        message = new ResponseBody(true, 200, { permisos: listarPermisosResponse });
-    } catch (error) {
-        if (error.data) {
-            message = new ResponseBody(error.ok, error.status_cod, error.data);
-        } else {
-            console.log(error);
-            message = new ResponseBody(false, 500, { message: 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde' });
-        }
-    }
-
-    return res.json(message);
-}
-
-const listarPermisosXUsuarioAPI = async (req, res) => {
-    const { id_rol, id_usuario } = req.body;
-
-    try {
-        const listarPermisoXUsuarioResponse = await listarPermisoXUsuario(id_rol, id_usuario);
-        message = new ResponseBody(true, 200, { permisos: listarPermisoXUsuarioResponse });
-    } catch (error) {
-        if (error.data) {
-            message = new ResponseBody(error.ok, error.status_cod, error.data);
-        } else {
-            console.log(error);
-            message = new ResponseBody(false, 500, { message: 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde' });
-        }
-    }
-
-    return res.json(message);
-}
-
-const listarRolesAPI = async (req, res) => {
-
-    try {
-        const listarRolesResponse = await listarRoles();
-        message = new ResponseBody(true, 200, { roles: listarRolesResponse });
-    } catch (error) {
-        if (error.data) {
-            message = new ResponseBody(error.ok, error.status_cod, error.data);
-        } else {
-            console.log(error);
-            message = new ResponseBody(false, 500, { message: 'Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde' });
-        }
-    }
-
     return res.json(message);
 }
 
@@ -273,9 +163,5 @@ module.exports = {
     createUserAPI,
     isAuthenticatedMW,
     checkPermissions,
-    listarUsuariosAPI,
-    actualizarUsuarioAPI,
-    listarPermisosAPI,
-    listarPermisosXUsuarioAPI,
-    listarRolesAPI
+    actualizarUsuarioAPI
 }

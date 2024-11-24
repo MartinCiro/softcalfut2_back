@@ -22,15 +22,12 @@ const manejarOperacionGenerica = async (operacion, parametros, opciones = {}) =>
   let result;
 
   try {
+    console.log(operacion);
     const resultado = await operacion(parametros);
     result = new ResponseBody(true, 200, mensajeExito || resultado);
   } catch (error) {
     console.log(error);
-    if (error instanceof ResponseBody) {
-      result = error; 
-    } else {
-      result = new ResponseBody(false, 500, mensajeError || "Ha ocurrido un error inesperado.");
-    }
+    error instanceof ResponseBody ? result = error : result = new ResponseBody(false, 500, mensajeError || "Ha ocurrido un error inesperado.");
   }
   return result;
 };
@@ -77,6 +74,7 @@ async function insertarDatos(tabla, datos) {
     return retorno === 'id' ? data.rows[0].id : data.rows[0];
 
   } catch (error) {
+    console.log(error);
     const responseError = existe(error);
     throw responseError;
   } finally {
