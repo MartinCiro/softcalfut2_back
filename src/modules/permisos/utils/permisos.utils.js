@@ -74,7 +74,6 @@ async function actualizaPermiso(data) {
 
 
 async function deletePermisos(dato) {
-  const pool = await getConnection();
   const params = [dato.id];
   query = `delete from permiso where id=$1`;
   
