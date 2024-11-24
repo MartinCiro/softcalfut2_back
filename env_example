@@ -1,0 +1,22 @@
+# Puerto
+PORT = 4000
+
+#DB env example
+UserDB = postgres
+PasswordDB = ciro
+ServerDB = localhost
+Database = softcalfut_psql
+PortDB = 5432  
+
+# Config serve
+env = Dev
+
+# Secreto de JWT
+JWT_SECRETO = Your_Token_Secret
+
+# Tiempo en el que expira el token
+JWT_TIEMPO_EXPIRA = 1h
+
+# Parámetro de semilla del JWT
+JWT_SALT = 8
+
