@@ -1,6 +1,6 @@
 const { loginUser, verifyJWT } = require("../controller/login.controller");
 const ResponseBody = require('../../../shared/model/ResponseBody.model');
-const { createUser, listarUsuarios, modificarUsuario, listarPermisos, listarPermisoXUsuario, listarRoles } = require("../controller/manager.controller");
+const { createUser, modificarUsuario } = require("../controller/manager.controller");
 const config = require('../../../config.js');
 
 /**
@@ -160,8 +160,8 @@ const actualizarUsuarioAPI = async (req, res) => {
 
 module.exports = {
     loginAPI,
-    createUserAPI,
     isAuthenticatedMW,
     checkPermissions,
+    createUserAPI,
     actualizarUsuarioAPI
 }

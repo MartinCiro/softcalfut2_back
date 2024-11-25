@@ -5,7 +5,7 @@ const manejarOperacion = async (req, res, nomFuncion, datos, opciones = {}) => {
   let result;
   try {
     const resultado = await nomFuncion(datos);
-    result = new ResponseBody(true, 200, resultado);
+    resultado instanceof ResponseBody ? result = resultado : result = new ResponseBody(true, 200, resultado);
   } catch (error) {
     result = new ResponseBody(
       error.ok || false,
@@ -22,24 +22,27 @@ const manejarOperacionGenerica = async (operacion, parametros, opciones = {}) =>
   let result;
 
   try {
-    console.log(operacion);
     const resultado = await operacion(parametros);
     result = new ResponseBody(true, 200, mensajeExito || resultado);
   } catch (error) {
-    console.log(error);
-    error instanceof ResponseBody ? result = error : result = new ResponseBody(false, 500, mensajeError || "Ha ocurrido un error inesperado.");
+    existe(error);
+    result = new ResponseBody(
+      error.ok || false,
+      error.status_cod || 500,
+      error.data || opciones.mensajeError || "Ha ocurrido un error inesperado. Intenta de nuevo más tarde."
+    );
   }
   return result;
 };
-
 
 async function ejecutarConsulta(query, params = [], mensajeError, mensajeExito) {
   const pool = await getConnection();
 
   try {
     const result = await pool.query(query, params);
-    return new ResponseBody(true, 200, result.rowCount > 0 ? result.rows : null || "Operación realizada correctamente.")
+    return new ResponseBody(true, 200, result.rowCount > 0 || result.fields.length > 0 ? result.rows || result.fields : mensajeExito || "Operación realizada correctamente.");
   } catch (error) {
+    console.log(error);
     existe(error);
     throw new ResponseBody(false, 500, mensajeError || "Ha ocurrido un error inesperado en la base de datos.")
   } finally {
@@ -67,16 +70,15 @@ async function insertarDatos(tabla, datos) {
       query += ' RETURNING id';
       retorno = 'id';
     } else {
-      query += ' RETURNING *';  
-      retorno = '*';  
+      query += ' RETURNING *';
+      retorno = '*';
     }
     const data = await pool.query(query, valores);
     return retorno === 'id' ? data.rows[0].id : data.rows[0];
 
   } catch (error) {
-    console.log(error);
-    const responseError = existe(error);
-    throw responseError;
+    existe(error);
+    throw new ResponseBody(false, 500, "Ha ocurrido un error inesperado en la base de datos.")
   } finally {
     pool.end();
   }
@@ -89,38 +91,21 @@ const existe = (error, datos = null) => {
     uniqueViolation: (field) => `El valor del ${field} ya está guardado`,
     notNullViolation: (field) => `El campo ${field} no puede ser nulo`,
   };
+
   const field = (datos && datos.length > 0 && datos[0] !== undefined) ? datos[0] : "registro";
-  if (error.code == "23505")
-    throw {
-      result: errorMessages.duplicateEntry(field),
-      ok: false,
-      status_cod: 400
-    };
 
-  if (error.code == "23503")
-    throw {
-      result: errorMessages.foreignKeyViolation(field),
+  if (error.code == "23505") 
+   console.log()
+    return {
       ok: false,
-      status_cod: 400
+      status_cod: 409,
+      data: errorMessages.duplicateEntry(field)
     };
-
-  if (error.code == "23502")
-    throw {
-      result: errorMessages.notNullViolation(field),
-      ok: false,
-      status_cod: 400
-    };
-
-  throw {
-    result: "Ha ocurrido un error inesperado en la base de datos.",
-    ok: false,
-    status_cod: 500
-  };
 };
 
 
 const validar = (valor, nombre) => {
-  if (!valor) throw new ResponseBody(false, 400, `No se ha proporcionado ${nombre}`); 
+  if (!valor) throw new ResponseBody(false, 400, `No se ha proporcionado ${nombre}`);
 };
 
 module.exports = {
