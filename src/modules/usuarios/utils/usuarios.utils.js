@@ -1,38 +1,26 @@
 const generic = require("../../generic.js");
 
 async function getUsuario(options) {
-  let query = `SELECT
-                  usuario.documento,
-                  usuario.nombres,
-                  usuario.apellido,
-                  usuario.email,
-                  usuario.info_perfil,
-                  usuario.fecha_usuario_registro,
-                  usuario.num_contacto,
-                  usuario.nom_user,
-                  usuario.estado,
-                  usuario.id_rol,
-                  usuario.fecha_nacimiento,
-                  rol.id AS rol_id,
-                  rol.nombre AS rol_nombre,
-                  STRING_AGG(permiso.nombre, ', ') AS permiso_nombre
-              FROM usuario
-              LEFT JOIN rol ON usuario.id_rol = rol.id
-              LEFT JOIN rolxpermiso ON rolxpermiso.id_rol = rol.id
-              LEFT JOIN permiso ON rolxpermiso.id_permiso = permiso.id
-              GROUP BY usuario.documento, 
-                      usuario.nombres,
-                      usuario.apellido,
-                      usuario.email,
-                      usuario.info_perfil,
-                      usuario.fecha_usuario_registro,
-                      usuario.num_contacto,
-                      usuario.nom_user,
-                      usuario.estado,
-                      usuario.id_rol,
-                      usuario.fecha_nacimiento,
-                      rol.id, 
-                      rol.nombre;
+  let query = `
+        SELECT
+            equipo.nom_equipo,
+            usuario.documento,
+            usuario.nombres,
+            usuario.apellido,
+            usuario.num_contacto,
+            usuario.estado,
+            usuario.fecha_nacimiento,
+            rol.id AS rol_id,
+            rol.nombre AS rol_nombre,
+            STRING_AGG(permiso.nombre, ', ') AS permiso_nombre  -- Concatenamos los permisos en una sola cadena
+        FROM equipo
+        LEFT JOIN usuario ON equipo.documento = usuario.documento
+        LEFT JOIN rol ON usuario.id_rol = rol.id  -- Relación entre usuario y rol
+        LEFT JOIN rolxpermiso ON rol.id = rolxpermiso.id_rol  -- Relación entre rol y permisos
+        LEFT JOIN permiso ON rolxpermiso.id_permiso = permiso.id  -- Relación entre permisos y rolxpermiso
+        GROUP BY equipo.nom_equipo, usuario.documento, usuario.nombres, usuario.apellido, usuario.num_contacto, 
+                usuario.estado, usuario.fecha_nacimiento, rol.id, rol.nombre
+        ORDER BY equipo.nom_equipo, usuario.apellido, usuario.nombres;
   `;
   const queryParams = [];
 

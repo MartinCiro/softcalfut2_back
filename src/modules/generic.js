@@ -17,6 +17,7 @@ const manejarOperacion = async (req, res, nomFuncion, datos, opciones = {}) => {
   return res.json(result);
 };
 
+
 const manejarOperacionGenerica = async (operacion, parametros, opciones = {}) => {
   const { mensajeError, mensajeExito } = opciones;
   let result;
@@ -103,9 +104,9 @@ const existe = (error, datos = null) => {
     };
 };
 
-
 const validar = (valor, nombre) => {
-  if (!valor) throw new ResponseBody(false, 400, `No se ha proporcionado ${nombre}`);
+  if (typeof(valor) === "undefined" || !valor || valor.length === 0) 
+  return new ResponseBody(false, 400, `No se ha proporcionado ${nombre}`);
 };
 
 module.exports = {

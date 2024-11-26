@@ -18,9 +18,9 @@ const router = Router();
  *      }
  *  }
  */
-router.get('/usuarios',  checkPermissions([1, 2]), listarUsuariosAPI)
+router.get('/usuarios', isAuthenticatedMW, checkPermissions([1, 2]), listarUsuariosAPI)
 router.post('/usuarios', isAuthenticatedMW, checkPermissions([1, 2, 3]), crearUsuariosAPI)
-router.patch('/usuarios',  actualizarUsuariosAPI)
+router.patch('/usuarios',  isAuthenticatedMW, checkPermissions([1]), actualizarUsuariosAPI)
 router.delete('/usuarios', isAuthenticatedMW, checkPermissions([1]), deleteUsuariosAPI)
 
 module.exports = router;
