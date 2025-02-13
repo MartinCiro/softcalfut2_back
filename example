@@ -1,0 +1,20 @@
+#DB env example
+UserDB = user
+PasswordDB = pass
+ServerDB = host
+Database = bd
+PortDB = port  
+
+# Config serve
+env = type entor
+PORT = port or default 4000
+
+# Secreto de JWT PARA DESARROLLO (EJEMPLO)
+JWT_SECRETO = Your_Token_Secret
+
+# Tiempo en el que expira el token
+JWT_TIEMPO_EXPIRA = 1h
+
+# Parámetro de semilla del JWT
+JWT_SALT = 8
+
