@@ -12,6 +12,8 @@ interface EstadoDataXid {
   id_estado: string | number;
 }
 
+interface EstadoDataConId extends Partial<EstadoData>, EstadoDataXid {}
+
 class EstadoService {
   private estadoPort: EstadoPort;
 
@@ -28,12 +30,16 @@ class EstadoService {
     return await this.estadoPort.obtenerEstados();
   }
 
-  async obtenerEstadoXid(EstadoDataId: EstadoDataXid) {
-    return await this.estadoPort.obtenerEstadosXid(EstadoDataId);
+  async obtenerEstadoXid(estadoDataId: EstadoDataXid) {
+    return await this.estadoPort.obtenerEstadosXid(estadoDataId);
   }
 
-  async delEstado(EstadoDataId: EstadoDataXid) {
-    return await this.estadoPort.delEstado(EstadoDataId);
+  async delEstado(estadoDataId: EstadoDataXid) {
+    return await this.estadoPort.delEstado(estadoDataId);
+  }
+
+  async upEstado(estadoDataId: EstadoDataConId) {
+    return await this.estadoPort.actualizaEstado(estadoDataId);
   }
   
 }

@@ -60,3 +60,25 @@ export const delEstadoController = async (req: Request, res: Response): Promise<
     }
   }
 };
+
+export const upEstadoController = async (req: Request, res: Response): Promise<void> => {
+  const { id_estado, nombre, descripcion } = req.body;
+
+  if (!validarBlank(id_estado, "identificar de estado", res)) return;
+  if (!nombre && !descripcion) {
+    res.status(400).json(new ResponseBody(false, 400, "Debe proporcionar al menos un campo: nombre o descripción"));
+    return;
+  }
+
+  try {
+    const estado = await estadoService.upEstado({ id_estado, descripcion, nombre });
+    res.status(201).json(new ResponseBody(true, 201, "Se ha actualizado el estado exitosamente"));
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "status_cod" in error) {
+      const err = error as { ok: boolean; status_cod: number; data: any };
+      res.status(err.status_cod).json(new ResponseBody(err.ok, err.status_cod, err.data));
+    } else {
+      res.status(500).json(new ResponseBody(false, 500, "Error interno del servidor"));
+    }
+  }
+};
