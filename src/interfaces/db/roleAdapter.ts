@@ -7,7 +7,7 @@ class RoleAdapter implements RolePort {
   private pool: Pool;
 
   constructor() {
-    this.pool = getConnection(); // Usamos la conexión a la base de datos
+    this.pool = getConnection(); 
   }
 
   // Implementación del método para crear un rol
@@ -21,8 +21,7 @@ class RoleAdapter implements RolePort {
       client.release();
     }
   }
-
-  // Implementación del método para obtener los roles
+  
   async obtenerRoles() {
     const client = await this.pool.connect();
     try {
