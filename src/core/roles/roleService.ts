@@ -2,13 +2,19 @@
 import RolePort from './rolePort';
 import RoleAdapter from '../../interfaces/db/roleAdapter';
 
-
-interface RoleData {
+interface RolData {
   nombre: string;
   descripcion: string;
+  estado?: number;
 }
 
-class RoleService {
+interface RolDataXid {
+  id_rol: string | number;
+}
+
+interface RolDataConId extends Partial<RolData>, RolDataXid {}
+
+class RolService {
   private rolePort: RolePort;
 
   constructor(rolePort: RolePort) {
@@ -16,14 +22,26 @@ class RoleService {
   }
 
   // Lógica de negocio para crear un rol
-  async crearRol(roleData: RoleData) {
-    return await this.rolePort.crearRol(roleData);
+  async crearRol(rolData: RolData) {
+    return await this.rolePort.crearRol(rolData);
   }
 
-  async obtenerRoles() {
-    return await this.rolePort.obtenerRoles();
+  async obtenerRol() {
+    return await this.rolePort.obtenerRol();
+  }
+
+  async obtenerRolXid(rolDataId: RolDataXid) {
+    return await this.rolePort.obtenerRolXid(rolDataId);
+  }
+
+  async delRol(rolDataId: RolDataXid) {
+    return await this.rolePort.delRol(rolDataId);
+  }
+
+  async upRol(rolDataId: RolDataConId) {
+    return await this.rolePort.actualizaRol(rolDataId);
   }
 }
 
-const roleService = new RoleService(new RoleAdapter());
-export default RoleService;
+const roleService = new RolService(new RoleAdapter());
+export default RolService;

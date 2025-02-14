@@ -26,7 +26,17 @@ export const validarNumber = (valor: any, nombre: string, res: Response): boolea
 };
 
 //metodos para validar si existe y otros
-export const validarExistente = (valor: string, nombre: string): { ok: boolean, result?: string } => {
-  if (valor === '23505') return { ok: false, result: `${nombre} ya existe en la base de datos` }
+export const validarExistente = (valor: string, nombre: string): { ok: boolean, data?: string } => {
+  if (valor === '23505') return { ok: false, data: `${nombre} ya existe en la base de datos` }
   return { ok: true };
 };
+
+export const validarNoExistente = (valor: string, nombre: string | number) => {
+  if (valor === '23503') return {
+      ok: false,
+      status_cod: 400,
+      data: `${nombre} no existe en la base de datos`
+    };
+  return { ok: true };
+};
+

@@ -26,7 +26,6 @@ export const crearEstadoController = async (req: Request, res: Response): Promis
   }
 };
 
-
 export const obtenerEstadosController = async (req: Request, res: Response): Promise<void> => {
   const { id_estado } = req.body;
 

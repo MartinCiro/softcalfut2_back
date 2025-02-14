@@ -26,7 +26,7 @@ class EstadosAdapter implements EstadosPort {
         throw {
           ok: validacion.ok,
           status_cod: 409,
-          data: validacion.result,
+          data: validacion.data,
         };
       }
       throw {
@@ -103,15 +103,14 @@ class EstadosAdapter implements EstadosPort {
   }
 
   
-  async actualizaEstado(EstadoDataXid: { id_estado: string | number; nombre?: string; descripcion?: string; }) {
-    const { id_estado } = EstadoDataXid;
-    console.log(EstadoDataXid);
+  async actualizaEstado(estadoDataXid: { id_estado: string | number; nombre?: string; descripcion?: string; }) {
+    const { id_estado } = estadoDataXid;
     const client = await this.pool.connect();
 
     // Definir las columnas posibles y sus valores
     const columnas: Record<string, any> = {
-      nombre: EstadoDataXid.nombre,
-      descripcion: EstadoDataXid.descripcion
+      nombre: estadoDataXid.nombre,
+      descripcion: estadoDataXid.descripcion
     };
   
     const columnasFiltradas = Object.entries(columnas).filter(([key, value]) => value !== undefined);
