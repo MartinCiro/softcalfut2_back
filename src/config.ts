@@ -18,5 +18,5 @@ export default {
   // Auth
   JWT_SECRETO: process.env.JWT_SECRETO,
   SALT: process.env.JWT_SALT,
-  JWT_TIEMPO_EXPIRA: process.env.JWT_TIEMPO_EXPIRA || '1h',
+  JWT_TIEMPO_EXPIRA: process.env.JWT_TIEMPO_EXPIRA || 3600 || "1h",
 };
