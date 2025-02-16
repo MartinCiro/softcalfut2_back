@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyJWT } from '../../../core/auth/service/jwtService';
 import { ResponseBody } from '../../../interfaces/api/models/ResponseBody';
-import config from '../../../config'; // Asegúrate de tener un archivo de configuración
+import config from '../../../config';
 
 
 const jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;

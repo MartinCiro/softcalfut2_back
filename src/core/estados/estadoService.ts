@@ -1,4 +1,3 @@
-// src/core/estados/estadoService.ts
 import EstadoPort from './estadoPort';
 import EstadoAdapter from '../../interfaces/db/estadoAdapter';
 
