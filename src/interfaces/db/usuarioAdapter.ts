@@ -1,12 +1,13 @@
-// src/interfaces/db/usuarioAdapter.ts
 import UsuariosPort from '../../core/usuarios/usuarioPort';
 import { Usuario } from '../../core/auth/entities/Usuario';
 import { PrismaClient } from '@prisma/client';
 import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
+import { Injectable } from '@nestjs/common';
 
 const prisma = new PrismaClient();
 
-class UsuariosAdapter implements UsuariosPort {
+@Injectable()
+export default class UsuariosAdapter implements UsuariosPort {
 
   // Implementación del método para crear un usuario
   async crearUsuarios(usuarioData: { nombres: string; email: string; pass: string; id_rol: number | string }) {
@@ -68,6 +69,7 @@ class UsuariosAdapter implements UsuariosPort {
   }
 
   async obtenerUsuarios() {
+    console.log("📡 Buscando usuarios...");
     try {
       const usuarios = await prisma.usuario.findMany({
         select: {
@@ -211,4 +213,3 @@ class UsuariosAdapter implements UsuariosPort {
   }
 }
 
-export default UsuariosAdapter;

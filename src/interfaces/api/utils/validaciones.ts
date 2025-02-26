@@ -1,28 +1,12 @@
-import { Response } from 'express';
+
 import { ResponseBody } from '../models/ResponseBody';  
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpStatus } from '@nestjs/common/enums/http-status.enum';
 
-export const validarBlank = (valor: any, nombre: string, res: Response): boolean => {
+export const validarBlank = (valor: any, nombre: string): void => {
   if (!valor) {
-    res.status(400).json(new ResponseBody(false, 400, `No se ha proporcionado ${nombre}`));
-    return false;
+    throw new HttpException(`No se ha proporcionado ${nombre}`, HttpStatus.BAD_REQUEST);
   }
-  return true;
-};
-
-export const validarString = (valor: any, nombre: string, res: Response): boolean => {
-  if (typeof valor !== 'string') {
-    res.status(400).json(new ResponseBody(false, 400, `${nombre} debe ser de tipo string`));
-    return false;
-  }
-  return true;
-};
-
-export const validarNumber = (valor: any, nombre: string, res: Response): boolean => {
-  if (typeof valor !== 'number') {
-    res.status(400).json(new ResponseBody(false, 400, `${nombre} debe ser de tipo number`));
-    return false;
-  }
-  return true;
 };
 
 //metodos para validar si existe y otros
