@@ -4,7 +4,7 @@ export class Usuario {
     private encryptedPassword: string;
 
     constructor(
-        public readonly documento: string | number,
+        public readonly email: string,
         password: string,
         public readonly id_rol?: number,
         public readonly status?: number

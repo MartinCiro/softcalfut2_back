@@ -1,5 +1,5 @@
 interface AuthPort {
-    retrieveUser(authData: { documento: number | string; }): Promise<any>;
+    retrieveUser(authData: { email: string; }): Promise<any>;
 }
 
 export default AuthPort;

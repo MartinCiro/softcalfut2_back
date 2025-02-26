@@ -1,121 +1,115 @@
-// src/interfaces/db/rolXpermisoAdapter.ts
-import { Pool } from 'pg';
+import { PrismaClient } from '@prisma/client';
 import RolxPermisosPort from '../../core/rolXpermisos/rolXpermisoPort';
-import getConnection from '../DBConn';
 import { validarExistente } from '../api/utils/validaciones';
 
+const prisma = new PrismaClient();
 
 class RolxPermisosAdapter implements RolxPermisosPort {
-  private pool: Pool;
-
-  constructor() {
-    this.pool = getConnection();
-  }
 
   async crearRolxPermisos(rolXpermisoData: { id_rol: string | number; id_permiso: Array<string | number> }) {
-    const client = await this.pool.connect();
-
     try {
-      await client.query(
-        `DELETE FROM rolXpermiso WHERE id_rol = $1`,
-        [rolXpermisoData.id_rol]
-      );
+      const { id_rol, id_permiso } = rolXpermisoData;
 
-      // Crear un array de promesas para cada inserción
-      const queries = rolXpermisoData.id_permiso.map((permiso) => {
-        return client.query(
-          `INSERT INTO rolXpermiso (id_rol, id_permiso) VALUES ($1, $2)`,
-          [rolXpermisoData.id_rol, permiso]
-        );
+      await prisma.rolXPermiso.deleteMany({
+        where: { id_rol: Number(id_rol) },
       });
 
-      const results = await Promise.all(queries);
+      // Inserta nuevos permisos para el rol
+      const nuevosPermisos = await prisma.rolXPermiso.createMany({
+        data: id_permiso.map((permiso) => ({
+          id_rol: Number(id_rol),
+          id_permiso: Number(permiso),
+        })),
+        skipDuplicates: true,
+      });
 
-      return results.map(result => result.rows[0]);
+      return { ok: true, status_cod: 200, data: `Se insertaron ${nuevosPermisos.count} permisos` };
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error en crearRolxPermisos:", error);
-
-      if (typeof error === "object" && error !== null && "code" in error) {
-        const validacion = validarExistente((error as any).code, rolXpermisoData.id_rol.toString());
-
-        if (!validacion.ok) {
-          throw {
-            ok: validacion.ok,
-            status_cod: 409,
-            data: validacion.data,
-          };
-        }
-      }
 
       throw {
         ok: false,
         status_cod: 400,
-        data: "Ocurrió un error insertando en rolXpermiso",
+        data: error.message || "Ocurrió un error insertando en rolXpermiso",
       };
-    } finally {
-      client.release();
     }
   }
 
   async obtenerRolxPermisos() {
-    const client = await this.pool.connect();
-    return client
-      .query(`
-      SELECT 
-          r.nombre AS nombre_rol,
-          STRING_AGG(p.nombre, ', ' ORDER BY p.nombre) AS permisos
-      FROM rol r
-      JOIN rolxpermiso rp ON r.id = rp.id_rol
-      JOIN permiso p ON rp.id_permiso = p.id
-      GROUP BY r.nombre
-      `)
-      .then((data) => {
-        if (data && data.rowCount && data.rowCount > 0) return data.rows;
-        throw {
-          data: "No se encontraron datos",
-        };
-      })
-      .catch((error) => {
-        throw {
-          ok: false,
-          status_cod: error.status_cod || 400,
-          data: error.data || "Ocurrió un error consultando el rolXpermiso",
-        };
-      })
-      .finally(() => client.release());
+    try {
+      const rolesConPermisos = await prisma.rol.findMany({
+        select: {
+          nombre: true,
+          rolXPermiso: {
+            select: {
+              permiso: {
+                select: { nombre: true }
+              }
+            }
+          }
+        }
+      });
+
+      // Formatear la respuesta para agrupar los permisos en una cadena
+      const resultado = rolesConPermisos.map(rol => ({
+        nombre_rol: rol.nombre,
+        permisos: rol.rolXPermiso.map(rp => rp.permiso.nombre).join(', ')
+      }));
+
+      if (resultado.length > 0) {
+        return resultado;
+      } else {
+        throw { data: "No se encontraron datos" };
+      }
+    } catch (error: any) {
+      throw {
+        ok: false,
+        status_cod: error.status_cod || 400,
+        data: error.message || "Ocurrió un error consultando el rolXpermiso",
+      };
+    }
   }
 
-  async obtenerRolxPermisosXid(rolXpermisoDataXid: { id_rol: string | number; }) {
-    const client = await this.pool.connect();
-    return client
-      .query(`
-        SELECT 
-            r.nombre AS nombre_rol,
-            STRING_AGG(p.nombre, ', ' ORDER BY p.nombre) AS permisos
-        FROM rol r
-        JOIN rolxpermiso rp ON r.id = rp.id_rol
-        JOIN permiso p ON rp.id_permiso = p.id
-        where rp.id_rol = $1
-        GROUP BY r.nombre`,
-        [rolXpermisoDataXid.id_rol])
-      .then((data) => {
-        if (data && data.rowCount && data.rowCount > 0) return data.rows[0];
+
+  async obtenerRolxPermisosXid(rolXpermisoDataXid: { id_rol: string | number }) {
+    try {
+      const rolConPermisos = await prisma.rol.findUnique({
+        where: { id: Number(rolXpermisoDataXid.id_rol) },
+        select: {
+          nombre: true,
+          rolXPermiso: {
+            select: {
+              permiso: {
+                select: { nombre: true }
+              }
+            }
+          }
+        }
+      });
+
+      if (!rolConPermisos || rolConPermisos.rolXPermiso.length === 0) {
         throw {
           ok: false,
           status_cod: 409,
-          data: "Este rol no tiene permisos asignados", 
+          data: "Este rol no tiene permisos asignados"
         };
-      })
-      .catch((error) => {
-        throw {
-          ok: false,
-          status_cod: error.status_cod || 400,
-          data: error.data || "Ocurrió un error consultando el rolXpermiso",
-        };
-      })
-      .finally(() => client.release());
+      }
+
+      return {
+        nombre_rol: rolConPermisos.nombre,
+        permisos: rolConPermisos.rolXPermiso.map(rp => rp.permiso.nombre).join(', ')
+      };
+
+    } catch (error: any) {
+      throw {
+        ok: false,
+        status_cod: error.status_cod || 400,
+        data: error.message || "Ocurrió un error consultando el rolXpermiso",
+      };
+    }
   }
+
 }
 
 export default RolxPermisosAdapter;

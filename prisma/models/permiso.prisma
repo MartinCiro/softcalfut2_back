@@ -1,0 +1,7 @@
+model Permiso {
+  id          Int     @id @default(autoincrement())  
+  nombre      String  @unique  
+  descripcion String? 
+
+  rolXPermiso RolXPermiso[]
+}

@@ -9,11 +9,11 @@ const authService = new AuthService(new AuthAdapter());
 
 
 export const loginAPI = async (req: Request, res: Response): Promise<void> => {
-  const { documento, enpass: password } = req.body;
-  if (!validarBlank(documento, "el identificador de usuario", res)) return;
+  const { email, enpass: password } = req.body;
+  if (!validarBlank(email, "el identificador de usuario", res)) return;
   if (!validarBlank(password, "contraseña", res)) return;
   
-  const user = new Usuario(documento, password);
+  const user = new Usuario(email, password);
     
   try {
     const auth = await authService.loginUser(user);

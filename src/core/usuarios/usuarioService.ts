@@ -3,20 +3,15 @@ import UsuariosAdapter from '../../interfaces/db/usuarioAdapter';
 
 
 interface UsuarioData {
-  documento: number | string; 
-  nombres: string; 
-  apellido: string; 
-  email: string; 
-  info_perfil?: string; 
-  num_contacto: string; 
+  nombres: string;
+  email: string;
   pass: string; 
   estado: number | string; 
   id_rol: number | string; 
-  fecha_nacimiento: Date;
 }
 
 interface UsuarioDataXid {
-  documento: number | string;
+  email: string;
 }
 
 class UsuarioService {

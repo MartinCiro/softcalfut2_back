@@ -10,18 +10,11 @@ const permisoService = new PermisoService(new PermisosAdapter());
 export const crearPermisoController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { nombre, descripcion } = req.body;
-    let { estado } = req.body;
 
     if (!validarBlank(nombre, "nombre", res)) return;
     if (!validarBlank(descripcion, "descripción", res)) return;
 
-    estado = estado ?? 1;
-    if (estado !== 1 && estado !== 2) {
-      res.status(400).json(new ResponseBody(false, 400, "El estado debe ser 1 o 2"));
-      return
-    }
-
-    const permiso = await permisoService.crearPermisos({ nombre, descripcion, estado });
+    const permiso = await permisoService.crearPermisos({ nombre, descripcion });
     res.status(201).json(new ResponseBody(permiso.ok, permiso.status_cod, "Se ha creado el permiso exitosamente"));
 
   } catch (error) {
@@ -74,16 +67,16 @@ export const delPermisoController = async (req: Request, res: Response): Promise
 };
 
 export const upPermisoController = async (req: Request, res: Response): Promise<void> => {
-  const { id_permiso, nombre, descripcion, estado } = req.body;
+  const { id_permiso, nombre, descripcion } = req.body;
 
   if (!validarBlank(id_permiso, "identificar de permiso", res)) return;
-  if (!nombre && !descripcion && !estado) {
+  if (!nombre && !descripcion) {
     res.status(400).json(new ResponseBody(false, 400, "Debe proporcionar al menos un campo: nombre o descripción"));
     return;
   }
 
   try {
-    const permiso = await permisoService.upPermiso({ id_permiso, descripcion, nombre, estado });
+    const permiso = await permisoService.upPermiso({ id_permiso, descripcion, nombre });
     res.status(201).json(new ResponseBody(true, 201, "Se ha actualizado el permiso exitosamente"));
   } catch (error) {
     if (typeof error === "object" && error !== null && "status_cod" in error) {

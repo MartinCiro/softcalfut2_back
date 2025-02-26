@@ -1,9 +1,9 @@
 // src/modules/roles/controllers/roleController.ts
 
 import { Request, Response } from 'express';
-import RoleService from '../roleService'; 
+import RoleService from '../roleService';
 
-import RoleAdapter from '../../../interfaces/db/roleAdapter'; 
+import RoleAdapter from '../../../interfaces/db/roleAdapter';
 
 import { ResponseBody } from '../../../interfaces/api/models/ResponseBody';
 import { validarBlank } from '../../../interfaces/api/utils/validaciones';
@@ -14,14 +14,12 @@ const roleService = new RoleService(new RoleAdapter());
 // Controlador para crear un rol
 export const crearRolController = async (req: Request, res: Response): Promise<void> => {
   const { nombre, descripcion } = req.body;
-  let { estado } = req.body
 
   if (!validarBlank(nombre, "nombre", res)) return;
   if (!validarBlank(descripcion, "descripción", res)) return;
-  estado = estado ?? 1;
 
   try {
-    const rols = await roleService.crearRol({ nombre, descripcion, estado });
+    const rols = await roleService.crearRol({ nombre, descripcion });
     res.status(201).json(new ResponseBody(true, 201, "Se ha creado el rol exitosamente"));
   } catch (error) {
     if (typeof error === "object" && error !== null && "status_cod" in error) {
@@ -69,16 +67,16 @@ export const delRolController = async (req: Request, res: Response): Promise<voi
 };
 
 export const upRolController = async (req: Request, res: Response): Promise<void> => {
-  const { id_rol, nombre, descripcion, estado } = req.body;
+  const { id_rol, nombre, descripcion } = req.body;
 
   if (!validarBlank(id_rol, "identificar de rol", res)) return;
-  if (!nombre && !descripcion && !estado) {
+  if (!nombre && !descripcion) {
     res.status(400).json(new ResponseBody(false, 400, "Debe proporcionar al menos un campo: nombre o descripción"));
     return;
   }
 
   try {
-    const rol = await roleService.upRol({ id_rol, descripcion, nombre, estado });
+    const rol = await roleService.upRol({ id_rol, descripcion, nombre });
     res.status(201).json(new ResponseBody(true, 201, "Se ha actualizado el rol exitosamente"));
   } catch (error) {
     if (typeof error === "object" && error !== null && "status_cod" in error) {

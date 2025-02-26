@@ -5,14 +5,13 @@ import RoleAdapter from '../../interfaces/db/roleAdapter';
 interface RolData {
   nombre: string;
   descripcion: string;
-  estado?: number;
 }
 
 interface RolDataXid {
   id_rol: string | number;
 }
 
-interface RolDataConId extends Partial<RolData>, RolDataXid {}
+interface RolDataConId extends Partial<RolData>, RolDataXid { }
 
 class RolService {
   private rolePort: RolePort;

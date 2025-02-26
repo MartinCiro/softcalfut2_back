@@ -1,0 +1,8 @@
+model Rol {
+  id          Int     @id @default(autoincrement())  
+  nombre      String  @unique  
+  descripcion String?
+
+  usuarios    Usuario[]       
+  rolXPermiso RolXPermiso[]
+}

@@ -15,7 +15,7 @@ export const crearEstadoController = async (req: Request, res: Response): Promis
 
   try {
     const estado = await estadoService.crearEstados({ nombre, descripcion });
-    res.status(201).json(new ResponseBody(true, 201, "Se ha creado el estado exitosamente"));
+    res.status(201).json(new ResponseBody(estado.ok || true, estado.status_cod || 201, "Se ha creado el estado exitosamente"));
   } catch (error) {
     if (typeof error === "object" && error !== null && "status_cod" in error) {
       const err = error as { ok: boolean; status_cod: number; data: any };

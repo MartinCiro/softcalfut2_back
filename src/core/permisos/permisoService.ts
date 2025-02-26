@@ -5,7 +5,6 @@ import PermisoAdapter from '../../interfaces/db/permisoAdapter';
 interface PermisoData {
   nombre: string;
   descripcion: string;
-  estado: string | number;
 }
 
 interface PermisoDataXid {
@@ -21,7 +20,6 @@ class PermisoService {
     this.permisoPort = permisoPort;
   }
 
-  // Lógica de negocio para crear un rol
   async crearPermisos(permisoDat: PermisoData) {
     return await this.permisoPort.crearPermisos(permisoDat);
   }

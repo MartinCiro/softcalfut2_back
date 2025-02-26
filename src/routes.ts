@@ -1,24 +1,23 @@
-import { Router, Request, Response } from 'express';
-import roleRouters from './interfaces/api/roleApi';
-import estadoRoutes from './interfaces/api/estadosApi';
-import usuarioRoutes from './interfaces/api/usuariosApi';
-import authRoutes from './interfaces/api/authApi';
-import rolxPermisoRoutes from './interfaces/api/rolXpermisoApi';
-import permisoRoutes from './interfaces/api/permisosApi';
+import { Module } from '@nestjs/common';
+import { RoleModule } from './interfaces/api/roleApi.module';
+import { EstadoModule } from './interfaces/api/estadosApi.module';
+import { UsuarioModule } from './interfaces/api/usuariosApi.module';
+import { AuthModule } from './interfaces/api/authApi.module';
+import { RolxPermisoModule } from './interfaces/api/rolXpermisoApi.module';
+import { PermisoModule } from './interfaces/api/permisosApi.module';
+import { OrdenEnviosModule } from './interfaces/api/ordenEnviosApi.module';
+import { AppController } from './app.controller';
 
-const router = Router();
-
-router.use(roleRouters);
-router.use(estadoRoutes);
-router.use(usuarioRoutes);
-router.use(authRoutes);
-router.use(rolxPermisoRoutes);
-router.use(permisoRoutes);
-
-// Endpoint para verificar el estado de la API
-router.get('/api-status', (req: Request, res: Response) => {
-    res.status(200);
-    res.send({ status: 'on' });
-});
-
-export default router; 
+@Module({
+  imports: [
+    RoleModule,
+    EstadoModule,
+    UsuarioModule,
+    AuthModule,
+    RolxPermisoModule,
+    PermisoModule,
+    OrdenEnviosModule
+  ],
+  controllers: [AppController],
+})
+export class AppModule {}

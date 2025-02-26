@@ -1,154 +1,167 @@
-// src/interfaces/db/roleAdapter.ts
-import { Pool } from 'pg';
+import { PrismaClient } from '@prisma/client';
 import RolePort from '../../core/roles/rolePort';
-import getConnection from '../DBConn';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
+import { validarExistente } from '../api/utils/validaciones';
+
+const prisma = new PrismaClient();
 
 class RoleAdapter implements RolePort {
-  private pool: Pool;
 
-  constructor() {
-    this.pool = getConnection();
-  }
-
-  // Implementación del método para crear un rol
-  async crearRol(rolData: { nombre: string; descripcion: string; estado: number; }) {
-    const client = await this.pool.connect();
-    return client
-      .query(`INSERT INTO rol (nombre, descripcion, estado) VALUES ($1, $2, $3) RETURNING id`, [rolData.nombre, rolData.descripcion, rolData.estado])
-      .then((data) => {
-        if (data && data.rowCount && data.rowCount > 0) return data.rows[0];
-      })
-      .catch((error) => {
-
-        const validacion = validarExistente(error.code, rolData.nombre);
-        const valNoExistente = validarNoExistente(error.code, "El estado asignado");
-        if (!validacion.ok || !valNoExistente.ok) {
-          throw {
-            ok: false,
-            status_cod: 409,
-            data: valNoExistente.data || validacion.data,
-          };
+  async crearRol(rolData: { nombre: string; descripcion: string }) {
+    try {
+      const rol = await prisma.rol.create({
+        data: {
+          nombre: rolData.nombre,
+          descripcion: rolData.descripcion
+        },
+        select: {
+          id: true
         }
+      });
+
+      return rol;
+    } catch (error: any) {
+      const validacion = validarExistente(error.code, rolData.nombre);
+      if (!validacion.ok) {
         throw {
-          ok: false,
-          status_cod: 400,
-          data: "Ocurrió un error consultando el rol",
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data
         };
-      })
-      .finally(() => client.release());
+      }
+      throw {
+        ok: false,
+        status_cod: 400,
+        data: "Ocurrió un error creando el rol"
+      };
+    }
   }
 
   async obtenerRol() {
-    const client = await this.pool.connect();
-    return client
-      .query(`SELECT r.id,r.nombre, r.descripcion, e.nombre AS estado FROM rol r JOIN estado e ON r.estado = e.id`)
-      .then((data) => {
-        if (data && data.rowCount && data.rowCount > 0) return data.rows;
-        throw {
-          data: "No se encontraron datos",
-        };
-      })
-      .catch((error) => {
+    try {
+      const roles = await prisma.rol.findMany({
+        select: {
+          id: true,
+          nombre: true,
+          descripcion: true
+        }
+      });
+
+      if (!roles || roles.length === 0) {
         throw {
           ok: false,
-          status_cod: error.status_cod || 400,
-          data: error.data || "Ocurrió un error consultando el rol",
+          status_cod: 404,
+          data: "No se encontraron datos"
         };
-      })
-      .finally(() => client.release());
+      }
+
+      return roles;
+    } catch (error: any) {
+      throw {
+        ok: false,
+        status_cod: 400,
+        data: error.message || "Ocurrió un error consultando los roles"
+      };
+    }
   }
 
-  async obtenerRolXid(rolDataXid: { id_rol: string | number; }) {
-    const client = await this.pool.connect();
-    return client
-      .query(`SELECT r.id,r.nombre, r.descripcion, e.nombre AS estado FROM rol r JOIN estado e ON r.estado = e.id where r.id = $1`, [rolDataXid.id_rol])
-      .then((data) => {
-        if (data && data.rowCount && data.rowCount > 0) return data.rows[0];
+
+  async obtenerRolXid(rolDataXid: { id_rol: string | number }) {
+    try {
+      const rol = await prisma.rol.findUnique({
+        where: { id: Number(rolDataXid.id_rol) },
+        select: {
+          id: true,
+          nombre: true,
+          descripcion: true
+        }
+      });
+
+      if (!rol) {
         throw {
           ok: false,
           status_cod: 409,
-          data: "El rol solicitado no existe en bd",
+          data: "El rol solicitado no existe en la BD"
         };
-      })
-      .catch((error) => {
-        throw {
-          ok: false,
-          status_cod: error.status_cod || 400,
-          data: error.data || "Ocurrió un error consultando el rol",
-        };
-      })
-      .finally(() => client.release());
+      }
+
+      return rol;
+    } catch (error: any) {
+      throw {
+        ok: false,
+        status_cod: 400,
+        data: error.message || "Ocurrió un error consultando el rol"
+      };
+    }
   }
 
-  async delRol(rolDataXid: { id_rol: string | number; }) {
-    const client = await this.pool.connect();
-    return client
-      .query(`DELETE FROM rol where id = $1`, [rolDataXid.id_rol])
-      .then((data) => {
-        if (data && data.rowCount && data.rowCount > 0) return data.rows[0];
+  async delRol(rolDataXid: { id_rol: string | number }) {
+    try {
+      const deletedRol = await prisma.rol.delete({
+        where: { id: Number(rolDataXid.id_rol) }
+      });
+
+      return {
+        ok: true,
+        status_cod: 200,
+        data: "Rol eliminado correctamente"
+      };
+    } catch (error: any) {
+      if (error.code === "P2025") {
+        // Prisma devuelve este código si no encuentra el registro
         throw {
           ok: false,
           status_cod: 409,
-          data: "El rol solicitado no existe en bd",
+          data: "El rol solicitado no existe en la BD"
         };
-      })
-      .catch((error) => {
-        throw {
-          ok: false,
-          status_cod: error.status_cod || 400,
-          data: error.data || "Ocurrió un error consultando el rol",
-        };
-      })
-      .finally(() => client.release());
+      }
+
+      throw {
+        ok: false,
+        status_cod: 400,
+        data: error.message || "Ocurrió un error eliminando el rol"
+      };
+    }
   }
 
 
-  async actualizaRol(rolDataXid: { id_rol: string | number; nombre?: string; descripcion?: string; estado?: number; }) {
-    const { id_rol } = rolDataXid;
-    const client = await this.pool.connect();
 
-    // Definir las columnas posibles y sus valores
-    const columnas: Record<string, any> = {
-      nombre: rolDataXid.nombre,
-      descripcion: rolDataXid.descripcion,
-      estado: rolDataXid.estado
-    };
+  async actualizaRol(rolDataXid: { id_rol: string | number; nombre?: string; descripcion?: string }) {
+    try {
+      const { id_rol, nombre, descripcion } = rolDataXid;
 
-    const columnasFiltradas = Object.entries(columnas).filter(([key, value]) => value !== undefined);
+      // Verificar si hay datos para actualizar
+      const datosActualizar: Record<string, any> = {};
+      if (nombre !== undefined) datosActualizar.nombre = nombre;
+      if (descripcion !== undefined) datosActualizar.descripcion = descripcion;
 
-    const actualizacionesSQL = columnasFiltradas.map(([key], index) => `${key} = $${index + 1}`).join(', ');
-    const valores = columnasFiltradas.map(([_, value]) => value);
+      // Actualizar el rol en la base de datos
+      const rolActualizado = await prisma.rol.update({
+        where: { id: Number(id_rol) },
+        data: datosActualizar,
+      });
 
-    // Añadir el ID al final de los parámetros
-    valores.push(id_rol);
-
-    const consulta = `
-        UPDATE rol
-        SET ${actualizacionesSQL}
-        WHERE id = $${valores.length}
-      `;
-
-    return client
-      .query(consulta, valores)
-      .then((data) => {
-        if (data && data.rowCount && data.rowCount > 0) return data.rows[0];
+      return {
+        ok: true,
+        status_cod: 200,
+        data: rolActualizado,
+      };
+    } catch (error: any) {
+      if (error.code === "P2025") {
         throw {
           ok: false,
           status_cod: 409,
-          data: "El rol solicitado no existe en bd",
+          data: "El rol solicitado no existe en la BD",
         };
-      })
-      .catch((error) => {
-        if (error.code) throw validarNoExistente(error.code, "El estado asignado");
-        throw {
-          ok: false,
-          status_cod: error.status_cod || 400,
-          data: error.data || "Ocurrió un error consultando el rol",
-        };
-      })
-      .finally(() => client.release());
+      }
+
+      throw {
+        ok: false,
+        status_cod: 400,
+        data: error.message || "Ocurrió un error actualizando el rol",
+      };
+    }
   }
+
 
 }
 

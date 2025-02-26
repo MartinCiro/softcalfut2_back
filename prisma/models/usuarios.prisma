@@ -1,0 +1,13 @@
+model Usuario {
+  id        Int    @id @default(autoincrement())
+  nombre    String
+  email    String @unique @map("email")       
+  passwd    String                                 
+  id_rol    Int
+  id_estado Int
+
+  rol    Rol    @relation(fields: [id_rol], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  estado Estado @relation(fields: [id_estado], references: [id])
+
+  @@map("usuarios") 
+}

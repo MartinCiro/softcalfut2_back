@@ -1,40 +1,44 @@
 {
   "name": "inventario-backend",
   "version": "1.0.0",
-  "description": "Backend para rutas de envio",
+  "description": "Backend para mims",
   "main": "./src/index.ts",
   "scripts": {
-    "dev": "nodemon ./src/index.ts"
+    "dev": "nodemon ./src/index.ts",
+    "merge": "node prisma/mergeModels.js",
+    "migrate": "npm run merge && npx prisma migrate dev --name init"
   },
   "keywords": [
-    "rutas",
-    "envio"
+    "mims"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@nestjs/common": "^11.0.10",
+    "@nestjs/core": "^11.0.10",
+    "@nestjs/platform-fastify": "^11.0.10",
+    "@prisma/client": "^6.4.1",
     "@types/jsonwebtoken": "^9.0.8",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
+    "nats": "^2.29.2",
     "pg": "^8.11.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
     "uuid": "^9.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.2",
     "@types/pg": "^8.11.11",
-    "morgan": "^1.10.0",
     "nodemon": "^3.0.1",
+    "prisma": "^6.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
