@@ -69,7 +69,6 @@ export default class UsuariosAdapter implements UsuariosPort {
   }
 
   async obtenerUsuarios() {
-    console.log("📡 Buscando usuarios...");
     try {
       const usuarios = await prisma.usuario.findMany({
         select: {

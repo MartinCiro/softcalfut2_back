@@ -15,14 +15,13 @@ interface UsuarioDataXid {
 
 interface UsuarioDataUpdate extends Partial<UsuarioData> {}
 
-@Injectable() // 🚀 Ahora NestJS reconoce esto como un servicio
+@Injectable() 
 export class UsuarioService {
   constructor(
-    @Inject('UsuariosPort') private usuarioPort: UsuariosPort // ✅ Inyección de la dependencia correcta
+    @Inject('UsuariosPort') private usuarioPort: UsuariosPort
   ) {}
 
   async obtenerUsuarios() {
-    console.log("📡 Buscando usuarios...");
     return await this.usuarioPort.obtenerUsuarios();
   }
 

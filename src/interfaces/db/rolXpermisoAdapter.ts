@@ -1,10 +1,11 @@
+import RolxPermisoPort from '../../core/rolXpermisos/rolXpermisoPort';
 import { PrismaClient } from '@prisma/client';
-import RolxPermisosPort from '../../core/rolXpermisos/rolXpermisoPort';
-import { validarExistente } from '../api/utils/validaciones';
+import { Injectable } from '@nestjs/common';
 
 const prisma = new PrismaClient();
 
-class RolxPermisosAdapter implements RolxPermisosPort {
+@Injectable()
+export default class RolxPermisosAdapter implements RolxPermisoPort {
 
   async crearRolxPermisos(rolXpermisoData: { id_rol: string | number; id_permiso: Array<string | number> }) {
     try {
@@ -111,5 +112,3 @@ class RolxPermisosAdapter implements RolxPermisosPort {
   }
 
 }
-
-export default RolxPermisosAdapter;
