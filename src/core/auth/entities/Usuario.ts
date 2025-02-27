@@ -7,9 +7,10 @@ export class Usuario {
         public readonly email: string,
         password: string,
         public readonly id_rol?: number,
-        public readonly status?: number
+        public readonly status?: number,
+        isEncrypted: boolean = false 
     ) {
-        this.encryptedPassword = PasswordService.encodePassword(password);
+        this.encryptedPassword = isEncrypted ? password : PasswordService.encodePassword(password);
     }
 
     getEncryptedPassword(): string {

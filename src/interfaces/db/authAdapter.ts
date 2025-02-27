@@ -5,7 +5,7 @@ import { validarExistente } from '../api/utils/validaciones';
 const prisma = new PrismaClient();
 
 class AuthAdapter implements AuthPort {
-  
+
   async retrieveUser(authData: { email: string }) {
     try {
       const usuario = await prisma.usuario.findUnique({
@@ -15,16 +15,30 @@ class AuthAdapter implements AuthPort {
           nombre: true,
           passwd: true,
           id_rol: true,
+          rol: {  // Incluir los permisos del rol
+            select: {
+              nombre: true,
+              rolXPermiso: {
+                select: {
+                  permiso: { select: { nombre: true } }
+                }
+              }
+            }
+          }
         },
       });
 
       if (!usuario) return null;
+
       return {
         id_user: usuario.email,
         usuario: usuario.nombre,
-        contrasena: usuario.passwd,
+        password: usuario.passwd,
         id_rol: usuario.id_rol,
+        rol: usuario.rol?.nombre || null,
+        permisos: usuario.rol?.rolXPermiso.map(rp => rp.permiso.nombre) || []
       };
+
     } catch (error: any) {
       const validacion = validarExistente(error.code, authData.email.toString());
       if (!validacion.ok) {
@@ -41,6 +55,7 @@ class AuthAdapter implements AuthPort {
       };
     }
   }
+
 }
 
 export default AuthAdapter;

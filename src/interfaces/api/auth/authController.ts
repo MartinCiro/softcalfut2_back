@@ -14,11 +14,9 @@ export class AuthController {
 
     if (!email || !password) throw new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, "Email y contraseña son obligatorios"), HttpStatus.BAD_REQUEST);
 
-    const user = new Usuario(email, password);
-
     try {
-      const auth = await this.authService.loginUser(user);
-      return new ResponseBody(auth.ok, auth.status_cod, auth.data);
+      const auth = await this.authService.loginUser({ email, password });
+      return new ResponseBody(auth.ok, auth.statusCode, auth.result);
     } catch (error) {
       if (typeof error === 'object' && error !== null && 'status_cod' in error && 'data' in error) {
         const err = error as { status_cod: unknown; data: unknown };
