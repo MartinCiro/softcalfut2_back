@@ -1,18 +1,19 @@
-import AuthAdapter from '../../interfaces/db/authAdapter';
 import { Usuario } from './entities/Usuario';
 import { generateJWT } from './service/jwtService';
 import { connectToNATS } from '../../lib/nats';
 
-class AuthService {
-    private authAdapter: AuthAdapter;
+import { Injectable, Inject } from '@nestjs/common';
+import AuthPort from './authPort';
 
-    constructor(authAdapter: AuthAdapter) {
-        this.authAdapter = authAdapter;
-    }
+@Injectable() 
+export default class AuthService {
+    constructor(
+        @Inject('AuthPort') private authPort: AuthPort
+      ) {}
 
     async loginUser(user: Usuario): Promise<{ ok: boolean; status_cod: number; data: any }> {
         try {
-            const usuarioRetrieved = await this.authAdapter.retrieveUser({ email: user.email });
+            const usuarioRetrieved = await this.authPort.retrieveUser({ email: user.email });
             if (!usuarioRetrieved) throw new Error('Usuario o contraseña inválida');
 
             const token = generateJWT({ 
@@ -50,5 +51,3 @@ class AuthService {
         }
     }
 }
-
-export default AuthService;

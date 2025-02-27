@@ -1,4 +1,3 @@
-// src/interfaces/db/authAdapter.ts
 import { PrismaClient } from '@prisma/client';
 import AuthPort from '../../core/auth/authPort';
 import { validarExistente } from '../api/utils/validaciones';
