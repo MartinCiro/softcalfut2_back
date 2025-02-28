@@ -21,6 +21,5 @@ const modelsContent = modelFiles.map((file) =>
 ).join("\n\n");
 
 fs.writeFileSync(schemaPath, baseSchema + "\n\n" + modelsContent);
-console.log("✅ Modelos fusionados en schema.prisma");
 
 // Ejecutar `npx prisma generate` para actualizar la base de datos

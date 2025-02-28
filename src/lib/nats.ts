@@ -9,7 +9,6 @@ class NatsService {
     if (!this.nc) {
       try {
         this.nc = await connect({ servers: this.servers });
-        console.log(`✅ Conectado a NATS en ${this.servers}`);
 
         // Manejo de eventos de conexión
         this.nc.closed().then((err) => {

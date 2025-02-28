@@ -17,9 +17,7 @@ export default class AuthService {
             // Recuperar usuario de la base de datos
             const usuarioRetrieved = await this.authPort.retrieveUser({ email });
             if (!usuarioRetrieved) throw new Error('Usuario o contraseña inválida');
-            console.log(usuarioRetrieved)
             
-            // Comparar contraseñas
             const isPasswordValid = new Usuario(
                 usuarioRetrieved.id_user,
                 usuarioRetrieved.password, 

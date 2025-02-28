@@ -19,6 +19,8 @@ export class UsuarioController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(PermissionsGuard)
+  @Permissions('Escritura')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async crearUsuario(@Body() body: CrearUsuarioDto): Promise<ResponseBody<string>> {
     try {
@@ -31,6 +33,8 @@ export class UsuarioController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @UseGuards(PermissionsGuard)
+  @Permissions('Lectura')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async obtenerUsuarios(@Body() body: ObtenerUsuariosDto): Promise<ResponseBody<any>> {
     try {
@@ -46,6 +50,8 @@ export class UsuarioController {
 
   @Put()
   @HttpCode(HttpStatus.OK)
+  @UseGuards(PermissionsGuard)
+  @Permissions('Actualizacion')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   async actualizarUsuario(@Body() body: ActualizarUsuarioDto): Promise<ResponseBody<string>> {
     if (!body.email && !body.nombres && !body.pass && !body.estado && !body.id_rol) {
