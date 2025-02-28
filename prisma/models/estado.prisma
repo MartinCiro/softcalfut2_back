@@ -3,5 +3,6 @@ model Estado {
   nombre      String  @unique 
   descripcion String?
 
-  usuarios    Usuario[] 
+  usuarios    Usuario[]
+  pedidos     Pedido[] 
 }

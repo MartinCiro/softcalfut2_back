@@ -1,0 +1,12 @@
+model Pedido {
+  id         Int      @id @default(autoincrement())
+  descripcion String
+  fecha      DateTime @default(now())
+  id_usuario Int
+  id_estado  Int
+
+  usuario    Usuario  @relation(fields: [id_usuario], references: [id])
+  estado     Estado   @relation(fields: [id_estado], references: [id])
+
+  @@map("pedidos") 
+}

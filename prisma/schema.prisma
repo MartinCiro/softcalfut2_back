@@ -14,9 +14,23 @@ model Estado {
   nombre      String  @unique 
   descripcion String?
 
-  usuarios    Usuario[] 
+  usuarios    Usuario[]
+  pedidos     Pedido[] 
 }
 
+
+model Pedido {
+  id         Int      @id @default(autoincrement())
+  descripcion String
+  fecha      DateTime @default(now())
+  id_usuario Int
+  id_estado  Int
+
+  usuario    Usuario  @relation(fields: [id_usuario], references: [id])
+  estado     Estado   @relation(fields: [id_estado], references: [id])
+
+  @@map("pedidos") 
+}
 
 model Permiso {
   id          Int     @id @default(autoincrement())  
@@ -60,5 +74,6 @@ model Usuario {
   rol    Rol    @relation(fields: [id_rol], references: [id], onDelete: Restrict, onUpdate: NoAction)
   estado Estado @relation(fields: [id_estado], references: [id])
 
+  pedidos   Pedido[]
   @@map("usuarios") 
 }
