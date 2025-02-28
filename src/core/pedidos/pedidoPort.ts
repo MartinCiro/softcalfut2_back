@@ -7,8 +7,14 @@ export default interface PedidosPort {
     }): Promise<any>;
     obtenerPedidos(): Promise<any>;
     obtenerPedidosXusuario(pedidoData: { email: string | number; }): Promise<any>;
-    obtenerPedidosXid(pedidoData: { id: string | number; }): Promise<any>;
-    delPedido(pedidoData: { id: string | number; }): Promise<any>;
-    actualizaPedido(pedidoData: { nombres?: string; email?: string; pass?: string; estado?: number | string; id_rol?: number | string; }): Promise<any>;
+    obtenerPedidosXid(pedidoData: { id_pedido: string | number; }): Promise<any>;
+    delPedido(pedidoData: { id_pedido: string | number; }): Promise<any>;
+
+    actualizaPedido(pedidoData: {
+        id_pedido: string | number;
+        descripcion?: string;
+        fecha?: Date;
+        id_estado?: number;
+    }): Promise<any>;
 }
 

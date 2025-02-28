@@ -8,10 +8,12 @@ const prisma = new PrismaClient();
 @Injectable()
 export default class PedidosAdapter implements PedidosPort {
 
-  async crearPedidos(pedidoData: { descripcion: string;
+  async crearPedidos(pedidoData: {
+    descripcion: string;
     fecha: Date;
     email: string;
-    estado?: number | string; }) {
+    estado?: number | string;
+  }) {
     try {
       const estado = await prisma.estado.findUnique({
         where: { nombre: 'pendiente' },
@@ -26,8 +28,8 @@ export default class PedidosAdapter implements PedidosPort {
         };
       }
 
-      const usuario = await prisma.usuario.findUnique({ 
-        where: { email: pedidoData.email }, 
+      const usuario = await prisma.usuario.findUnique({
+        where: { email: pedidoData.email },
         select: { id: true }
       });
 
@@ -40,7 +42,7 @@ export default class PedidosAdapter implements PedidosPort {
         };
       }
 
-      const nuevoPedido = await prisma.pedido.create({ 
+      const nuevoPedido = await prisma.pedido.create({
         data: {
           descripcion: pedidoData.descripcion,
           fecha: pedidoData.fecha,
@@ -79,7 +81,7 @@ export default class PedidosAdapter implements PedidosPort {
       };
     }
   }
-  
+
   async obtenerPedidos() {
     try {
       const pedidos = await prisma.pedido.findMany({
@@ -115,7 +117,7 @@ export default class PedidosAdapter implements PedidosPort {
         nombre_usuario: pedido.usuario.nombre,
         estado_pedido: pedido.estado.nombre
       }));
-      
+
     } catch (error: any) {
       throw {
         ok: false,
@@ -126,10 +128,11 @@ export default class PedidosAdapter implements PedidosPort {
   }
 
 
-  async obtenerPedidosXid(pedidoData: { id: string | number; }) {
+  async obtenerPedidosXid(pedidoData: { id_pedido: string | number; }) {
+    console.log(pedidoData);
     try {
       const pedido = await prisma.pedido.findUnique({
-        where: { id: Number(pedidoData.id) },
+        where: { id: Number(pedidoData.id_pedido) },
         select: {
           id: true,
           descripcion: true,
@@ -162,7 +165,7 @@ export default class PedidosAdapter implements PedidosPort {
         nombre_usuario: pedido.usuario.nombre,
         estado_pedido: pedido.estado.nombre
       };
-      
+
     } catch (error: any) {
       throw {
         ok: false,
@@ -173,10 +176,10 @@ export default class PedidosAdapter implements PedidosPort {
   }
 
 
-  async delPedido(pedidoData: { id: string }) {
+  async delPedido(pedidoData: { id_pedido: string }) {
     try {
       const pedido = await prisma.pedido.delete({
-        where: { id: Number(pedidoData.id) },
+        where: { id: Number(pedidoData.id_pedido) },
         select: { id: true, usuario: { select: { email: true } } }
       });
 
@@ -198,17 +201,17 @@ export default class PedidosAdapter implements PedidosPort {
     }
   }
 
-  async actualizaPedido(pedidoData: { 
-    id: string; 
-    descripcion?: string; 
-    fecha?: Date; 
-    id_estado?: number; 
+  async actualizaPedido(pedidoData: {
+    id_pedido: string | number;
+    descripcion?: string;
+    fecha?: Date;
+    id_estado?: number;
   }) {
     try {
-      const { id, ...updates } = pedidoData;
-  
+      const { id_pedido, ...updates } = pedidoData;
+
       const pedidoActualizado = await prisma.pedido.update({
-        where: { id },
+        where: { id: Number(id_pedido) },
         data: updates,
         select: {
           id: true,
@@ -217,7 +220,6 @@ export default class PedidosAdapter implements PedidosPort {
           estado: { select: { nombre: true } }
         }
       });
-
       return {
         ok: true,
         message: "Pedido actualizado correctamente",
@@ -238,5 +240,47 @@ export default class PedidosAdapter implements PedidosPort {
     }
   }
 
+  async obtenerPedidosXusuario(pedidoData: { email: string | number }): Promise<any> {
+    try {
+        const email = String(pedidoData.email); 
+
+        const pedidos = await prisma.pedido.findMany({
+            where: { usuario: { email } },
+            select: {
+                id: true,
+                descripcion: true,
+                fecha: true,
+                estado: {
+                    select: { nombre: true }
+                }
+            }
+        });
+
+        if (!pedidos.length) {
+            throw {
+                ok: false,
+                status_cod: 404,
+                data: "No se encontraron pedidos para este usuario"
+            };
+        }
+
+        return {
+            ok: true,
+            message: "Pedidos obtenidos correctamente",
+            pedidos: pedidos.map(pedido => ({
+                id_pedido: pedido.id,
+                descripcion: pedido.descripcion,
+                fecha: pedido.fecha,
+                estado_pedido: pedido.estado.nombre
+            }))
+        };
+    } catch (error: any) {
+        throw {
+            ok: false,
+            status_cod: 400,
+            data: error.message || "Ocurrió un error consultando los pedidos"
+        };
+    }
 }
 
+}

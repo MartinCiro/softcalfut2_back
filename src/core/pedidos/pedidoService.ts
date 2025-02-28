@@ -9,13 +9,14 @@ interface PedidoData {
 }
 
 interface PedidoDataXid {
-  id: number | string;
+  id_pedido: number | string;
 }
 
 type PedidoDataXusuario = Pick<PedidoData, 'email'>;
 
 
-interface PedidoDataUpdate extends Partial<PedidoData> {}
+interface PedidoDataUpdate extends PedidoDataXid, Partial<Omit<PedidoData, 'email'>> {}
+
 
 
 @Injectable() 
@@ -44,7 +45,7 @@ export class PedidoService {
     return await this.pedidoPort.actualizaPedido(pedidoData);
   }
 
-  async delPedido(pedidoData: PedidoDataXusuario) {
+  async delPedido(pedidoData: PedidoDataXid) {
     return await this.pedidoPort.delPedido(pedidoData);
   }
 }

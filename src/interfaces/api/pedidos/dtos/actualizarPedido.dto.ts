@@ -1,6 +1,10 @@
-import { IsOptional, IsNumber, IsString, IsDate } from 'class-validator';
+import { IsOptional, IsNumber, IsString, IsDate, IsEmail } from 'class-validator';
 
 export class ActualizarPedidoDto {
+  @IsOptional()
+  @IsNumber({}, { message: 'Debe ser un número' })
+  readonly id_pedido?: number;
+
   @IsOptional()
   @IsString({ message: 'Debe ser un texto válido' })
   readonly descripcion?: string;
@@ -16,4 +20,8 @@ export class ActualizarPedidoDto {
   @IsOptional()
   @IsNumber({}, { message: 'Debe ser un número' })
   readonly id_estado?: number;
+
+  @IsOptional()
+  @IsEmail({}, { message: 'Debe ser un correo electrónico válido' })
+  readonly email?: string;
 }
