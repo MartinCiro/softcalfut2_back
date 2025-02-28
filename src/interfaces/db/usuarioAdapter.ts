@@ -9,7 +9,6 @@ const prisma = new PrismaClient();
 @Injectable()
 export default class UsuariosAdapter implements UsuariosPort {
 
-  // Implementación del método para crear un usuario
   async crearUsuarios(usuarioData: { nombres: string; email: string; pass: string; id_rol: number | string }) {
     try {
       const estado = await prisma.estado.findUnique({
@@ -196,13 +195,12 @@ export default class UsuariosAdapter implements UsuariosPort {
         usuario: usuarioActualizado,
       };
     } catch (error: any) {
-      if (error.code === "P2025") {
+      if (error.code === "P2025")
         throw {
           ok: false,
           status_cod: 409,
           data: "El usuario solicitado no existe en la base de datos",
         };
-      }
       throw {
         ok: false,
         status_cod: 400,

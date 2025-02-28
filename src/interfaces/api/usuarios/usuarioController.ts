@@ -65,8 +65,9 @@ export class UsuarioController {
 
   @Delete()
   @UseGuards(PermissionsGuard)
-  @Permissions('usuario:eliminar')
+  @Permissions('Elimina')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
+
   async delUsuario(@Body() eliminarUsuarioDto: EliminarUsuarioDto): Promise<ResponseBody<string>> {
     try {
       await this.usuarioService.delUsuario({ email: eliminarUsuarioDto.email });

@@ -1,5 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { AuthGuard } from './auth.guard';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -7,13 +8,12 @@ export class PermissionsGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const requiredPermissions = this.reflector.get<string[]>('permissions', context.getHandler()) || [];
-
-    if (!requiredPermissions.length) return true; // Si no se requieren permisos, permitir el acceso
+    if (!requiredPermissions.length) return true; 
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // Extraer el usuario del JWT
 
-    console.log("Usuario autenticado en PermissionsGuard:", user);
+    const userCacheData = AuthGuard.getUserInfo(request?.user?.userInfo?.id_user);
+    const user = userCacheData?.userInfo;
 
     if (!user || !user.permisos) {
       throw new ForbiddenException('No posee permisos para realizar esta acción');

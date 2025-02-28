@@ -9,7 +9,6 @@ interface JwtPayload {
     exp?: number;
 }
 
-// Generar JWT -> problema de redondeo por parte de typescript
 export const generateJWT = (userInfo: any): string => {
     if (!config.JWT_SECRETO) throw new Error("JWT_SECRETO no está definido en la configuración.");
 
@@ -33,7 +32,6 @@ export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; 
 
         // Verificar el token
         const verified = jwt.verify(token, config.JWT_SECRETO) as JwtPayload;
-
         // Calcular tiempo restante hasta la expiración
         if (verified.exp) {
             const expireDate = new Date(verified.exp * 1000);
