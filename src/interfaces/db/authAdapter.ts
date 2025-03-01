@@ -15,7 +15,7 @@ class AuthAdapter implements AuthPort {
           nombre: true,
           passwd: true,
           id_rol: true,
-          rol: {  // Incluir los permisos del rol
+          rol: { 
             select: {
               nombre: true,
               rolXPermiso: {
@@ -27,7 +27,6 @@ class AuthAdapter implements AuthPort {
           }
         },
       });
-
       if (!usuario) return null;
 
       return {

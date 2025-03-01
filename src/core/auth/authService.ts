@@ -14,7 +14,6 @@ export default class AuthService {
 
       async loginUser({ email, password }: { email: string; password: string }): Promise<ResponseBody<any>> {
         try {
-            // Recuperar usuario de la base de datos
             const usuarioRetrieved = await this.authPort.retrieveUser({ email });
             if (!usuarioRetrieved) throw new Error('Usuario o contraseña inválida');
             
@@ -26,7 +25,7 @@ export default class AuthService {
                 true
             ).comparePassword(password);
             if (!isPasswordValid) throw new Error('Usuario o contraseña inválida');
-    
+            
             // Generar el JWT
             const token = generateJWT({ 
                 id_user: usuarioRetrieved.id_user, 
@@ -34,7 +33,7 @@ export default class AuthService {
                 id_rol: usuarioRetrieved.id_rol,
                 permisos: usuarioRetrieved.permisos 
             });
-    
+            
             // Publicar el evento
             await natsService.publish('usuario.logeado', { 
                 id_user: usuarioRetrieved.id_user, 
@@ -44,7 +43,8 @@ export default class AuthService {
                 permisos: usuarioRetrieved.permisos,  
                 timestamp: new Date().toISOString() 
             });
-    
+            
+            console.log('usuarioRetrieved', isPasswordValid);
             return {
                 ok: true,
                 statusCode: 200,

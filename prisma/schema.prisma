@@ -1,79 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-
 model Estado {
-  id          Int     @id @default(autoincrement())  
-  nombre      String  @unique 
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
   descripcion String?
-
+  pedidos     Pedido[]
   usuarios    Usuario[]
-  pedidos     Pedido[] 
 }
-
 
 model Pedido {
-  id         Int      @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   descripcion String
-  fecha      DateTime @default(now())
-  id_usuario Int
-  id_estado  Int
+  fecha       DateTime @default(now())
+  id_usuario  Int
+  id_estado   Int
+  estado      Estado   @relation(fields: [id_estado], references: [id])
+  usuario     Usuario  @relation(fields: [id_usuario], references: [id])
 
-  usuario    Usuario  @relation(fields: [id_usuario], references: [id])
-  estado     Estado   @relation(fields: [id_estado], references: [id])
-
-  @@map("pedidos") 
+  @@map("pedidos")
 }
 
 model Permiso {
-  id          Int     @id @default(autoincrement())  
-  nombre      String  @unique  
-  descripcion String? 
-
+  id          Int           @id @default(autoincrement())
+  nombre      String        @unique
+  descripcion String?
   rolXPermiso RolXPermiso[]
 }
-
 
 model Rol {
-  id          Int     @id @default(autoincrement())  
-  nombre      String  @unique  
+  id          Int           @id @default(autoincrement())
+  nombre      String        @unique
   descripcion String?
-
-  usuarios    Usuario[]       
   rolXPermiso RolXPermiso[]
+  usuarios    Usuario[]
 }
-
 
 model RolXPermiso {
-  id_rol    Int
+  id_rol     Int
   id_permiso Int
-
-  rol     Rol     @relation(fields: [id_rol], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  permiso Permiso @relation(fields: [id_permiso], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  permiso    Permiso @relation(fields: [id_permiso], references: [id])
+  rol        Rol     @relation(fields: [id_rol], references: [id])
 
   @@id([id_rol, id_permiso])
-  @@map("rol_x_permiso")      
+  @@map("rol_x_permiso")
 }
 
-
 model Usuario {
-  id        Int    @id @default(autoincrement())
-  nombre    String
-  email    String @unique @map("email")       
-  passwd    String                                 
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @map("email")
+  passwd    String
   id_rol    Int
   id_estado Int
-
-  rol    Rol    @relation(fields: [id_rol], references: [id], onDelete: Restrict, onUpdate: NoAction)
-  estado Estado @relation(fields: [id_estado], references: [id])
-
+  nombre    String
   pedidos   Pedido[]
-  @@map("usuarios") 
+  estado    Estado   @relation(fields: [id_estado], references: [id])
+  rol       Rol      @relation(fields: [id_rol], references: [id], onUpdate: NoAction)
+
+  @@map("usuarios")
 }

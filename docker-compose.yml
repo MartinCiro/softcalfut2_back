@@ -1,0 +1,58 @@
+services:
+  database:
+    image: postgres:latest
+    container_name: psql2
+    restart: always
+    environment:
+      POSTGRES_DB: bd_mims
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ciro
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data  
+      - ./src/bd_backup/backup.dump:/docker-entrypoint-initdb.d/backup.dump
+    entrypoint: ["/bin/bash", "-c", "docker-entrypoint.sh postgres & sleep 10 && pg_restore -U postgres -d bd_mims --no-owner --no-privileges /docker-entrypoint-initdb.d/backup.dump"]
+    networks:
+      - app_network
+
+  app:
+    build: .
+    env_file:
+      - .env
+    container_name: nestjs_app
+    restart: always
+    depends_on:
+      - database
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=ciro
+      - DB_NAME=bd_mims
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - app_network
+
+  nats:
+    image: nats:latest
+    container_name: nats_server
+    restart: always
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  pg_data:
