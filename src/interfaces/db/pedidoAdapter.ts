@@ -129,7 +129,6 @@ export default class PedidosAdapter implements PedidosPort {
 
 
   async obtenerPedidosXid(pedidoData: { id_pedido: string | number; }) {
-    console.log(pedidoData);
     try {
       const pedido = await prisma.pedido.findUnique({
         where: { id: Number(pedidoData.id_pedido) },

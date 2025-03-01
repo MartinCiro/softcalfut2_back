@@ -12,11 +12,9 @@ class NatsService {
 
         // Manejo de eventos de conexión
         this.nc.closed().then((err) => {
-          console.error('❌ Conexión a NATS cerrada', err);
           this.nc = null;
         });
       } catch (error) {
-        console.error('❌ Error conectando a NATS:', error);
         throw error;
       }
     }

@@ -36,7 +36,6 @@ export class AuthGuard implements CanActivate {
 
       return true;
     } catch (error: any) {
-      console.error('Error en la verificación del token:', error);
       throw new UnauthorizedException(error.data || 'Token inválido o expirado');
     }
   }

@@ -14,7 +14,7 @@ import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
 import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
 
 @Controller('pedidos')
-@UseGuards(AuthGuard) // Todas las rutas requieren autenticación
+@UseGuards(AuthGuard) 
 export class PedidoController {
   constructor(private readonly pedidoService: PedidoService) { }
 

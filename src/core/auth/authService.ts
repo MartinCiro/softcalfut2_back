@@ -58,7 +58,6 @@ export default class AuthService {
                 }
             };
         } catch (error) {
-            console.error('Error en loginUser:', error);
             return {
                 ok: false,
                 statusCode: 401,

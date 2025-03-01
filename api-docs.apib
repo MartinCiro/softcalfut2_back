@@ -1,0 +1,161 @@
+FORMAT: 1A
+HOST: http://localhost:4000
+
+# API de Pedidos
+
+## Group Autenticación
+
+### Login [/auth/login] [POST]
+
++ **Ingresa tu email y contraseña para obtener un token.**  
+  Luego, usa este token en los endpoints protegidos.
+
+#### Solicitud
+
++ Request (application/json)
+    + Body
+
+        ```json
+        {
+          "email": "s@gmail.com",
+          "enpass": "123456"
+        }
+        ```
+
+#### Respuesta
+
++ Response 200 (application/json)
+    + Body
+
+        ```json
+        {
+          "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI..."
+        }
+        ```
+
+## Group Usuarios
+
+### Crear Usuario [POST /usuarios]
+
++ **Requiere autenticación con el token generado en `/auth/login`**  
++ **Si `id_rol` no se proporciona, se asignará automáticamente el rol de usuario (`id_rol = 1`).**
+
+#### Solicitud
+
++ Request (application/json)
+    + Headers
+
+        ```
+        Authorization: "TOKEN_AQUI"
+        ```
+
+    + Body
+
+        ```json
+        {
+          "nombres": "pepe admin",
+          "email": "s@gmail.com",
+          "pass": "123456",
+          "id_rol": 2
+        }
+        ```
+
+    + Nota: Si `id_rol` no se envía, por defecto será `1`.
+
+#### Respuesta
+
++ Response 201 (application/json)
+    + Body
+
+        ```json
+        {
+          "ok": true,
+          "statusCode": 201,
+          "result": "Se ha creado el usuario exitosamente"
+        }
+        ```
+
+---
+
+### Obtener Perfil de Usuario [GET /usuarios/perfil]
+
++ **Requiere autenticación con el token generado en `/auth/login`**  
++ **Devuelve la información del usuario autenticado.**
+
+#### Solicitud
+
++ Request (application/json)
+    + Headers
+
+        ```
+        Authorization: "TOKEN_AQUI"
+        ```
+
+#### Respuesta
+
++ Response 200 (application/json)
+    + Body
+
+        ```json
+        {
+          "ok": true,
+          "statusCode": 200,
+          "result": {
+            "mensaje": "Usuario autenticado",
+            "usuario": {
+              "userInfo": {
+                "id_user": "pepe@gmail.com",
+                "nombre": "pepe admin",
+                "id_rol": 2
+              },
+              "iat": 1740692820,
+              "exp": 1740696420
+            }
+          }
+        }
+        ```
+
+
+## Group Pedidos  
+
+### Crear Pedido [/pedidos] [POST]
+
++ **Requiere autenticación con el token generado en `/auth/login`**  
+
+#### Solicitud
+
++ Request (application/json)
+    + Headers
+
+        ```
+        Authorization: "TOKEN_AQUI"
+        ```
+
+    + Body
+
+        ```json
+        {
+          "descripcion": "pepe admin",
+          "fecha": "2024-12-01"
+        }
+        ```
+
+#### Respuesta
+
++ Response 201 (application/json)
+    + Body
+
+        ```json
+        {
+          "ok": true,
+          "statusCode": 201,
+          "result": "Se ha creado el pedido exitosamente",
+          "pedido": {
+            "id_pedido": 123,
+            "descripcion": "pepe admin",
+            "fecha": "2024-12-01"
+          }
+        }
+        ```
+
+---
