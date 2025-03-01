@@ -92,7 +92,7 @@ export default class UsuariosAdapter implements UsuariosPort {
         };
       }
 
-      return usuarios.map(usuario => ({
+      return usuarios.map((usuario: { email: any; nombre: any; estado: { nombre: any; }; rol: { nombre: any; }; }) => ({
         email: usuario.email,
         nombres: usuario.nombre,
         estado_usuario: usuario.estado.nombre,

@@ -1,74 +1,126 @@
-# Guía para Configurar un Contenedor MariaDB con Docker
+Aquí tienes una versión mejorada de tu guía, con correcciones de formato, mayor claridad y consistencia en la información:  
 
-Este documento proporciona instrucciones detalladas para configurar un contenedor de MariaDB utilizando Docker, realizar operaciones con la base de datos y entender la estructura del proyecto.
+---
 
-## **1. Crear el Contenedor**
-Para desplegar un contenedor con la imagen oficial de MariaDB y exponer el puerto 3306 en local, ejecuta:
+# 📌 **Guía para Configurar un Contenedor Postgres con Docker**
+
+Este documento explica cómo configurar un contenedor de **Postgres** con Docker, realizar operaciones con la base de datos y entender la estructura del proyecto.
+
+---
+
+## 🚀 **1. Iniciar el Contenedor**  
+Para desplegar el contenedor, ejecuta (renombrar example a .env sino lo tiene):
 
 ```bash
-docker run -d --name sql -e MYSQL_ROOT_PASSWORD=1234 -p 3306:3306 mariadb
+docker-compose up -d
 ```
 
-## **2. Eliminar y Crear la Base de Datos**
-Crear la base de datos `bd_mims` sino existe:
+---
+
+## 🧪 **2. Ejecutar Pruebas**
+Para iniciar las pruebas de microservicios, usa:
+
+```bash
+docker exec -it nestjs_app sh -c "npm test"
+```
+
+---
+
+## 📄 **3. Acceder a la Documentación de la API**
+La documentación de la API se aloja en la siguiente ruta (el puerto varia segun el .env):
+
+```
+http://localhost:4000/api/docs
+```
+
+Si la documentación no carga, verifica que el archivo `docs.html` exista en la carpeta `public/`.
+
+---
+
+# 🏗 **Configuración de la Base de Datos**
+
+## **4. Crear el Contenedor de PostgreSQL**
+Para desplegar un contenedor con **PostgreSQL** y exponer el puerto `5432`, ejecuta:
+
+```bash
+docker run --name psql -e POSTGRES_USER=ciro -e POSTGRES_PASSWORD=tu_contraseña -p 5432:5432 -d postgres
+```
+
+---
+
+## **5. Crear la Base de Datos**  
+Si la base de datos `bd_mims` no existe, créala con:
 
 ```bash
 docker exec -it psql psql -U postgres -c "CREATE DATABASE bd_mims;"
 ```
 
-## **3. Crear una Copia de Seguridad de la Base de Datos**
-Para generar un respaldo de la base de datos `bd_mims`, ejecuta:
+---
+
+## **6. Crear una Copia de Seguridad**  
+Para generar un respaldo de la base de datos `bd_mims`, usa:
 
 ```bash
 docker exec -t psql pg_dump -U postgres -d bd_mims -Fc > backup.dump
 ```
 
-## **4. Restaurar una Copia de Seguridad**
-Si necesitas restaurar un respaldo previo de la base de datos, usa:
+---
+
+## **7. Restaurar una Copia de Seguridad**
+Para restaurar una copia de seguridad, ejecuta:
 
 ```bash
 docker exec -it psql psql -U postgres -c "DROP DATABASE IF EXISTS bd_mims;"
 docker exec -it psql psql -U postgres -c "CREATE DATABASE bd_mims;"
 docker exec -i psql pg_restore -U postgres -d bd_mims < backup.dump
-
 ```
 
 ---
 
-# **Estructura de Carpetas del Proyecto**
-El proyecto sigue una organización modular basada en la arquitectura hexagonal, lo que mejora la mantenibilidad y escalabilidad del código al separar la lógica de negocio de las capas de infraestructura y presentación.
+# 📂 **Estructura del Proyecto**
+Este proyecto sigue una organización modular basada en **arquitectura hexagonal**, lo que mejora la mantenibilidad y escalabilidad.
 
 ```
 /src
-  ├── /bd_backup/bd             # Carpeta para almacenar copias de seguridad de la base de datos
-  ├── /core                     # Contiene la lógica de negocio principal
-  │   ├── /usuarios             # Módulo de usuarios
-  │   │   ├── usuarioPort.ts        # Interfaz que define el contrato del servicio
-  │   │   ├── usuario.service.ts    # Servicio con la lógica de negocio de usuarios
+  ├── /bd_backup             # Carpeta para copias de seguridad
+  ├── /core                  # Lógica de negocio
+  │   ├── /usuarios          # Módulo de usuarios
+  │   │   ├── usuarioPort.ts     # Interfaz del servicio
+  │   │   ├── usuario.service.ts # Lógica de negocio de usuarios
   │
-  ├── /interfaces               # Definición de las interfaces de comunicación
-  │   ├── /api                  # API REST
-  │   │   ├── /usuarios         # Endpoints relacionados con usuarios
+  ├── /interfaces            # Interfaces de comunicación
+  │   ├── /api               # API REST
+  │   │   ├── /usuarios      # Endpoints de usuarios
   │   │   │   ├── usuario.controller.ts  # Controlador de usuarios
-  │   │   │   ├── usuario.module.ts      # Módulo que agrupa controladores y servicios
-  │   │   │   ├── usuario-port.token.ts  # Token para inyección de dependencias
-  │   │   │   ├── usuarioController.ts   # Alternativa de controlador (¿duplicado?)
-  │   │   │   ├── /dtos                  # Objetos de transferencia de datos (DTOs)
-  │   │   │   │   ├── crear-usuario.dto.ts  # DTO para validación de datos al crear usuario
-  │   │   ├── /models               # Modelos de datos compartidos en la API
-  │   │   │   ├── ResponseBody.ts    # Estructura estándar de respuesta
+  │   │   │   ├── usuario.module.ts      # Módulo de usuarios
+  │   │   │   ├── /dtos                  # DTOs (Data Transfer Objects)
+  │   │   │   │   ├── crear-usuario.dto.ts  # DTO para validación
+  │   │   ├── /models            # Modelos de datos compartidos
+  │   │   │   ├── ResponseBody.ts # Estructura estándar de respuesta
   │
-  ├── /config                  # Configuración global del proyecto (NestJS, variables de entorno, etc.)
-  ├── /shared                  # Código reutilizable (utilidades, excepciones, middlewares, etc.)
-  ├── app.module.ts            # Módulo raíz de la aplicación
-  ├── main.ts                  # Punto de entrada de la aplicación (bootstrap de NestJS)
+  ├── /config               # Configuración global (NestJS, variables de entorno)
+  ├── /shared               # Código reutilizable (utilidades, middlewares)
+  ├── app.module.ts         # Módulo raíz de la aplicación
+  ├── main.ts               # Punto de entrada de la aplicación (bootstrap de NestJS)
 ```
 
-## **5. Descripción General**
-- **`/core`**: Contiene la lógica de negocio pura, separada de la infraestructura (siguiendo principios de "Clean Architecture").
-- **`/interfaces/api`**: Define los controladores, módulos y DTOs para la API REST.
-- **`/config`**: Almacena la configuración general del proyecto.
-- **`/shared`**: Contiene código común que puede ser utilizado en diferentes partes del proyecto.
+---
 
-Esta estructura modular facilita la escalabilidad y el mantenimiento del código. 🚀
+# 📌 **Descripción General**
+- **`/core`** → Contiene la lógica de negocio pura, independiente de la infraestructura.  
+- **`/interfaces/api`** → Define los controladores, módulos y DTOs para la API REST.  
+- **`/config`** → Configuración general del proyecto (variables de entorno, NestJS, etc.).  
+- **`/shared`** → Código reutilizable (utilidades, excepciones, middlewares).  
 
+Esta estructura modular **facilita la escalabilidad y el mantenimiento** del código. 🚀  
+
+---
+
+🔹 **Con estos pasos, tu entorno estará listo para funcionar sin problemas.**  
+Si tienes dudas, revisa los logs de Docker con:  
+
+```bash
+docker logs -f psql
+```
+
+---  

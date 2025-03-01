@@ -33,7 +33,6 @@ export default class AuthService {
                 id_rol: usuarioRetrieved.id_rol,
                 permisos: usuarioRetrieved.permisos 
             });
-            
             // Publicar el evento
             await natsService.publish('usuario.logeado', { 
                 id_user: usuarioRetrieved.id_user, 
@@ -44,7 +43,6 @@ export default class AuthService {
                 timestamp: new Date().toISOString() 
             });
             
-            console.log('usuarioRetrieved', isPasswordValid);
             return {
                 ok: true,
                 statusCode: 200,

@@ -27,7 +27,7 @@ services:
     ports:
       - "4000:4000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=Dev
       - DB_HOST=database
       - DB_PORT=5432
       - DB_USER=postgres
@@ -39,6 +39,7 @@ services:
       - /usr/src/app/node_modules
     networks:
       - app_network
+    command: ["sh", "-c", "npm install && npm run dev"]
 
   nats:
     image: nats:latest

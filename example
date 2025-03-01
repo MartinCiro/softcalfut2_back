@@ -1,20 +1,10 @@
-#DB env example
-UserDB = user
-PasswordDB = pass
-ServerDB = host
-Database = bd
-PortDB = port  
+env = Dev
+PORT = 4000
 
-# Config serve
-env = type entor
-PORT = port or default 4000
-
-# Para el jwt
-JWT_SECRETO = Your_Token_Secret
-
-# Tiempo en el que expira el token si es 1h no es necesario (ver config)
-JWT_TIEMPO_EXPIRA = 2h
+# Secreto de JWT PARA DESARROLLO (EJEMPLO)
+JWT_SECRETO = VGhpcyBpcyBhIHZlcnkgc2VjdXJlIHN0cmluZw==
 
 # Parámetro de semilla del JWT
 JWT_SALT = 8
 
+DATABASE_URL=postgresql://postgres:ciro@psql2:5432/bd_mims
