@@ -6,7 +6,7 @@ import { ResponseBody } from '../models/ResponseBody';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
+  
   @Post('login')
   async login(@Body() body: AuthDto): Promise<ResponseBody<any>> {
     const { email, enpass: password } = body;

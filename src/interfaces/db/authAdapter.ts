@@ -15,6 +15,11 @@ class AuthAdapter implements AuthPort {
           nombre: true,
           passwd: true,
           id_rol: true,
+          estado: {  
+            select: {
+              nombre: true
+            }
+          },
           rol: { 
             select: {
               nombre: true,
@@ -34,8 +39,9 @@ class AuthAdapter implements AuthPort {
         usuario: usuario.nombre,
         password: usuario.passwd,
         id_rol: usuario.id_rol,
-        rol: usuario.rol?.nombre || null,
-        permisos: usuario.rol?.rolXPermiso.map(rp => rp.permiso.nombre) || []
+        estado: usuario.estado.nombre,
+        rol: usuario.rol.nombre,
+        permisos: usuario.rol?.rolXPermiso.map((rp: { permiso: { nombre: any; }; }) => rp.permiso.nombre) || []
       };
 
     } catch (error: any) {

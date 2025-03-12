@@ -4,9 +4,11 @@ import { PedidoController } from './pedidoController';
 
 import  PedidosAdapter  from '../../db/pedidoAdapter';
 import { PedidosPortToken } from './pedido-port.token';
+import { CacheModule } from '../../../shared/cache/cache.module';
 
 @Module({
   controllers: [PedidoController],
+  imports: [CacheModule],
   providers: [
     PedidoService,
     {

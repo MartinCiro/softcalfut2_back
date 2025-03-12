@@ -1,21 +1,4 @@
 services:
-  database:
-    image: postgres:latest
-    container_name: psql2
-    restart: always
-    environment:
-      POSTGRES_DB: bd_mims
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ciro
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data  
-      - ./src/bd_backup/backup.dump:/docker-entrypoint-initdb.d/backup.dump
-    entrypoint: ["/bin/bash", "-c", "docker-entrypoint.sh postgres & sleep 10 && pg_restore -U postgres -d bd_mims --no-owner --no-privileges /docker-entrypoint-initdb.d/backup.dump"]
-    networks:
-      - app_network
-
   app:
     build: .
     env_file:
@@ -23,22 +6,24 @@ services:
     container_name: nestjs_app
     restart: always
     depends_on:
-      - database
+      - nats
+      - redis
     ports:
       - "4000:4000"
     environment:
       - NODE_ENV=Dev
-      - DB_HOST=database
+      - DB_HOST=psql  
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=ciro
       - DB_NAME=bd_mims
       - NATS_URL=nats://nats:4222
+      - REDIS_URL=redis://redis:6379
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     networks:
-      - app_network
+      - docker_app_network
     command: ["sh", "-c", "npm install && npm run dev"]
 
   nats:
@@ -49,11 +34,21 @@ services:
       - "4222:4222"
       - "8222:8222"
     networks:
-      - app_network
+      - docker_app_network
+    
+  redis:
+    image: redis:latest
+    container_name: redis_service
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - docker_app_network
+    volumes:
+      - redis_data:/data
+volumes:
+  redis_data:
 
 networks:
-  app_network:
-    driver: bridge
-
-volumes:
-  pg_data:
+  docker_app_network:
+    external: true

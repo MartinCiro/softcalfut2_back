@@ -11,7 +11,7 @@ export const validarBlank = (valor: any, nombre: string): void => {
 
 //metodos para validar si existe y otros
 export const validarExistente = (valor: string, nombre: string): { ok: boolean, data?: string } => {
-  if (valor === '23505') return { ok: false, data: `${nombre} ya existe en la base de datos` }
+  if (valor === 'P2002') return { ok: false, data: `${nombre} ya existe en la base de datos` }
   return { ok: true };
 };
 
