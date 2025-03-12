@@ -37,7 +37,7 @@ export class PedidoController {
         throw new HttpException('Usuario no autenticado', HttpStatus.UNAUTHORIZED);
       }
 
-      await this.pedidoService.crearPedido({ ...body, email: user.userInfo.id_user });
+      await this.pedidoService.crearPedido({ ...body, id: user.userInfo.id_user });
 
       return new ResponseBody<string>(true, 201, "Se ha creado el pedido exitosamente");
     } catch (error) {
@@ -61,9 +61,9 @@ export class PedidoController {
 
       if (!user || !user.userInfo || !user.userInfo.id_user) throw new HttpException('Usuario no autenticado', HttpStatus.UNAUTHORIZED);
 
-    if (!body.email) body.email = user.userInfo.id_user
+    if (!body.id) body.id = user.userInfo.id_user
     try {
-      const pedidosXuser = await this.pedidoService.obtenerPedidoXusuario({ email: body.email })
+      const pedidosXuser = await this.pedidoService.obtenerPedidoXusuario({ id: body.id })
 
       return new ResponseBody<any>(true, 200, pedidosXuser);
     } catch (error) {

@@ -1,13 +1,13 @@
 {
   "name": "inventario-backend",
   "version": "1.0.0",
-  "description": "Backend para mims",
+  "description": "Backend para inventario",
   "main": "./src/index.ts",
   "scripts": {
     "dev": "npm-run-all --parallel gen server docs",
     "server": "nodemon ./src/index.ts",
     "docs": "aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api",
-    "merge": "node prisma/mergeModels.js",
+    "merge": "node prisma/mergeModels.mjs",
     "migrate": "npm run merge && npx prisma migrate dev --name init",
     "gen": "npx prisma generate",
     "test": "jest --coverage",

@@ -14,9 +14,9 @@ export default class AuthService {
         private readonly redisService: RedisService 
       ) {}
 
-      async loginUser({ email, password }: { email: string; password: string }): Promise<ResponseBody<any>> {
+      async loginUser({ id, password }: { id: string; password: string }): Promise<ResponseBody<any>> {
         try {
-            const usuarioRetrieved = await this.authPort.retrieveUser({ email });
+            const usuarioRetrieved = await this.authPort.retrieveUser({ id });
             const isPasswordValid = new Usuario(
                 usuarioRetrieved.id_user,
                 usuarioRetrieved.password, 
@@ -56,7 +56,7 @@ export default class AuthService {
                 result: {
                     token,
                     usuario: {
-                        email: usuarioRetrieved.id_user,
+                        id: usuarioRetrieved.id_user,
                         nombre: usuarioRetrieved.usuario,
                         rol: usuarioRetrieved.id_rol
                     }

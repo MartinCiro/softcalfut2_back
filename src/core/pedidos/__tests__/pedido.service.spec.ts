@@ -34,7 +34,7 @@ describe('PedidoService', () => {
       id_pedido: 1, 
       descripcion: "Pedido de prueba", 
       fecha: new Date("2024-03-01"), 
-      email: "s@gmail.com",
+      id: "s@gmail.com",
       estado: "pendiente"
     };
 

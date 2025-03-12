@@ -1,6 +1,6 @@
-import { 
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode, 
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req 
+import {
+  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
+  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
 import { UsuarioService } from '../../../core/usuarios/usuarioService';
 import { ResponseBody } from '../models/ResponseBody';
@@ -15,19 +15,21 @@ import { Permissions } from '../../../core/auth/decorators/permissions.decorator
 @Controller('usuarios')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
 export class UsuarioController {
-  constructor(private readonly usuarioService: UsuarioService) {}
+  constructor(private readonly usuarioService: UsuarioService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
   @Permissions('Escritura')
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
-    const mensajes = errors.map(err => ({
-      campo: err.property,
-      mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-    }));
-    return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-  }}))
+  @UsePipes(new ValidationPipe({
+    whitelist: true, transform: true, exceptionFactory: (errors) => {
+      const mensajes = errors.map(err => ({
+        campo: err.property,
+        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
+      }));
+      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
+    }
+  }))
   async crearUsuario(@Body() body: CrearUsuarioDto): Promise<ResponseBody<string>> {
     try {
       await this.usuarioService.crearUsuario(body);
@@ -41,17 +43,19 @@ export class UsuarioController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('Lectura')
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
-    const mensajes = errors.map(err => ({
-      campo: err.property,
-      mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-    }));
-    return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-  }}))
+  @UsePipes(new ValidationPipe({
+    whitelist: true, transform: true, exceptionFactory: (errors) => {
+      const mensajes = errors.map(err => ({
+        campo: err.property,
+        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
+      }));
+      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
+    }
+  }))
   async obtenerUsuarios(@Body() body: ObtenerUsuariosDto): Promise<ResponseBody<any>> {
     try {
-      const usuarios = body.email
-        ? await this.usuarioService.obtenerUsuarioXid({ email: body.email })
+      const usuarios = body.id
+        ? await this.usuarioService.obtenerUsuarioXid({ id: body.id })
         : await this.usuarioService.obtenerUsuarios();
 
       return new ResponseBody<any>(true, 200, usuarios);
@@ -64,15 +68,17 @@ export class UsuarioController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('Actualizacion')
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
-    const mensajes = errors.map(err => ({
-      campo: err.property,
-      mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-    }));
-    return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-  }}))
+  @UsePipes(new ValidationPipe({
+    whitelist: true, transform: true, exceptionFactory: (errors) => {
+      const mensajes = errors.map(err => ({
+        campo: err.property,
+        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
+      }));
+      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
+    }
+  }))
   async actualizarUsuario(@Body() body: ActualizarUsuarioDto): Promise<ResponseBody<string>> {
-    if (!body.email && !body.nombres && !body.pass && !body.estado && !body.id_rol) {
+    if (!body.apellidos && !body.nombres && !body.id_rol && !body.id_estado && !body.username && !body.id) {
       throw new HttpException(
         new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
         HttpStatus.BAD_REQUEST,
@@ -90,17 +96,19 @@ export class UsuarioController {
   @Delete()
   @UseGuards(PermissionsGuard)
   @Permissions('Elimina')
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
-    const mensajes = errors.map(err => ({
-      campo: err.property,
-      mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-    }));
-    return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-  }}))
+  @UsePipes(new ValidationPipe({
+    whitelist: true, transform: true, exceptionFactory: (errors) => {
+      const mensajes = errors.map(err => ({
+        campo: err.property,
+        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
+      }));
+      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
+    }
+  }))
 
   async delUsuario(@Body() eliminarUsuarioDto: EliminarUsuarioDto): Promise<ResponseBody<string>> {
     try {
-      await this.usuarioService.delUsuario({ email: eliminarUsuarioDto.email });
+      await this.usuarioService.delUsuario({ id: eliminarUsuarioDto.id });
       return new ResponseBody(true, 201, "Se ha eliminado el usuario exitosamente");
     } catch (error) {
       this.handleException(error);

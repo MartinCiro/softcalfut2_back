@@ -1,0 +1,16 @@
+model Productos {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  notes       String
+  quantity    Int
+  source_id   Int
+  price       Decimal
+  id_estado   Int
+  id_usuario  Int
+
+  usuario     Usuario  @relation(fields: [id_usuario], references: [id])
+  estado      Estado   @relation(fields: [id_estado], references: [id])
+
+  @@map("products") 
+}

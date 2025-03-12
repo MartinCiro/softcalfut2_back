@@ -4,5 +4,5 @@ model Estado {
   descripcion String?
 
   usuarios    Usuario[]
-  pedidos     Pedido[] 
+  products   Productos[]
 }

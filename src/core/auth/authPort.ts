@@ -1,3 +1,3 @@
 export default interface AuthPort {
-    retrieveUser(authData: { email: string; }): Promise<any>;
+    retrieveUser(authData: { id: string; }): Promise<any>;
 }

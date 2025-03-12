@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 @Injectable()
 export default class UsuariosAdapter implements UsuariosPort {
 
-  async crearUsuarios(usuarioData: { nombres: string; email: string; pass: string; id_rol: number | string }) {
+  async crearUsuarios(usuarioData: { username: string; nombres: string; apellidos: string; pass: string; id_estado?: number | string; id_rol: number | string; id: number | string; }) {
     try {
       const estado = await prisma.estado.findUnique({
         where: { nombre: 'activo' },
@@ -24,22 +24,23 @@ export default class UsuariosAdapter implements UsuariosPort {
         };
       }
 
-      const user = new Usuario(usuarioData.email, usuarioData.pass);
+      const user = new Usuario(usuarioData.username, usuarioData.pass);
 
       const nuevoUsuario = await prisma.usuario.create({
         data: {
-          nombre: usuarioData.nombres,
-          email: usuarioData.email,
-          passwd: user.getEncryptedPassword(),
+          username: usuarioData.username,
+          nombres: usuarioData.nombres,
+          apellidos: usuarioData.apellidos,
+          pass: user.getEncryptedPassword(),
           id_estado: estado.id,
           id_rol: Number(usuarioData.id_rol)
         },
-        select: { email: true }
+        select: { id: true }
       });
 
       return nuevoUsuario;
     } catch (error: any) {
-      const validacion = validarExistente(error.code, usuarioData.email);
+      const validacion = validarExistente(error.code, usuarioData.username);
       if (!validacion.ok) {
         throw {
           ok: false,
@@ -71,8 +72,8 @@ export default class UsuariosAdapter implements UsuariosPort {
     try {
       const usuarios = await prisma.usuario.findMany({
         select: {
-          email: true,
-          nombre: true,
+          id: true,
+          nombres: true,
           estado: {
             select: { nombre: true }
           },
@@ -92,9 +93,9 @@ export default class UsuariosAdapter implements UsuariosPort {
         };
       }
 
-      return usuarios.map((usuario: { email: any; nombre: any; estado: { nombre: any; }; rol: { nombre: any; }; }) => ({
-        email: usuario.email,
-        nombres: usuario.nombre,
+      return usuarios.map((usuario: { id: any; nombres: any; estado: { nombre: any; }; rol: { nombre: any; }; }) => ({
+        id: usuario.id,
+        nombres: usuario.nombres,
         estado_usuario: usuario.estado.nombre,
         rol: usuario.rol.nombre
       }));
@@ -107,13 +108,13 @@ export default class UsuariosAdapter implements UsuariosPort {
     }
   }
 
-  async obtenerUsuariosXid(usuarioData: { email: string }) {
+  async obtenerUsuariosXid(usuarioData: { id: string | number; }) {
     try {
       const usuario = await prisma.usuario.findUnique({
-        where: { email: usuarioData.email },
+        where: { id: Number(usuarioData.id) },
         select: {
-          email: true,
-          nombre: true,
+          id: true,
+          nombres: true,
           estado: {
             select: { nombre: true }
           },
@@ -132,8 +133,8 @@ export default class UsuariosAdapter implements UsuariosPort {
       }
 
       return {
-        email: usuario.email,
-        nombre: usuario.nombre,
+        id: usuario.id,
+        nombres: usuario.nombres,
         estado_usuario: usuario.estado.nombre,
         rol: usuario.rol.nombre
       };
@@ -146,16 +147,16 @@ export default class UsuariosAdapter implements UsuariosPort {
     }
   }
 
-  async delUsuario(usuarioData: { email: string }) {
+  async delUsuario(usuarioData: { id: string }) {
     try {
       const usuario = await prisma.usuario.delete({
-        where: { email: usuarioData.email },
+        where: { id: Number(usuarioData.id) },
       });
 
       return {
         ok: true,
         message: "Usuario eliminado correctamente",
-        usuario: usuario.email,
+        usuario: usuario.id,
       };
     } catch (error: any) {
       if (error.code === "P2025") {
@@ -174,19 +175,23 @@ export default class UsuariosAdapter implements UsuariosPort {
   }
 
 
-  async actualizaUsuario(usuarioData: { 
-    email: string; 
-    nombre?: string; 
-    passwd?: string; 
-    id_estado?: number; 
-    id_rol?: number; 
+  async actualizaUsuario(usuarioData: {
+    nombres?: string;
+    apellidos?: string;
+    id_estado?: number | string;
+    id_rol?: number | string;
+    id: number | string;
   }) {
     try {
-      const { email, ...updates } = usuarioData;
+      const { id, id_estado, id_rol, ...updates } = usuarioData;
   
       const usuarioActualizado = await prisma.usuario.update({
-        where: { email },
-        data: updates,
+        where: { id: Number(id) }, 
+        data: {
+          ...updates,
+          id_estado: id_estado !== undefined ? Number(id_estado) : undefined,
+          id_rol: id_rol !== undefined ? Number(id_rol) : undefined,
+        },
       });
   
       return {
@@ -195,12 +200,7 @@ export default class UsuariosAdapter implements UsuariosPort {
         usuario: usuarioActualizado,
       };
     } catch (error: any) {
-      if (error.code === "P2025")
-        throw {
-          ok: false,
-          status_cod: 409,
-          data: "El usuario solicitado no existe en la base de datos",
-        };
+      validarExistente(error.code, "El usuario solicitado");
       throw {
         ok: false,
         status_cod: 400,
@@ -208,5 +208,6 @@ export default class UsuariosAdapter implements UsuariosPort {
       };
     }
   }
+  
 }
 

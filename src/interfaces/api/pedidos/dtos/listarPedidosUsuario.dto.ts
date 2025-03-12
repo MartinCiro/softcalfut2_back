@@ -1,7 +1,7 @@
-import { IsOptional, IsEmail } from 'class-validator';
+import { IsOptional, IsNumber } from 'class-validator';
 
 export class ListarPedidosUsuarioDto {
-  @IsOptional({ message: 'El correo del usuario es obligatorio' })
-  @IsEmail({}, { message: 'Debe ser un correo válido' })
-  email!: string;
+  @IsOptional()
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
+  id?: number;
 }

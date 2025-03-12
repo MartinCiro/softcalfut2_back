@@ -4,7 +4,7 @@ import PedidosPort from './pedidoPort';
 interface PedidoData {
   descripcion: string;
   fecha: Date;
-  email: string; 
+  id?: string; 
   estado?: number | string; 
 }
 
@@ -12,10 +12,10 @@ interface PedidoDataXid {
   id_pedido: number | string;
 }
 
-type PedidoDataXusuario = Pick<PedidoData, 'email'>;
+type PedidoDataXusuario = Pick<PedidoData, 'id'>;
 
 
-interface PedidoDataUpdate extends PedidoDataXid, Partial<Omit<PedidoData, 'email'>> {}
+interface PedidoDataUpdate extends PedidoDataXid, Partial<Omit<PedidoData, 'id'>> {}
 
 
 

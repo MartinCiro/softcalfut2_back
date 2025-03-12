@@ -28,7 +28,7 @@ describe('AuthService', () => {
     mockAuthPort = module.get<jest.Mocked<AuthPortt>>(AuthPort);
   });
 
-  it('Debe encontrar un usuario por email', async () => {
+  it('Debe encontrar un usuario por id', async () => {
     const mockUser = { 
       id_user: "s@gmail.com", 
       usuario: "Ciro",
@@ -40,9 +40,9 @@ describe('AuthService', () => {
 
     mockAuthPort.retrieveUser.mockResolvedValue(mockUser);
 
-    const auth = await authService.loginUser({ email: "s@gmail.com", password: "123456" });
+    const auth = await authService.loginUser({ id: "s@gmail.com", password: "123456" });
     expect(auth.ok).toBe(true);
-    expect(auth.result.usuario.email).toBe(mockUser.id_user); 
-    expect(mockAuthPort.retrieveUser).toHaveBeenCalledWith({ email: "s@gmail.com" });
+    expect(auth.result.usuario.id).toBe(mockUser.id_user); 
+    expect(mockAuthPort.retrieveUser).toHaveBeenCalledWith({ id: "s@gmail.com" });
   });
 });

@@ -28,16 +28,16 @@ describe('UsuarioService', () => {
     mockUsuarioPort = module.get<jest.Mocked<UsuariosPort>>(UsuariosPortToken);
   });
 
-  it('Debe encontrar un usuario por email', async () => {
-    const mockUser = { id: 1, nombres: "Ciro", email: "s@gmail.com" };
+  it('Debe encontrar un usuario por id', async () => {
+    const mockUser = { id: 1, nombres: "Ciro", id: "s@gmail.com" };
 
-    // El método espera un objeto con `{ email }`
+    // El método espera un objeto con `{ id }`
     mockUsuarioPort.obtenerUsuariosXid.mockResolvedValue(mockUser);
 
     // Llamar con el objeto correcto
-    const usuario = await usuarioService.obtenerUsuarioXid({ email: "s@gmail.com" });
+    const usuario = await usuarioService.obtenerUsuarioXid({ id: "s@gmail.com" });
 
     expect(usuario).toEqual(mockUser);
-    expect(mockUsuarioPort.obtenerUsuariosXid).toHaveBeenCalledWith({ email: "s@gmail.com" });
+    expect(mockUsuarioPort.obtenerUsuariosXid).toHaveBeenCalledWith({ id: "s@gmail.com" });
   });
 });

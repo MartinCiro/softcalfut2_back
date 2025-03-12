@@ -1,4 +1,4 @@
-import { IsOptional, IsNumber, IsString, IsDate, IsEmail } from 'class-validator';
+import { IsOptional, IsNumber, IsString, IsDate, isEmail } from 'class-validator';
 
 export class ActualizarPedidoDto {
   @IsOptional()
@@ -21,7 +21,6 @@ export class ActualizarPedidoDto {
   @IsNumber({}, { message: 'Debe ser un número' })
   readonly id_estado?: number;
 
-  @IsOptional()
-  @IsEmail({}, { message: 'Debe ser un correo electrónico válido' })
-  readonly email?: string;
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
+  readonly id?: number;
 }

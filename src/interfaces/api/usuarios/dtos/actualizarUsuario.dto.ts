@@ -1,22 +1,25 @@
-import { IsString, IsEmail, IsOptional, IsInt } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsNumber, IsNotEmpty } from 'class-validator';
 
 export class ActualizarUsuarioDto {
-  @IsEmail()
-  email!: string;
+  @IsOptional()
+  @IsString({ message: 'El texto de apellido no es valido' })
+  readonly apellidos!: string;
 
   @IsOptional()
-  @IsString()
-  nombres?: string;
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
+  readonly id_estado!: number;
 
-  @IsOptional()
-  @IsString()
-  pass?: string;
+  @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  @IsString({ message: 'El texto de nombre no es valido' })
+  readonly nombres!: string
 
-  @IsOptional()
-  @IsString()
-  id_rol?: string;
+  @IsNotEmpty({ message: 'El nombre de usuario es obligatorio' })
+  @IsString({ message: 'El texto en nombre de usuario no es valido' })
+  readonly username!: string
 
-  @IsOptional()
-  @IsInt()
-  estado?: number;
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
+  readonly id_rol!: number
+
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
+  readonly id!: number
 }

@@ -36,7 +36,7 @@ CREATE TABLE "rol_x_permiso" (
 -- CreateTable
 CREATE TABLE "usuarios" (
     "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
+    "id" TEXT NOT NULL,
     "passwd" TEXT NOT NULL,
     "id_rol" INTEGER NOT NULL,
     "id_estado" INTEGER NOT NULL,
@@ -54,7 +54,7 @@ CREATE UNIQUE INDEX "Permiso_nombre_key" ON "Permiso"("nombre");
 CREATE UNIQUE INDEX "Rol_nombre_key" ON "Rol"("nombre");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "usuarios_email_key" ON "usuarios"("email");
+CREATE UNIQUE INDEX "usuarios_id_key" ON "usuarios"("id");
 
 -- AddForeignKey
 ALTER TABLE "rol_x_permiso" ADD CONSTRAINT "rol_x_permiso_id_rol_fkey" FOREIGN KEY ("id_rol") REFERENCES "Rol"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

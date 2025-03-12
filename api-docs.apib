@@ -7,7 +7,7 @@ HOST: http://localhost:4000
 
 ### Login [/auth/login] [POST]
 
-+ **Ingresa tu email y contraseña para obtener un token.**  
++ **Ingresa tu id y contraseña para obtener un token.**  
   Luego, usa este token en los endpoints protegidos.
 
 #### Solicitud
@@ -17,7 +17,7 @@ HOST: http://localhost:4000
 
         ```json
         {
-          "email": "s@gmail.com",
+          "id": "s@gmail.com",
           "enpass": "123456"
         }
         ```
@@ -54,7 +54,7 @@ HOST: http://localhost:4000
         ```json
         {
           "nombres": "pepe admin",
-          "email": "s@gmail.com",
+          "id": "s@gmail.com",
           "pass": "123456",
           "id_rol": 2
         }

@@ -11,7 +11,7 @@ export default class PedidosAdapter implements PedidosPort {
   async crearPedidos(pedidoData: {
     descripcion: string;
     fecha: Date;
-    email: string;
+    id: string;
     estado?: number | string;
   }) {
     try {
@@ -29,7 +29,7 @@ export default class PedidosAdapter implements PedidosPort {
       }
 
       const usuario = await prisma.usuario.findUnique({
-        where: { email: pedidoData.email },
+        where: { id: pedidoData.id },
         select: { id: true }
       });
 
@@ -54,7 +54,7 @@ export default class PedidosAdapter implements PedidosPort {
 
       return nuevoPedido;
     } catch (error: any) {
-      const validacion = validarExistente(error.code, pedidoData.email);
+      const validacion = validarExistente(error.code, pedidoData.id);
       if (!validacion.ok) {
         throw {
           ok: false,
@@ -91,7 +91,7 @@ export default class PedidosAdapter implements PedidosPort {
           fecha: true,
           usuario: {
             select: {
-              email: true,
+              id: true,
               nombre: true
             }
           },
@@ -113,7 +113,7 @@ export default class PedidosAdapter implements PedidosPort {
         id_pedido: pedido.id,
         descripcion: pedido.descripcion,
         fecha: pedido.fecha,
-        email: pedido.usuario.email,
+        id: pedido.usuario.id,
         nombre_usuario: pedido.usuario.nombre,
         estado_pedido: pedido.estado.nombre
       }));
@@ -138,7 +138,7 @@ export default class PedidosAdapter implements PedidosPort {
           fecha: true,
           usuario: {
             select: {
-              email: true,
+              id: true,
               nombre: true
             }
           },
@@ -160,7 +160,7 @@ export default class PedidosAdapter implements PedidosPort {
         id_pedido: pedido.id,
         descripcion: pedido.descripcion,
         fecha: pedido.fecha,
-        email: pedido.usuario.email,
+        id: pedido.usuario.id,
         nombre_usuario: pedido.usuario.nombre,
         estado_pedido: pedido.estado.nombre
       };
@@ -179,7 +179,7 @@ export default class PedidosAdapter implements PedidosPort {
     try {
       const pedido = await prisma.pedido.delete({
         where: { id: Number(pedidoData.id_pedido) },
-        select: { id: true, usuario: { select: { email: true } } }
+        select: { id: true, usuario: { select: { id: true } } }
       });
 
       return {
@@ -187,7 +187,7 @@ export default class PedidosAdapter implements PedidosPort {
         message: "Pedido eliminado correctamente",
         pedido: {
           id_pedido: pedido.id,
-          email_usuario: pedido.usuario.email
+          id_usuario: pedido.usuario.id
         }
       };
     } catch (error: any) {
@@ -239,12 +239,12 @@ export default class PedidosAdapter implements PedidosPort {
     }
   }
 
-  async obtenerPedidosXusuario(pedidoData: { email: string | number }): Promise<any> {
+  async obtenerPedidosXusuario(pedidoData: { id: string | number }): Promise<any> {
     try {
-        const email = String(pedidoData.email); 
+        const id = String(pedidoData.id); 
 
         const pedidos = await prisma.pedido.findMany({
-            where: { usuario: { email } },
+            where: { usuario: { id } },
             select: {
                 id: true,
                 descripcion: true,
