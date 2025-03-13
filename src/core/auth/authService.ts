@@ -1,11 +1,10 @@
 import { Usuario } from './entities/Usuario';
 import { generateJWT } from './service/jwtService';
-import { natsService } from '../../lib/nats';
-
+import { natsService } from 'src/lib/nats';
 import { Injectable, Inject } from '@nestjs/common';
+import { ResponseBody } from 'api/models/ResponseBody';
+import { RedisService } from 'shared/cache/redis.service';
 import AuthPort from './authPort';
-import { ResponseBody } from '../../interfaces/api/models/ResponseBody';
-import { RedisService } from '../../shared/cache/redis.service';
 
 @Injectable() 
 export default class AuthService {

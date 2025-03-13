@@ -1,5 +1,4 @@
 
-import { ResponseBody } from '../models/ResponseBody';  
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common/enums/http-status.enum';
 

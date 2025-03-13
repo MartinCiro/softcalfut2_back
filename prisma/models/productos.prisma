@@ -12,5 +12,5 @@ model Productos {
   usuario     Usuario  @relation(fields: [id_usuario], references: [id])
   estado      Estado   @relation(fields: [id_estado], references: [id])
 
-  @@map("products") 
+  @@map("productos") 
 }

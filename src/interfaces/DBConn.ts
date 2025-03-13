@@ -1,6 +1,5 @@
-// src/interface/DBConn.ts
 import { Pool } from 'pg';
-import config from '../config';
+import config from 'src/config';
 
 const dbauth = {
   user: config.UserDB,

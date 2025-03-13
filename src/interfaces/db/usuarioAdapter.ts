@@ -1,7 +1,7 @@
-import UsuariosPort from '../../core/usuarios/usuarioPort';
-import { Usuario } from '../../core/auth/entities/Usuario';
+import UsuariosPort from 'core/usuarios/usuarioPort';
+import { Usuario } from 'core/auth/entities/Usuario';
 import { PrismaClient } from '@prisma/client';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
+import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
 

@@ -15,7 +15,9 @@ model Estado {
   descripcion String?
 
   usuarios    Usuario[]
-  products   Productos[]
+  productos   Productos[]
+
+  @@map("estado") 
 }
 
 
@@ -25,6 +27,7 @@ model Permiso {
   descripcion String? 
 
   rolXPermiso RolXPermiso[]
+  @@map("permiso") 
 }
 
 
@@ -42,7 +45,7 @@ model Productos {
   usuario     Usuario  @relation(fields: [id_usuario], references: [id])
   estado      Estado   @relation(fields: [id_estado], references: [id])
 
-  @@map("products") 
+  @@map("productos") 
 }
 
 model Rol {
@@ -52,6 +55,7 @@ model Rol {
 
   usuarios    Usuario[]       
   rolXPermiso RolXPermiso[]
+  @@map("rol") 
 }
 
 
@@ -79,6 +83,6 @@ model Usuario {
   rol    Rol    @relation(fields: [id_rol], references: [id], onDelete: Restrict, onUpdate: NoAction)
   estado Estado @relation(fields: [id_estado], references: [id])
 
-  products   Productos[]
+  productos   Productos[]
   @@map("usuario") 
 }

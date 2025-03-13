@@ -1,4 +1,4 @@
-import { PasswordService } from "../service/PasswordService";
+import { PasswordService } from "core/auth/service/PasswordService";
 
 export class Usuario {
     private encryptedPassword: string;

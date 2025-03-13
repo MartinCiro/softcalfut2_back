@@ -1,7 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AuthGuard } from './auth.guard';
-import { RedisService } from '../../../shared/cache/redis.service';
+import { RedisService } from 'shared/cache/redis.service';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

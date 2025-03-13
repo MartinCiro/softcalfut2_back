@@ -9,11 +9,18 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "preserveSymlinks": false,
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "src/*": ["src/*"],
+      "core/*": ["src/core/*"],
+      "db/*": ["src/interfaces/db/*"],
+      "modules/*": ["src/modules/*"],
+      "interfaces/*": ["src/interfaces/*"],
+      "shared/*": ["src/shared/*"],
+      "api/*": ["src/interfaces/api/*"],
     }
   },
   "include": ["src/**/*.ts"]

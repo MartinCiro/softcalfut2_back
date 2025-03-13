@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsuarioService } from '../usuarioService';
-import UsuariosPort  from '../usuarioPort';
-import { UsuariosPortToken } from '../../../interfaces/api/usuarios/usuario-port.token';
+import { UsuarioService } from 'core/usuarios/usuarioService';
+import UsuariosPort  from 'core/usuarios/usuarioPort';
+import { UsuariosPortToken } from 'api/usuarios/usuario-port.token';
 
 describe('UsuarioService', () => {
   let usuarioService: UsuarioService;

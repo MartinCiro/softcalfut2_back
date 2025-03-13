@@ -1,7 +1,7 @@
 // interface/adapter/nats/nats.service.ts
 import { Injectable } from '@nestjs/common';
 import { connect, NatsConnection } from 'nats';
-import { MessagingPort } from '../../../core/port/messaging-port';
+import { MessagingPort } from 'core/port/messaging-port';
 
 @Injectable()
 export class NatsService implements MessagingPort {

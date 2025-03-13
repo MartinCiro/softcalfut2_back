@@ -10,6 +10,6 @@ model Usuario {
   rol    Rol    @relation(fields: [id_rol], references: [id], onDelete: Restrict, onUpdate: NoAction)
   estado Estado @relation(fields: [id_estado], references: [id])
 
-  products   Productos[]
+  productos   Productos[]
   @@map("usuario") 
 }

@@ -4,4 +4,5 @@ model Permiso {
   descripcion String? 
 
   rolXPermiso RolXPermiso[]
+  @@map("permiso") 
 }

@@ -2,21 +2,34 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { UsuarioService } from '../../../core/usuarios/usuarioService';
-import { ResponseBody } from '../models/ResponseBody';
+import { UsuarioService } from 'core/usuarios/usuarioService';
+import { ResponseBody } from 'api/models/ResponseBody';
 import { CrearUsuarioDto } from './dtos/crearUsuario.dto';
 import { ObtenerUsuariosDto } from './dtos/obtenerUsuario.dto';
 import { ActualizarUsuarioDto } from './dtos/actualizarUsuario.dto';
 import { EliminarUsuarioDto } from './dtos/eliminarUsuario.dto';
-import { AuthGuard } from '../../../core/auth/guards/auth.guard';
-import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
-import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
+import { AuthGuard } from 'core/auth/guards/auth.guard';
+import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
+import { Permissions } from 'core/auth/decorators/permissions.decorator';
 
 @Controller('usuarios')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) { }
-
+  /* 
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(PermissionsGuard)
+  @Permissions('Escritura')
+  @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
+    const mensajes = errors.map(err => ({
+      campo: err.property,
+      mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
+    }));
+    return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
+  }}))
+  */
+ 
   @Post(['', 'register'])
   @HttpCode(HttpStatus.CREATED)
   async crearUsuario(@Body() body: CrearUsuarioDto): Promise<ResponseBody<string>> {

@@ -4,12 +4,13 @@
   "description": "Backend para inventario",
   "main": "./src/index.ts",
   "scripts": {
+    "start": "node -r ts-node/register src/index.ts",
     "dev": "npm-run-all --parallel gen server docs",
-    "server": "nodemon ./src/index.ts",
+    "server": "nodemon --exec 'node -r tsconfig-paths/register -r ts-node/register' ./src/index.ts",
     "docs": "aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api",
+    "gen": "npx prisma generate",
     "merge": "node prisma/mergeModels.mjs",
     "migrate": "npm run merge && npx prisma migrate dev --name init",
-    "gen": "npx prisma generate",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },
@@ -48,7 +49,8 @@
     "pg": "^8.11.0",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.2",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@nestjs/testing": "^11.0.11",
