@@ -15,7 +15,7 @@ export const validarExistente = (valor: string, nombre: string): { ok: boolean, 
 };
 
 export const validarNoExistente = (valor: string, nombre: string | number) => {
-  if (valor === '23503') return {
+  if (valor === 'P2025') return {
       ok: false,
       status_cod: 400,
       data: `${nombre} no existe en la base de datos`

@@ -1,0 +1,8 @@
+model Origen {
+  id          Int      @id @default(autoincrement())
+  nombre      String @unique @map("nombre_origen")
+  description String?
+
+  productos   Productos[]
+  @@map("origen_producto") 
+}

@@ -37,7 +37,6 @@ export default class UsuariosAdapter implements UsuariosPort {
       const idRol = rolInvitado.id;
     
       const user = new Usuario(usuarioData.username, usuarioData.pass);
-
       const nuevoUsuario = await prisma.usuario.create({
         data: {
           username: usuarioData.username,

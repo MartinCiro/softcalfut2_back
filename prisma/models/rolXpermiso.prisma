@@ -2,8 +2,8 @@ model RolXPermiso {
   id_rol    Int
   id_permiso Int
 
-  rol     Rol     @relation(fields: [id_rol], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  permiso Permiso @relation(fields: [id_permiso], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  rol     Rol     @relation(fields: [id_rol], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  permiso Permiso @relation(fields: [id_permiso], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([id_rol, id_permiso])
   @@map("rol_x_permiso")      

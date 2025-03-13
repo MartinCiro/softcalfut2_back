@@ -20,7 +20,8 @@ export default class AuthService {
                 usuarioRetrieved.id_user,
                 usuarioRetrieved.password, 
                 usuarioRetrieved.id_rol,
-                usuarioRetrieved.estado
+                usuarioRetrieved.estado,
+                true
             ).comparePassword(password);
 
             if (!isPasswordValid) throw new Error('Usuario o contraseña inválida');
