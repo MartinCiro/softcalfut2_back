@@ -9,12 +9,12 @@ export class AuthController {
   
   @Post('login')
   async login(@Body() body: AuthDto): Promise<ResponseBody<any>> {
-    const { id, enpass: password } = body;
+    const { username, enpass: password } = body;
 
-    if (!id || !password) throw new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, "id y contraseña son obligatorios"), HttpStatus.BAD_REQUEST);
+    if (!username || !password) throw new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, "Usuario y contraseña son obligatorios"), HttpStatus.BAD_REQUEST);
 
     try {
-      const auth = await this.authService.loginUser({ id, password });
+      const auth = await this.authService.loginUser({ username, password });
       return new ResponseBody(auth.ok, auth.statusCode, auth.result);
     } catch (error) {
       if (typeof error === 'object' && error !== null && 'status_cod' in error && 'data' in error) {

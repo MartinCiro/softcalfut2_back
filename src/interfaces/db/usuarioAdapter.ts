@@ -3,13 +3,14 @@ import { Usuario } from '../../core/auth/entities/Usuario';
 import { PrismaClient } from '@prisma/client';
 import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export default class UsuariosAdapter implements UsuariosPort {
 
-  async crearUsuarios(usuarioData: { username: string; nombres: string; apellidos: string; pass: string; id_estado?: number | string; id_rol: number | string; id: number | string; }) {
+  async crearUsuarios(usuarioData: { username: string; nombres: string; apellidos: string; pass: string; id_estado?: number | string; }) {
     try {
       const estado = await prisma.estado.findUnique({
         where: { nombre: 'activo' },
@@ -23,7 +24,18 @@ export default class UsuariosAdapter implements UsuariosPort {
           data: "No se encontró el estado 'activo'"
         };
       }
+      if (!estado) throw new ForbiddenException("No se encontró el estado 'activo', por favor contacte al administrador");
+      
+      const rolInvitado = await prisma.rol.findUnique({
+        where: { nombre: 'Invitado' },
+        select: { id: true }
+      });
 
+     
+      if (!rolInvitado) throw new ForbiddenException('No se encontró el rol "Invitado", por favor contacte al administrador');
+
+      const idRol = rolInvitado.id;
+    
       const user = new Usuario(usuarioData.username, usuarioData.pass);
 
       const nuevoUsuario = await prisma.usuario.create({
@@ -33,7 +45,7 @@ export default class UsuariosAdapter implements UsuariosPort {
           apellidos: usuarioData.apellidos,
           pass: user.getEncryptedPassword(),
           id_estado: estado.id,
-          id_rol: Number(usuarioData.id_rol)
+          id_rol: idRol
         },
         select: { id: true }
       });
@@ -63,7 +75,7 @@ export default class UsuariosAdapter implements UsuariosPort {
       throw {
         ok: false,
         status_cod: 400,
-        data: "Ocurrió un error consultando el usuario"
+        data: error.data || "Ocurrió un error consultando el usuario"
       };
     }
   }

@@ -17,19 +17,8 @@ import { Permissions } from '../../../core/auth/decorators/permissions.decorator
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) { }
 
-  @Post()
+  @Post(['', 'register'])
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(PermissionsGuard)
-  @Permissions('Escritura')
-  @UsePipes(new ValidationPipe({
-    whitelist: true, transform: true, exceptionFactory: (errors) => {
-      const mensajes = errors.map(err => ({
-        campo: err.property,
-        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-      }));
-      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-    }
-  }))
   async crearUsuario(@Body() body: CrearUsuarioDto): Promise<ResponseBody<string>> {
     try {
       await this.usuarioService.crearUsuario(body);
@@ -108,7 +97,7 @@ export class UsuarioController {
 
   async delUsuario(@Body() eliminarUsuarioDto: EliminarUsuarioDto): Promise<ResponseBody<string>> {
     try {
-      await this.usuarioService.delUsuario({ id: eliminarUsuarioDto.id });
+      await this.usuarioService.delUsuario({ id: eliminarUsuarioDto.id});
       return new ResponseBody(true, 201, "Se ha eliminado el usuario exitosamente");
     } catch (error) {
       this.handleException(error);

@@ -7,7 +7,7 @@ interface UsuarioData {
   apellidos: string;
   pass: string; 
   id_estado?: number | string; 
-  id_rol: number | string; 
+  id_rol?: number | string; 
 }
 
   

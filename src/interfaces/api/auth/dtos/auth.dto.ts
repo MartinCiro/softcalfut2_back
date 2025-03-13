@@ -1,11 +1,13 @@
-import { isEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class AuthDto {
-  @isEmail({}, { message: 'El correo electrónico no es válido' })
-    @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
-    id!: string;
 
+  @IsNotEmpty({ message: 'El usuario es obligatorio' })
+  @IsString({ message: 'El texto en nombre de usuario no es valido' })
+  readonly username!: string
+
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   @IsString({ message: 'La contraseña debe ser un texto' })
-    @IsNotEmpty({ message: 'La contraseña es obligatoria' })
-    enpass!: string;
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
+  enpass!: string;
 }
