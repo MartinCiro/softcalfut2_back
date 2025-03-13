@@ -10,74 +10,97 @@ const prisma = new PrismaClient();
 @Injectable()
 export default class UsuariosAdapter implements UsuariosPort {
 
-  async crearUsuarios(usuarioData: { username: string; nombres: string; apellidos: string; pass: string; id_estado?: number | string; }) {
-    try {
-      const estado = await prisma.estado.findUnique({
-        where: { nombre: 'activo' },
-        select: { id: true }
-      });
-
-      if (!estado) {
+  async crearUsuarios(usuarioData: { 
+    username: string; 
+    nombres: string; 
+    apellidos: string; 
+    pass: string; 
+    id_rol?: number | string; 
+  }) {
+      try {
+        // Buscar el estado 'activo'
+        const estado = await prisma.estado.findUnique({
+          where: { nombre: 'activo' },
+          select: { id: true }
+        });
+  
+        if (!estado) {
+          throw new ForbiddenException("No se encontró el estado 'activo', por favor contacte al administrador");
+        }
+  
+        let idRol: number;
+  
+        if (usuarioData.id_rol) {
+          // Convertir a número si viene como string
+          const idRolNum = Number(usuarioData.id_rol);
+          const rolExiste = await prisma.rol.findUnique({
+            where: { id: idRolNum },
+            select: { id: true }
+          });
+  
+          if (!rolExiste) {
+            throw new ForbiddenException(`El rol con ID ${idRolNum} no existe`);
+          }
+  
+          idRol = idRolNum;
+        } else {
+          // Si no se proporciona id_rol, buscar el rol 'Invitado'
+          const rolInvitado = await prisma.rol.findUnique({
+            where: { nombre: 'Invitado' },
+            select: { id: true }
+          });
+  
+          if (!rolInvitado) {
+            throw new ForbiddenException("No se encontró el rol 'Invitado', por favor contacte al administrador");
+          }
+  
+          idRol = rolInvitado.id;
+        }
+  
+        // Crear el usuario con contraseña encriptada
+        const user = new Usuario(usuarioData.username, usuarioData.pass);
+        const nuevoUsuario = await prisma.usuario.create({
+          data: {
+            username: usuarioData.username,
+            nombres: usuarioData.nombres,
+            apellidos: usuarioData.apellidos,
+            pass: user.getEncryptedPassword(),
+            id_estado: estado.id,
+            id_rol: idRol
+          },
+          select: { id: true }
+        });
+  
+        return nuevoUsuario;
+      }  catch (error: any) {
+        const validacion = validarExistente(error.code, usuarioData.username);
+        if (!validacion.ok) {
+          throw {
+            ok: false,
+            status_cod: 409,
+            data: validacion.data
+          };
+        }
+  
+        const resultado = error.meta?.target?.[0] || "valor";
+        const valNoExistente = validarNoExistente(error.code, `El ${resultado} asignado`);
+  
+        if (!valNoExistente.ok) {
+          throw {
+            ok: false,
+            status_cod: 409,
+            data: valNoExistente.data
+          };
+        }
+  
         throw {
           ok: false,
-          status_cod: 409,
-          data: "No se encontró el estado 'activo'"
+          status_cod: 400,
+          data: error.data || "Ocurrió un error consultando el usuario"
         };
       }
-      if (!estado) throw new ForbiddenException("No se encontró el estado 'activo', por favor contacte al administrador");
-      
-      const rolInvitado = await prisma.rol.findUnique({
-        where: { nombre: 'Invitado' },
-        select: { id: true }
-      });
-
-     
-      if (!rolInvitado) throw new ForbiddenException('No se encontró el rol "Invitado", por favor contacte al administrador');
-
-      const idRol = rolInvitado.id;
-    
-      const user = new Usuario(usuarioData.username, usuarioData.pass);
-      const nuevoUsuario = await prisma.usuario.create({
-        data: {
-          username: usuarioData.username,
-          nombres: usuarioData.nombres,
-          apellidos: usuarioData.apellidos,
-          pass: user.getEncryptedPassword(),
-          id_estado: estado.id,
-          id_rol: idRol
-        },
-        select: { id: true }
-      });
-
-      return nuevoUsuario;
-    } catch (error: any) {
-      const validacion = validarExistente(error.code, usuarioData.username);
-      if (!validacion.ok) {
-        throw {
-          ok: false,
-          status_cod: 409,
-          data: validacion.data
-        };
-      }
-
-      const resultado = error.meta?.target?.[0] || "valor";
-      const valNoExistente = validarNoExistente(error.code, `El ${resultado} asignado`);
-
-      if (!valNoExistente.ok) {
-        throw {
-          ok: false,
-          status_cod: 409,
-          data: valNoExistente.data
-        };
-      }
-
-      throw {
-        ok: false,
-        status_cod: 400,
-        data: error.data || "Ocurrió un error consultando el usuario"
-      };
     }
-  }
+  
 
   async obtenerUsuarios() {
     try {
