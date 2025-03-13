@@ -1,0 +1,27 @@
+
+> inventario-backend@1.0.0 dev
+> npm-run-all --parallel gen server docs
+
+
+> inventario-backend@1.0.0 docs
+> aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api
+
+
+> inventario-backend@1.0.0 gen
+> npx prisma generate
+
+
+> inventario-backend@1.0.0 server
+> nodemon ./src/index.ts
+
+[33m[nodemon] 3.1.9[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: ts,json[39m
+[32m[nodemon] starting `ts-node ./src/index.ts`[39m
+[31m[nodemon] Error
+    at Bus.<anonymous> (/usr/src/app/node_modules/nodemon/lib/nodemon.js:164:25)
+    at Bus.emit (node:events:530:35)
+    at ChildProcess.<anonymous> (/usr/src/app/node_modules/nodemon/lib/monitor/run.js:199:11)
+    at ChildProcess.emit (node:events:518:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:293:12)[39m

@@ -1,5 +1,7 @@
 services:
   app:
+    image: node:20
+    working_dir: /usr/src/app
     build: .
     env_file:
       - .env
