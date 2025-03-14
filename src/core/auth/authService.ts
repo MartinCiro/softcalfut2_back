@@ -43,7 +43,6 @@ export default class AuthService {
             });
             const userCacheKey = `user:${usuarioRetrieved.id_user}`;
 
-            // Guardamos el usuario en Redis por 1 hora (3600 segundos)
             await this.redisService.set(userCacheKey, {
                 id_user: usuarioRetrieved.id_user,
                 nombre: usuarioRetrieved.usuario,

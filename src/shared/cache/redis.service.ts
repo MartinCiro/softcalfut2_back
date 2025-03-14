@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createClient } from 'redis';
+import config from 'src/config';
 
 @Injectable()
 export class RedisService {
@@ -7,7 +8,7 @@ export class RedisService {
 
   constructor() {
     this.client = createClient({
-      url: process.env.REDIS_URL || 'redis://redis_service:6379',
+      url: config.REDIS_URL,
     });
 
     this.client.on('error', (err: any) => console.error('Redis Error:', err));
@@ -15,8 +16,8 @@ export class RedisService {
     this.client.connect();
   }
 
-  async set(key: string, value: any, ttl = 3600) {
-    await this.client.set(key, JSON.stringify(value), { EX: ttl });
+  async set(key: string, value: any, ttl = config.REDIS_TTL) {
+    await this.client.set(key, JSON.stringify(value), { EX: ttl as number });
   }
 
   async get(key: string) {

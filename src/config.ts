@@ -5,8 +5,8 @@ dotenvConfig(); // Ejecuta la carga de variables de entorno
 export default {
   // Server Config
   port: process.env.PORT || 3000,
-  env: process.env.env || 'Dev',
-  // env: process.env.env || 'prod',
+  env: process.env.env || 'Production',
+  //env: process.env.env || 'Dev',
 
   // DBConn
   UserDB: process.env.UserDB,
@@ -18,5 +18,12 @@ export default {
   // Auth
   JWT_SECRETO: process.env.JWT_SECRETO,
   SALT: process.env.JWT_SALT,
-  JWT_TIEMPO_EXPIRA: process.env.JWT_TIEMPO_EXPIRA || 3600 || "1h",
+  JWT_TIEMPO_EXPIRA: process.env.JWT_TIEMPO_EXPIRA || 3600,
+
+  // Redis
+  REDIS_TTL: process.env.REDIS_TTL ? Number(process.env.REDIS_TTL) : 3600,
+  REDIS_URL: process.env.REDIS_URL || 'redis://redis_service:6379',
+
+  // Nats
+  NATS_URL: process.env.NATS_URL || 'nats://127.0.0.1:4222',
 };

@@ -2,13 +2,14 @@
 import { Injectable } from '@nestjs/common';
 import { connect, NatsConnection } from 'nats';
 import { MessagingPort } from 'core/port/messaging-port';
+import config from 'src/config';
 
 @Injectable()
 export class NatsService implements MessagingPort {
   private ncPromise: Promise<NatsConnection>;
 
   constructor() {
-    this.ncPromise = connect({ servers: 'nats://127.0.0.1:4222' });
+    this.ncPromise = connect({ servers: config.NATS_URL });
   }
 
   async publish(subject: string, data: any): Promise<void> {
