@@ -3,12 +3,14 @@ import { PrismaClient } from '@prisma/client';
 import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
-import { ResponseBody } from '../api/models/ResponseBody';
+import { natsService } from 'src/lib/nats';
+import { RedisService } from 'shared/cache/redis.service';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export default class EstadosAdapter implements EstadosPort {
+  constructor(private readonly redisService: RedisService) {}
 
   async crearEstados(estadoData: { nombre: string; descripcion?: string; }) {
     try {
@@ -19,7 +21,14 @@ export default class EstadosAdapter implements EstadosPort {
           descripcion: estadoData.descripcion
         }
       });
+      // Publicar evento en NATS
+      await natsService.publish('estado.creado', {
+        id: nuevoEstado.id,
+        nombre: nuevoEstado.nombre,
+        descripcion: nuevoEstado.descripcion
+      });
 
+      await this.redisService.delete('estados:lista');
 
       return nuevoEstado;
     } catch (error: any) {
@@ -53,6 +62,11 @@ export default class EstadosAdapter implements EstadosPort {
 
   async obtenerEstados() {
     try {
+      const cacheKey = 'estados:lista';
+      const estadosCache = await this.redisService.get(cacheKey);
+
+      if (estadosCache) return JSON.parse(estadosCache);
+
       const estados = await prisma.estado.findMany({
         select: {
           id: true,
@@ -60,13 +74,16 @@ export default class EstadosAdapter implements EstadosPort {
           descripcion: true,
         }
       });
-      if (!estados.length) throw new ForbiddenException("No se ha encontrado ningun estado");
 
-      return estados.map((estado: { id: any; nombre: any; descripcion: any; }) => ({
+      if (!estados.length) throw new ForbiddenException("No se ha encontrado ningun estado");
+      
+      let estados_list = estados.map((estado: { id: any; nombre: any; descripcion: any; }) => ({
         id: estado.id,
         nombre: estado.nombre,
         descripcion: estado.descripcion
-      }));
+      }))
+      await this.redisService.set(cacheKey, JSON.stringify(estados_list));
+      return estados_list;
 
     } catch (error: any) {
       throw {
@@ -79,6 +96,11 @@ export default class EstadosAdapter implements EstadosPort {
 
   async obtenerEstadosXid(estadoData: { id: string | number }) {
     try {
+      const cacheKey = `estado:${estadoData.id}`;
+      const estadoCache = await this.redisService.get(cacheKey);
+
+      if (estadoCache) return JSON.parse(estadoCache);
+
       const estado = await prisma.estado.findUnique({
         where: { id: Number(estadoData.id) },
         select: {
@@ -87,13 +109,15 @@ export default class EstadosAdapter implements EstadosPort {
           descripcion: true,
         }
       });
-
       if (!estado) throw new ForbiddenException("El estado solicitado no existe en la base de datos");
-      return {
+      const estado_id = {
         id: estado.id,
         nombre: estado.nombre,
         descripcion: estado.descripcion
-      };
+      }
+
+      await this.redisService.set(cacheKey, JSON.stringify(estado_id));
+      return estado_id;
       
     } catch (error: any) {
       throw {
@@ -106,6 +130,13 @@ export default class EstadosAdapter implements EstadosPort {
 
   async delEstado(estadoData: { id: string }) {
     try {
+      const estadosCache = await this.redisService.get('estados:lista');
+
+      if (estadosCache) {
+        const estados = JSON.parse(estadosCache).filter((e: any) => e.id !== estadoData.id);
+        await this.redisService.set('estados:lista', JSON.stringify(estados), 3600);
+      }
+
       const estado = await prisma.estado.delete({
         where: { id: Number(estadoData.id) },
       });
@@ -130,6 +161,14 @@ export default class EstadosAdapter implements EstadosPort {
     id: number | string;
   }) {
     try {
+      const estadosCache = await this.redisService.get('estados:lista');
+
+      if (estadosCache) {
+        let estados = JSON.parse(estadosCache);
+        estados = estados.map((e: any) => (e.id === estadoData.id ? estadoActualizado : e));
+        await this.redisService.set('estados:lista', JSON.stringify(estados), 3600);
+      }
+
       const { id, ...updates } = estadoData;
 
       // Verificar si el estado existe

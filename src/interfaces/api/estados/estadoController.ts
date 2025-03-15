@@ -129,7 +129,7 @@ export class EstadoController {
       const data = typeof error.data === 'string' ? error.data : 'Error desconocido';
       throw new HttpException(new ResponseBody(false, statusCode, data), statusCode);
     }
-    if (error.statusCode) throw new HttpException(new ResponseBody(false, error.statusCode, error.result), error.statusCode);
+    if (error.statusCode) throw new HttpException(new ResponseBody(false, error.statusCode, error.result ), error.statusCode);
     throw new HttpException(new ResponseBody(false, HttpStatus.INTERNAL_SERVER_ERROR, 'Error interno del servidor'), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

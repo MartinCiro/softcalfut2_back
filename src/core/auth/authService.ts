@@ -16,6 +16,7 @@ export default class AuthService {
     async loginUser({ username, password }: { username: string; password: string }): Promise<ResponseBody<any>> {
         try {
             const usuarioRetrieved = await this.authPort.retrieveUser({ username });
+
             const isPasswordValid = new Usuario(
                 usuarioRetrieved.id_user,
                 usuarioRetrieved.password,
@@ -26,61 +27,64 @@ export default class AuthService {
 
             if (!isPasswordValid) throw new Error('Usuario o contraseña inválida');
 
-            // Verificar si el JWT ya existe en Redis
             const userCacheKey = `user:${usuarioRetrieved.id_user}`;
-            const cachedToken = await this.redisService.get(userCacheKey);
+            const eventKey = `event:usuario.logeado:${usuarioRetrieved.id_user}`;
 
-            let token;
-            if (cachedToken) {
-                // Si ya existe un token válido, usarlo
-                token = cachedToken;
+            // Revisar si el usuario ya está en cache
+            const cachedUser = await this.redisService.get(userCacheKey);
+            let userData;
+
+            if (cachedUser) {
+                userData = JSON.parse(cachedUser);
             } else {
-                // Generar un nuevo JWT
-                token = generateJWT({
+                userData = {
                     id_user: usuarioRetrieved.id_user,
                     nombre: usuarioRetrieved.usuario,
                     id_rol: usuarioRetrieved.id_rol
-                });
-
-                // Almacenar el token en Redis con un TTL de 1 hora
-                await this.redisService.set(userCacheKey, token);
+                };
+            
+                const userDataWithPermissions = {
+                    ...userData,
+                    permisos: usuarioRetrieved.permisos
+                };
+            
+                await this.redisService.set(userCacheKey, JSON.stringify(userDataWithPermissions));
             }
 
-            // Verificar si el evento ya fue creado
-            const eventKey = `event:usuario.logeado:${usuarioRetrieved.id_user}`;
+            // Generar siempre un nuevo JWT para el usuario
+            const token = generateJWT(userData);
+
+            // Verificar si el evento ya se publicó en Redis
             const eventExists = await this.redisService.get(eventKey);
 
             if (!eventExists) {
                 await natsService.publish('usuario.logeado', {
-                    id_user: usuarioRetrieved.id_user,
-                    usuario: usuarioRetrieved.usuario,
-                    id_rol: usuarioRetrieved.id_rol,
+                    ...userData,
                     rol: usuarioRetrieved.rol,
-                    permisos: usuarioRetrieved.permisos,
                     timestamp: new Date().toISOString()
                 });
 
-                // Almacenar una marca en Redis para evitar duplicados
-                await this.redisService.set(eventKey, 'true');
+                // Marcar el evento como enviado en Redis
+                await this.redisService.set(JSON.stringify(eventKey), 'true');
             }
 
             return {
                 ok: true,
                 statusCode: 200,
                 result: {
-                    token, // Devuelve el token JWT generado
+                    token,
                     usuario: {
-                        id: usuarioRetrieved.id_user,
-                        nombre: usuarioRetrieved.usuario,
-                        rol: usuarioRetrieved.id_rol
+                        id: userData.id_user,
+                        nombre: userData.nombre,
+                        rol: userData.id_rol
                     }
                 }
             };
-        } catch (error) {
+        } catch (error: any) {
             return {
                 ok: false,
                 statusCode: 401,
-                result: 'Usuario o contraseña inválida'
+                result: error.data || 'Usuario o contraseña inválida'
             };
         }
     }

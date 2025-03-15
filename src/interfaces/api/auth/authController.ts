@@ -16,15 +16,13 @@ export class AuthController {
     try {
       const auth = await this.authService.loginUser({ username, password });
       return new ResponseBody(auth.ok, auth.statusCode, auth.result);
-    } catch (error) {
+    } catch (error: any) {
       if (typeof error === 'object' && error !== null && 'status_cod' in error && 'data' in error) {
         const err = error as { status_cod: unknown; data: unknown };
         const statusCode = typeof err.status_cod === 'number' ? err.status_cod : HttpStatus.INTERNAL_SERVER_ERROR;
         const data = typeof err.data === 'string' ? err.data : 'Error desconocido';
-
         throw new HttpException(new ResponseBody(false, statusCode, data), statusCode);
       }
-
       throw new HttpException(new ResponseBody(false, HttpStatus.INTERNAL_SERVER_ERROR, 'Error interno del servidor'), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
