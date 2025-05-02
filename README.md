@@ -79,7 +79,7 @@ docker exec -i psql pg_restore -U postgres -d softcalfut_psql < backup.dump
 
 ---
 
-# 📂 **Estructura del Proyecto**
+# 📂 **Estructura del Back**
 Este proyecto sigue una organización modular basada en **arquitectura hexagonal**, lo que mejora la mantenibilidad y escalabilidad.
 
 ```
@@ -113,6 +113,42 @@ Este proyecto sigue una organización modular basada en **arquitectura hexagonal
 - **`/interfaces/api`** → Define los controladores, módulos y DTOs para la API REST.  
 - **`/config`** → Configuración general del proyecto (variables de entorno, NestJS, etc.).  
 - **`/shared`** → Código reutilizable (utilidades, excepciones, middlewares).  
+
+Esta estructura modular **facilita la escalabilidad y el mantenimiento** del código. 🚀  
+
+---
+
+# 📂 **Estructura del Proyecto Front**
+Este proyecto sigue una organización modular **tradicional**.
+
+```
+/src
+├── /Utils                      # Funciones auxiliares reutilizables
+│   ├── /constants             # Constantes globales (colores, rutas, etc.)
+│   ├── /methods               # Métodos utilitarios específicos (ej. formateadores)
+│   ├── /helpers               # Funciones de apoyo generales
+│   ├── /interfaces            # Interfaces TypeScript para tipado de datos
+│   ├── /types                 # Tipos TypeScript personalizados
+│   ├── /enums                 # Enumeraciones (ej. estados, roles, etc.)
+│
+├── /Lib                       # Librerías del proyecto (núcleo funcional)
+│   ├── /Hooks                # Custom hooks reutilizables (useAuth, useFetch, etc.)
+│   ├── /Providers            # Contextos y providers globales (ej. AuthProvider)
+│   ├── /Services             # Lógica de conexión a APIs o servicios externos
+│   ├── /Layouts              # Componentes de layout general (Sidebar, Header)
+│
+├── /UI                        # Todo lo relacionado con la interfaz visual
+│   ├── /screen-components    # Componentes que se usan en una pantalla específica
+│   ├── /useable-components   # Componentes reutilizables (Button, Modal, Card)
+│   ├── /screens              # Vistas o páginas principales (Login, Dashboard, etc.)
+```
+
+---
+
+# 📌 **Descripción General**
+- **`/Utils`** →  Centraliza la lógica auxiliar y definiciones globales que pueden ser utilizadas por todo el proyecto.  
+- **`/Lib`** → Contiene funcionalidades esenciales del sistema como hooks, servicios y providers globales.  
+- **`/UI`** →  Agrupa todos los elementos visuales, estructurados por su nivel de reutilización o por pantalla.
 
 Esta estructura modular **facilita la escalabilidad y el mantenimiento** del código. 🚀  
 
