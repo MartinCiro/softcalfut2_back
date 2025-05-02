@@ -1,0 +1,10 @@
+model UsuarioXEquipo {
+  id_equipo      String
+  documento_user String
+
+  equipo  Equipo  @relation(fields: [id_equipo], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  usuario Usuario @relation(fields: [documento_user], references: [documento], onDelete: Cascade, name: "UsuarioXEquipo")
+
+  @@id([id_equipo, documento_user]) 
+  @@map("usuarioxequipo")
+}

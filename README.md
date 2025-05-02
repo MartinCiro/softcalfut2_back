@@ -49,19 +49,21 @@ docker run --name psql -e POSTGRES_USER=ciro -e POSTGRES_PASSWORD=tu_contraseña
 ---
 
 ## **5. Crear la Base de Datos**  
-Si la base de datos `bd_mims` no existe, créala con:
+Si la base de datos `softcalfut_psql` no existe, créala con:
 
 ```bash
-docker exec -it psql psql -U postgres -c "CREATE DATABASE bd_mims;"
+docker exec -it psql psql -U postgres -c "CREATE DATABASE softcalfut_psql;"
 ```
 
 ---
 
 ## **6. Crear una Copia de Seguridad**  
-Para generar un respaldo de la base de datos `bd_mims`, usa:
+Para generar un respaldo de la base de datos `softcalfut_psql`, usa:
 
 ```bash
-docker exec -t psql pg_dump -U postgres -d bd_mims -Fc > backup.dump
+docker exec -t psql pg_dump -U postgres -d softcalfut_psql -Fc > backup.dump
+docker exec -t psql pg_dump -U postgres -F c -b -v -f /var/lib/postgresql/data/backup.dump softcalfut_psql
+
 ```
 
 ---
@@ -70,9 +72,9 @@ docker exec -t psql pg_dump -U postgres -d bd_mims -Fc > backup.dump
 Para restaurar una copia de seguridad, ejecuta:
 
 ```bash
-docker exec -it psql psql -U postgres -c "DROP DATABASE IF EXISTS bd_mims;"
-docker exec -it psql psql -U postgres -c "CREATE DATABASE bd_mims;"
-docker exec -i psql pg_restore -U postgres -d bd_mims < backup.dump
+docker exec -it psql psql -U postgres -c "DROP DATABASE IF EXISTS softcalfut_psql;"
+docker exec -it psql psql -U postgres -c "CREATE DATABASE softcalfut_psql;"
+docker exec -i psql pg_restore -U postgres -d softcalfut_psql < backup.dump
 ```
 
 ---

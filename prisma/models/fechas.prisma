@@ -1,0 +1,8 @@
+model Fecha {
+  id     Int      @id @default(autoincrement())
+  fecha  DateTime @unique
+
+  // Relaciones inversas
+  usuariosNacimiento Usuario[] @relation("FechaNacimiento")
+  usuariosRegistro   Usuario[] @relation("FechaRegistro")
+}

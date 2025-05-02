@@ -4,7 +4,6 @@ model Estado {
   descripcion String?
 
   usuarios    Usuario[]
-  productos   Productos[]
 
   @@map("estado") 
 }

@@ -1,0 +1,8 @@
+model Torneo {
+  id            Int                 @id @default(autoincrement())
+  nombre_torneo String?            @map("nombre_torneo")
+
+  cedulas       CedulaDeportiva[]  @relation("TorneoToCedulaDeportiva")
+
+  @@map("torneos")
+}

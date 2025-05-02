@@ -9,26 +9,92 @@ generator client {
 }
 
 
+model Categoria {
+  id               Int                @id @default(autoincrement())
+  nombre_categoria String?           @map("nombre_categoria")
+
+  cedulas CedulaDeportiva[]          @relation("CategoriaToCedulaDeportiva")
+
+  @@map("categoria")
+}
+
+
+model CedulaDeportiva {
+  id                        Int       @id @default(autoincrement())
+  fecha_creacion_deportiva   DateTime?
+  estado_cedula              Int?
+  id_categoria               Int?
+  id_torneo                  Int?
+  fecha_registro_cedula      DateTime?
+  id_equipo                  String?
+  id_foto                    Int?
+
+  // Relaciones
+  equipo     Equipo?     @relation(fields: [id_equipo], references: [id], onDelete: Cascade)
+  categoria  Categoria?  @relation(fields: [id_categoria], references: [id], onDelete: Cascade, name: "CategoriaToCedulaDeportiva")
+  torneo     Torneo?     @relation(fields: [id_torneo], references: [id], onDelete: Cascade, name: "TorneoToCedulaDeportiva")
+  foto       Foto?       @relation(fields: [id_foto], references: [id], onDelete: Cascade, name: "FotoToCedulaDeportiva")
+
+  @@map("cedula_deportiva")
+}
+
+
+model Equipo {
+  id         String   @id @map("id")     
+  nom_equipo String?  @map("nom_equipo") 
+  documento  String?  @map("documento")  
+
+  usuario  Usuario?  @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
+
+  cedulas    CedulaDeportiva[]
+  programaciones Programacion[]
+  usuariosxEquipo UsuarioXEquipo[]
+
+  @@map("equipo")
+}
+
+
 model Estado {
   id          Int     @id @default(autoincrement())  
   nombre      String  @unique @map("nombre_estado")
   descripcion String?
 
   usuarios    Usuario[]
-  productos   Productos[]
 
   @@map("estado") 
 }
 
 
-model Origen {
-  id          Int      @id @default(autoincrement())
-  nombre      String @unique @map("nombre_origen")
-  description String?
+model Fecha {
+  id     Int      @id @default(autoincrement())
+  fecha  DateTime @unique
 
-  productos   Productos[]
-  @@map("origen_producto") 
+  // Relaciones inversas
+  usuariosNacimiento Usuario[] @relation("FechaNacimiento")
+  usuariosRegistro   Usuario[] @relation("FechaRegistro")
 }
+
+
+model Foto {
+  id   Int     @id @default(autoincrement())
+  base String?
+
+  cedulas CedulaDeportiva[] @relation("FotoToCedulaDeportiva")
+
+  @@map("fotos")
+}
+
+
+model LCF {
+  id        Int     @id @default(autoincrement())
+  id_equipo String? @map("id_equipo")    // FK potencial a Equipo (no definida como tal)
+  documento String?                      // FK potencial a Usuario (no definida como tal)
+
+  programaciones Programacion[] // relación inversa desde Programacion.id_lcf
+
+  @@map("lcf")
+}
+
 
 model Permiso {
   id          Int     @id @default(autoincrement())  
@@ -40,23 +106,26 @@ model Permiso {
 }
 
 
-model Productos {
-  id          Int       @id @default(autoincrement())
-  nombre      String    @unique @map("nombre_producto")
-  description String
-  notas       String
-  cantidad    Int
-  id_origen   Int
-  precio      Decimal
-  id_estado   Int
-  id_usuario  Int
+model Programacion {
+  id                 Int      @id @default(autoincrement())
+  rama               Int?
+  categoria_encuentro String? @map("categoria_encuentro")
+  lugar_encuentro     String? @map("lugar_encuentro")
+  fecha_encuentro     DateTime? @map("fecha_encuentro")
+  nombre_competencia  String? @map("nombre_competencia")
+  id_lcf              Int?
+  fase                String?
+  equipo_local        String? @map("equipo_local")
+  quipo_visitante     String? @map("quipo_visitante")
+  id_equipo           String? // FK a equipo.id
 
-  usuario     Usuario   @relation(fields: [id_usuario], references: [id])
-  estado      Estado    @relation(fields: [id_estado], references: [id])
-  origen_producto     Origen  @relation(fields: [id_origen], references: [id])
+  // Relaciones
+  equipo Equipo? @relation(fields: [id_equipo], references: [id])
+  lcf    LCF?    @relation(fields: [id_lcf], references: [id], onDelete: Cascade)
 
-  @@map("productos") 
+  @@map("programacion")
 }
+
 
 model Rol {
   id          Int     @id @default(autoincrement())  
@@ -81,18 +150,53 @@ model RolXPermiso {
 }
 
 
+model Torneo {
+  id            Int                 @id @default(autoincrement())
+  nombre_torneo String?            @map("nombre_torneo")
+
+  cedulas       CedulaDeportiva[]  @relation("TorneoToCedulaDeportiva")
+
+  @@map("torneos")
+}
+
+
 model Usuario {
-  id        Int    @id @default(autoincrement())
-  username  String @unique @map("username")
-  nombres   String
-  apellidos String      
-  pass      String                                 
-  id_rol    Int
-  id_estado Int
+  documento              String   @id @map("documento")
+  nombres                String
+  apellido               String
+  email                  String
+  info_perfil            String?
+  num_contacto           String?
+  nom_user               String
+  pass                   String
+  id_rol                 Int
+  estado_id              Int     // Columna escalar para la relación con Estado
+  id_fecha_nacimiento    Int?
+  id_fecha_registro      Int?
 
-  rol    Rol    @relation(fields: [id_rol], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  estado Estado @relation(fields: [id_estado], references: [id])
+  rol     Rol     @relation(fields: [id_rol], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  estado  Estado  @relation(fields: [estado_id], references: [id])
 
-  productos   Productos[]
-  @@map("usuario") 
+  fecha_nacimiento       Fecha? @relation("FechaNacimiento", fields: [id_fecha_nacimiento], references: [id], onDelete: Cascade)
+  fecha_registro        Fecha? @relation("FechaRegistro", fields: [id_fecha_registro], references: [id], onDelete: Cascade)
+
+  usuarioXEquipos UsuarioXEquipo[] @relation("UsuarioXEquipo")
+
+  // Relación inversa a la entidad Equipo
+  equipos   Equipo[] @relation("EquipoToUsuario")
+
+  @@unique([documento])
+  @@map("usuario")
+}
+
+
+model UsuarioXEquipo {
+  id_equipo      String
+  documento_user String
+
+  equipo  Equipo  @relation(fields: [id_equipo], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  usuario Usuario @relation(fields: [documento_user], references: [documento], onDelete: Cascade, name: "UsuarioXEquipo")
+
+  @@id([id_equipo, documento_user]) 
+  @@map("usuarioxequipo")
 }

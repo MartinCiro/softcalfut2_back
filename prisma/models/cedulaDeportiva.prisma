@@ -1,0 +1,18 @@
+model CedulaDeportiva {
+  id                        Int       @id @default(autoincrement())
+  fecha_creacion_deportiva   DateTime?
+  estado_cedula              Int?
+  id_categoria               Int?
+  id_torneo                  Int?
+  fecha_registro_cedula      DateTime?
+  id_equipo                  String?
+  id_foto                    Int?
+
+  // Relaciones
+  equipo     Equipo?     @relation(fields: [id_equipo], references: [id], onDelete: Cascade)
+  categoria  Categoria?  @relation(fields: [id_categoria], references: [id], onDelete: Cascade, name: "CategoriaToCedulaDeportiva")
+  torneo     Torneo?     @relation(fields: [id_torneo], references: [id], onDelete: Cascade, name: "TorneoToCedulaDeportiva")
+  foto       Foto?       @relation(fields: [id_foto], references: [id], onDelete: Cascade, name: "FotoToCedulaDeportiva")
+
+  @@map("cedula_deportiva")
+}

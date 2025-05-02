@@ -1,0 +1,8 @@
+model Foto {
+  id   Int     @id @default(autoincrement())
+  base String?
+
+  cedulas CedulaDeportiva[] @relation("FotoToCedulaDeportiva")
+
+  @@map("fotos")
+}
