@@ -4,7 +4,7 @@ import UsuariosPort from './usuarioPort';
 interface UsuarioData {
   username: string;
   nombres: string;
-  apellidos: string;
+  apellido: string;
   pass: string; 
   id_estado?: number | string; 
   id_rol?: number | string; 

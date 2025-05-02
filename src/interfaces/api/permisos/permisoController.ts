@@ -77,7 +77,7 @@ export class PermisoController {
     }
   }))
   async actualizarPermiso(@Body() body: ActualizarPermisoDto): Promise<ResponseBody<string>> {
-    if (!body.apellidos && !body.nombres && !body.id_rol && !body.id_estado && !body.username && !body.id) {
+    if (!body.apellido && !body.nombres && !body.id_rol && !body.id_estado && !body.username && !body.id) {
       throw new HttpException(
         new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
         HttpStatus.BAD_REQUEST,

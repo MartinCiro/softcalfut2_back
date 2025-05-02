@@ -13,7 +13,7 @@ class AuthAdapter implements AuthPort {
         select: {
           id: true,
           nombres: true,
-          apellidos: true,
+          apellido: true,
           username: true,
           pass: true,
           id_rol: true,
@@ -38,7 +38,7 @@ class AuthAdapter implements AuthPort {
 
       return {
         id_user: usuario.id,
-        usuario: usuario.nombres + " " + usuario.apellidos,
+        usuario: usuario.nombres + " " + usuario.apellido,
         password: usuario.pass,
         username: usuario.username,
         id_rol: usuario.id_rol,

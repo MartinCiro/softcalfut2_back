@@ -53,7 +53,7 @@ CREATE TABLE "usuario" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
     "nombres" TEXT NOT NULL,
-    "apellidos" TEXT NOT NULL,
+    "apellido" TEXT NOT NULL,
     "pass" TEXT NOT NULL,
     "id_rol" INTEGER NOT NULL,
     "id_estado" INTEGER NOT NULL,

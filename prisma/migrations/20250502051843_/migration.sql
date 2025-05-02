@@ -2,7 +2,7 @@
   Warnings:
 
   - The primary key for the `usuario` table will be changed. If it partially fails, the table could be left without primary key constraint.
-  - You are about to drop the column `apellidos` on the `usuario` table. All the data in the column will be lost.
+  - You are about to drop the column `apellido` on the `usuario` table. All the data in the column will be lost.
   - You are about to drop the column `id` on the `usuario` table. All the data in the column will be lost.
   - You are about to drop the column `id_estado` on the `usuario` table. All the data in the column will be lost.
   - You are about to drop the column `username` on the `usuario` table. All the data in the column will be lost.
@@ -33,7 +33,7 @@ DROP INDEX "usuario_username_key";
 
 -- AlterTable
 ALTER TABLE "usuario" DROP CONSTRAINT "usuario_pkey",
-DROP COLUMN "apellidos",
+DROP COLUMN "apellido",
 DROP COLUMN "id",
 DROP COLUMN "id_estado",
 DROP COLUMN "username",

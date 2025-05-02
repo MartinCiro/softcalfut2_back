@@ -4,7 +4,7 @@ export class CrearUsuarioDto {
 
   @IsNotEmpty({ message: 'El apellido es obligatorio' })
   @IsString({ message: 'El texto de apellido no es valido' })
-  readonly apellidos!: string;
+  readonly apellido!: string;
 
   @IsOptional()
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
