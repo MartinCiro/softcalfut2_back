@@ -106,8 +106,6 @@ Este proyecto sigue una organización modular basada en **arquitectura hexagonal
   ├── main.ts               # Punto de entrada de la aplicación (bootstrap de NestJS)
 ```
 
----
-
 # 📌 **Descripción General**
 - **`/core`** → Contiene la lógica de negocio pura, independiente de la infraestructura.  
 - **`/interfaces/api`** → Define los controladores, módulos y DTOs para la API REST.  
@@ -118,12 +116,12 @@ Esta estructura modular **facilita la escalabilidad y el mantenimiento** del có
 
 ---
 
-# 📂 **Estructura del Proyecto Front**
+# 📂 **Estructura del Front**
 Este proyecto sigue una organización modular **tradicional**.
 
 ```
 /src
-├── /Utils                      # Funciones auxiliares reutilizables
+├── /Utils                     # Funciones auxiliares reutilizables
 │   ├── /constants             # Constantes globales (colores, rutas, etc.)
 │   ├── /methods               # Métodos utilitarios específicos (ej. formateadores)
 │   ├── /helpers               # Funciones de apoyo generales
@@ -131,13 +129,13 @@ Este proyecto sigue una organización modular **tradicional**.
 │   ├── /types                 # Tipos TypeScript personalizados
 │   ├── /enums                 # Enumeraciones (ej. estados, roles, etc.)
 │
-├── /Lib                       # Librerías del proyecto (núcleo funcional)
+├── /Lib                      # Librerías del proyecto (núcleo funcional)
 │   ├── /Hooks                # Custom hooks reutilizables (useAuth, useFetch, etc.)
 │   ├── /Providers            # Contextos y providers globales (ej. AuthProvider)
 │   ├── /Services             # Lógica de conexión a APIs o servicios externos
 │   ├── /Layouts              # Componentes de layout general (Sidebar, Header)
 │
-├── /UI                        # Todo lo relacionado con la interfaz visual
+├── /UI                       # Todo lo relacionado con la interfaz visual
 │   ├── /screen-components    # Componentes que se usan en una pantalla específica
 │   ├── /useable-components   # Componentes reutilizables (Button, Modal, Card)
 │   ├── /screens              # Vistas o páginas principales (Login, Dashboard, etc.)
