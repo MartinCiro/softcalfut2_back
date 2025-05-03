@@ -11,6 +11,7 @@ import { EliminarEstadoDto } from './dtos/eliminarEstado.dto';
 import { AuthGuard } from 'core/auth/guards/auth.guard';
 import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
 import { Permissions } from 'core/auth/decorators/permissions.decorator';
+import { handleException } from 'api/utils/validaciones';
 
 @Controller('estados')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
@@ -20,7 +21,7 @@ export class EstadoController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
-  @Permissions('Escritura')
+  @Permissions('Crea')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -36,14 +37,14 @@ export class EstadoController {
       await this.rolService.crearEstado(body);
       return new ResponseBody<string>(true, 201, "Se ha creado el rol exitosamente");
     } catch (error) {
-      this.handleException(error);
+      handleException(error);
     }
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Lectura') 
+  @Permissions('Lee') 
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -61,14 +62,14 @@ export class EstadoController {
 
       return new ResponseBody<any>(true, 200, estados);
     } catch (error) {
-      this.handleException(error);
+      handleException(error);
     }
   }
 
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Actualizacion') 
+  @Permissions('Actualiza') 
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -94,7 +95,7 @@ export class EstadoController {
       await this.rolService.upEstado(body);
       return new ResponseBody(true, HttpStatus.OK, "Estado actualizado exitosamente.");
     } catch (error) {
-      this.handleException(error);
+      handleException(error);
     }
   }
 
@@ -116,20 +117,7 @@ export class EstadoController {
       await this.rolService.delEstado({ id: eliminarEstadoDto.id });
       return new ResponseBody(true, 201, "Se ha eliminado el rol exitosamente");
     } catch (error) {
-      this.handleException(error);
+      handleException(error);
     }
-  }
-
-  /**
-   * 📌 Manejo centralizado de errores
-   */
-  private handleException(error: any): never {
-    if (typeof error === 'object' && error !== null && 'status_cod' in error && 'data' in error) {
-      const statusCode = typeof error.status_cod === 'number' ? error.status_cod : HttpStatus.INTERNAL_SERVER_ERROR;
-      const data = typeof error.data === 'string' ? error.data : 'Error desconocido';
-      throw new HttpException(new ResponseBody(false, statusCode, data), statusCode);
-    }
-    if (error.statusCode) throw new HttpException(new ResponseBody(false, error.statusCode, error.result ), error.statusCode);
-    throw new HttpException(new ResponseBody(false, HttpStatus.INTERNAL_SERVER_ERROR, 'Error interno del servidor'), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

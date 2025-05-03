@@ -11,43 +11,49 @@ const prisma = new PrismaClient();
 export default class UsuariosAdapter implements UsuariosPort {
 
   async crearUsuarios(usuarioData: {
-    documento: string; 
-    nombres: string; 
-    apellido: string; 
-    email: string; 
-    info_perfil?: string; 
-    num_contacto?: string; 
-    nom_user: string; 
-    fecha_nacimiento: string; 
-    pass: string; 
-    id_rol?: number | string;
+    nombres: string;
+    passwd: string; 
+    id_rol?: number | string; 
+    apellido: string;
+    numero_documento: string;
+    email: string;
+    estado_id?: number | string; 
+    info_perfil?: string;
+    nom_user: string;
+    numero_contacto?: string;
+    fecha_nacimiento: string | Date;
   }) {
     try {
-      let fechaId: number | undefined;
+      let fechaId;
+      let fecha_registro: number | Date = new Date();
 
       const fechaExistente = await prisma.fecha.findUnique({
-        where: { fecha: usuarioData.fecha_nacimiento },
+        where: { fecha: new Date(usuarioData.fecha_nacimiento) || usuarioData.fecha_nacimiento },
         select: { id: true }
       });
+      
+      fechaId = fechaExistente ? fechaExistente.id : await prisma.fecha.create({
+        data: { fecha: new Date(usuarioData.fecha_nacimiento) || usuarioData.fecha_nacimiento },
+        select: { id: true }
+      }).then((nuevaFecha) => nuevaFecha.id);
 
-      if (fechaExistente) {
-        fechaId = fechaExistente.id;
-      } else {
-        const nuevaFecha = await prisma.fecha.create({
-          data: { fecha: usuarioData.fecha_nacimiento },
-          select: { id: true }
-        });
-        fechaId = nuevaFecha.id;
-      }
+      const fecha_registro_id = await prisma.fecha.findUnique({
+        where: { fecha: fecha_registro.toISOString() },  
+        select: { id: true }
+      });
+      
+      const idFechaRegistro = fecha_registro_id ? fecha_registro_id.id : await prisma.fecha.create({
+        data: { fecha: fecha_registro.toISOString() },  
+        select: { id: true }
+      }).then((nuevaFecha) => nuevaFecha.id);
 
       // Buscar el estado 'activo'
       const estado = await prisma.estado.findUnique({
-        where: { nombre: 'activo' },
+        where: { nombre: 'Activo' },
         select: { id: true }
       });
 
       if (!estado) throw new ForbiddenException("No se encontró el estado 'activo', por favor contacte al administrador");
-      
       
       let idRol: number;
 
@@ -68,24 +74,24 @@ export default class UsuariosAdapter implements UsuariosPort {
           where: { nombre: 'Invitado' },
           select: { id: true }
         });
-
         if (!rolInvitado) throw new ForbiddenException("No se encontró el rol 'Invitado', por favor contacte al administrador");
 
         idRol = rolInvitado.id;
       }
 
       // Crear el usuario con contraseña encriptada
-      const user = new Usuario(usuarioData.documento, usuarioData.pass);
+      const user = new Usuario(usuarioData.numero_documento, usuarioData.passwd);
       const nuevoUsuario = await prisma.usuario.create({
         data: {
-          documento: usuarioData.documento,
+          documento: usuarioData.numero_documento,
           nombres: usuarioData.nombres,
           apellido: usuarioData.apellido,
           email: usuarioData.email,
           info_perfil: usuarioData.info_perfil,
-          num_contacto: usuarioData.num_contacto,
+          num_contacto: usuarioData.numero_contacto,
           nom_user: usuarioData.nom_user,
-          id_fecha_nacimiento: fechaId, 
+          id_fecha_nacimiento: fechaId,
+          id_fecha_registro: idFechaRegistro, 
           pass: user.getEncryptedPassword(),
           estado_id: estado.id,
           id_rol: idRol
@@ -95,7 +101,7 @@ export default class UsuariosAdapter implements UsuariosPort {
 
       return nuevoUsuario;
     } catch (error: any) {
-      const validacion = validarExistente(error.code, usuarioData.documento);
+      const validacion = validarExistente(error.code, usuarioData.numero_documento);
       if (!validacion.ok) {
         throw {
           ok: false,
@@ -118,7 +124,7 @@ export default class UsuariosAdapter implements UsuariosPort {
       throw {
         ok: false,
         status_cod: 400,
-        data: error.data || "Ocurrió un error consultando el usuario"
+        data: error.data || "Ocurrió un error creando el usuario"
       };
     }
   }
@@ -161,10 +167,10 @@ export default class UsuariosAdapter implements UsuariosPort {
     }
   }
 
-  async obtenerUsuariosXid(usuarioData: { documento: string | number; }) {
+  async obtenerUsuariosXid(usuarioData: { numero_documento: string | number; }) {
     try {
       const usuario = await prisma.usuario.findUnique({
-        where: { documento: usuarioData.documento.toString() },
+        where: { documento: usuarioData.numero_documento.toString() },
         select: {
           documento: true,
           nombres: true,
@@ -200,10 +206,10 @@ export default class UsuariosAdapter implements UsuariosPort {
     }
   }
 
-  async delUsuario(usuarioData: { documento: string }) {
+  async delUsuario(usuarioData: { numero_documento: string }) {
     try {
       const usuario = await prisma.usuario.delete({
-        where: { documento: usuarioData.documento.toString() },
+        where: { documento: usuarioData.numero_documento.toString() },
       });
 
       return {
@@ -233,13 +239,13 @@ export default class UsuariosAdapter implements UsuariosPort {
     apellido?: string;
     estado_id?: number | string;
     id_rol?: number | string;
-    documento: number | string;
+    numero_documento: number | string;
   }) {
     try {
-      const { documento, estado_id, id_rol, ...updates } = usuarioData;
+      const { numero_documento, estado_id, id_rol, ...updates } = usuarioData;
 
       const usuarioActualizado = await prisma.usuario.update({
-        where: { documento: documento.toString() },
+        where: { documento: numero_documento.toString() },
         data: {
           ...updates,
           estado_id: estado_id !== undefined ? Number(estado_id) : undefined,

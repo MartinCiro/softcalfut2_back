@@ -34,9 +34,8 @@ class AuthAdapter implements AuthPort {
         },
       });
       if (!usuario) return null;
-
       return {
-        id_user: usuario.documento,
+        documento: usuario.documento,
         usuario: usuario.nombres + " " + usuario.apellido,
         password: usuario.pass,
         id_rol: usuario.id_rol,

@@ -2,20 +2,22 @@ import { Injectable, Inject } from '@nestjs/common';
 import UsuariosPort from './usuarioPort';
 
 interface UsuarioData {
-  documento: string;
   nombres: string;
-  apellido: string;
-  pass: string; 
-  estado_id?: number | string; 
+  passwd: string; 
   id_rol?: number | string; 
+  apellido: string;
+  numero_documento: string;
+  email: string;
+  estado_id?: number | string; 
+  info_perfil?: string;
+  nom_user: string;
+  numero_contacto?: string;
+  fecha_nacimiento: string | Date;
 }
 
-  
-interface UsuarioDataXid {
-  documento: number | string;
-}
+type UsuarioDataXid = Pick<UsuarioData, 'numero_documento'>;
 
-type UsuarioDataUpdate = Partial<Omit<UsuarioData, 'documento'>> & UsuarioDataXid;
+type UsuarioDataUpdate = Partial<Omit<UsuarioData, 'numero_documento'>> & UsuarioDataXid;
 
 
 @Injectable() 

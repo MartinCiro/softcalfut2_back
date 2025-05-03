@@ -7,7 +7,7 @@ const modelsDir = path.join("prisma", "models");
 const baseSchema = `
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DB_URL")
 }
 
 generator client {

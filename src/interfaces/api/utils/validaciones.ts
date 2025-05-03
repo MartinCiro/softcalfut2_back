@@ -1,6 +1,7 @@
 
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common/enums/http-status.enum';
+import { ResponseBody } from 'api/models/ResponseBody';
 
 export const validarBlank = (valor: any, nombre: string): void => {
   if (!valor) {
@@ -22,4 +23,17 @@ export const validarNoExistente = (valor: string, nombre: string | number) => {
     };
   return { ok: true };
 };
+
+export function handleException(error: any): never {
+  if (typeof error === 'object' && error !== null && 'status_cod' in error && 'data' in error) {
+    const statusCode = typeof error.status_cod === 'number' ? error.status_cod : HttpStatus.INTERNAL_SERVER_ERROR;
+    const data = typeof error.data === 'string' ? error.data : 'Error desconocido';
+    throw new HttpException(new ResponseBody(false, statusCode, data), statusCode);
+  }
+
+  throw new HttpException(
+    new ResponseBody(false, HttpStatus.INTERNAL_SERVER_ERROR, 'Error interno del servidor'),
+    HttpStatus.INTERNAL_SERVER_ERROR
+  );
+}
 

@@ -15,7 +15,7 @@ export class ActualizarUsuarioDto {
 
   @IsNotEmpty({ message: 'El nombre de usuario es obligatorio' })
   @IsString({ message: 'El texto en nombre de usuario no es valido' })
-  readonly documento!: string
+  readonly numero_documento!: string
 
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
   readonly id_rol!: number
