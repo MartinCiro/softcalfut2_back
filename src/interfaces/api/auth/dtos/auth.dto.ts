@@ -4,7 +4,7 @@ export class AuthDto {
 
   @IsNotEmpty({ message: 'El usuario es obligatorio' })
   @IsString({ message: 'El texto en nombre de usuario no es valido' })
-  readonly username!: string
+  readonly documento!: string
 
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   @IsString({ message: 'La contraseña debe ser un texto' })

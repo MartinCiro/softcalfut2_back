@@ -8,7 +8,7 @@ export class CrearUsuarioDto {
 
   @IsOptional()
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
-  readonly id_estado!: number;
+  readonly estado_id!: number;
 
   @IsOptional()
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
@@ -20,7 +20,7 @@ export class CrearUsuarioDto {
 
   @IsNotEmpty({ message: 'El nombre de usuario es obligatorio' })
   @IsString({ message: 'El texto en nombre de usuario no es valido' })
-  readonly username!: string
+  readonly documento!: string
 
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })

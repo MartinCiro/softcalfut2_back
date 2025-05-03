@@ -13,9 +13,9 @@ export default class AuthService {
         private readonly redisService: RedisService
     ) {}
 
-    async loginUser({ username, password }: { username: string; password: string }): Promise<ResponseBody<any>> {
+    async loginUser({ documento, password }: { documento: string; password: string }): Promise<ResponseBody<any>> {
         try {
-            const usuarioRetrieved = await this.authPort.retrieveUser({ username });
+            const usuarioRetrieved = await this.authPort.retrieveUser({ documento });
 
             const isPasswordValid = new Usuario(
                 usuarioRetrieved.id_user,

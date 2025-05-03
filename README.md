@@ -106,6 +106,8 @@ Este proyecto sigue una organización modular basada en **arquitectura hexagonal
   ├── main.ts               # Punto de entrada de la aplicación (bootstrap de NestJS)
 ```
 
+---
+
 # 📌 **Descripción General**
 - **`/core`** → Contiene la lógica de negocio pura, independiente de la infraestructura.  
 - **`/interfaces/api`** → Define los controladores, módulos y DTOs para la API REST.  

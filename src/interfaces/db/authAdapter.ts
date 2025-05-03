@@ -6,15 +6,14 @@ const prisma = new PrismaClient();
 
 class AuthAdapter implements AuthPort {
 
-  async retrieveUser(authData: { username: string }) {
+  async retrieveUser(authData: { documento: string }) {
     try {
       const usuario = await prisma.usuario.findUnique({
-        where: { username: authData.username },
+        where: { documento: authData.documento },
         select: {
-          id: true,
+          documento: true,
           nombres: true,
           apellido: true,
-          username: true,
           pass: true,
           id_rol: true,
           estado: {  
@@ -37,10 +36,9 @@ class AuthAdapter implements AuthPort {
       if (!usuario) return null;
 
       return {
-        id_user: usuario.id,
+        id_user: usuario.documento,
         usuario: usuario.nombres + " " + usuario.apellido,
         password: usuario.pass,
-        username: usuario.username,
         id_rol: usuario.id_rol,
         estado: usuario.estado.nombre,
         rol: usuario.rol.nombre,
@@ -48,7 +46,7 @@ class AuthAdapter implements AuthPort {
       };
 
     } catch (error: any) {
-      const validacion = validarExistente(error.code, authData.username);
+      const validacion = validarExistente(error.code, authData.documento);
       if (!validacion.ok) {
         throw {
           ok: validacion.ok,

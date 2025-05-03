@@ -4,7 +4,7 @@ dotenvConfig(); // Ejecuta la carga de variables de entorno
 
 export default {
   // Server Config
-  port: process.env.PORT || 3000,
+  port: process.env.PORT_API || 3000,
   env: process.env.env || 'Production',
   //env: process.env.env || 'Dev',
 
@@ -16,7 +16,7 @@ export default {
   PortDB: process.env.PortDB,
 
   // Auth
-  JWT_SECRETO: process.env.JWT_SECRETO,
+  JWT_SECRETO: process.env.JWT_SECRET,
   SALT: process.env.JWT_SALT,
   JWT_TIEMPO_EXPIRA: process.env.JWT_TIEMPO_EXPIRA || 3600,
 

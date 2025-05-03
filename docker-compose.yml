@@ -1,26 +1,28 @@
 services:
-  app:
+  softcalfut_back:
     image: node:20
     working_dir: /usr/src/app
     build: .
-    env_file:
-      - .env
-    container_name: inventario_app
+    container_name: softcalfut_api
     restart: always
     depends_on:
       - nats
       - redis
     ports:
-      - "4000:4000"
+      - ${PORT_API}:4000
     environment:
-      - NODE_ENV=Dev
-      - DB_HOST=psql  
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=ciro
-      - DB_NAME=personal_inventary
-      - NATS_URL=nats://nats:4222
-      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=${env}
+      - DB_HOST=${HOST_DB}  
+      - DB_PORT=${PORT_DB}
+      - DB_USER=${USER_DB}
+      - DB_PASSWORD=${PASS_DB}
+      - DB_NAME=${NAME_DB}
+      - NATS_URL=nats://${NATS_HOST}:${NATS_PORT}
+      - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}
+      - JWT_SECRET=${JWT_SECRETO}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_SALT=${JWT_SALT}
+      - DB_URL=postgresql://${USER_DB}:${PASS_DB}@${HOST_DB}:${PORT_DB}/${NAME_DB}
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -33,8 +35,7 @@ services:
     container_name: nats_server
     restart: always
     ports:
-      - "4222:4222"
-      - "8222:8222"
+      - ${NATS_PORT}:4222
     networks:
       - docker_app_network
     
@@ -43,7 +44,7 @@ services:
     container_name: redis_service
     restart: always
     ports:
-      - "6379:6379"
+      - ${REDIS_PORT}:6379
     networks:
       - docker_app_network
     volumes:
@@ -53,4 +54,4 @@ volumes:
 
 networks:
   docker_app_network:
-    external: true
+    driver: bridge

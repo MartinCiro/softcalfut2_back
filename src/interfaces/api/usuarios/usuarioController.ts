@@ -56,8 +56,8 @@ export class UsuarioController {
   }))
   async obtenerUsuarios(@Body() body: ObtenerUsuariosDto): Promise<ResponseBody<any>> {
     try {
-      const usuarios = body.id
-        ? await this.usuarioService.obtenerUsuarioXid({ id: body.id })
+      const usuarios = body.documento
+        ? await this.usuarioService.obtenerUsuarioXid({ documento: body.documento })
         : await this.usuarioService.obtenerUsuarios();
 
       return new ResponseBody<any>(true, 200, usuarios);
@@ -80,7 +80,7 @@ export class UsuarioController {
     }
   }))
   async actualizarUsuario(@Body() body: ActualizarUsuarioDto): Promise<ResponseBody<string>> {
-    if (!body.apellido && !body.nombres && !body.id_rol && !body.id_estado && !body.username && !body.id) {
+    if (!body.apellido && !body.nombres && !body.id_rol && !body.estado_id && !body.documento && !body.documento) {
       throw new HttpException(
         new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
         HttpStatus.BAD_REQUEST,
@@ -110,7 +110,7 @@ export class UsuarioController {
 
   async delUsuario(@Body() eliminarUsuarioDto: EliminarUsuarioDto): Promise<ResponseBody<string>> {
     try {
-      await this.usuarioService.delUsuario({ id: eliminarUsuarioDto.id});
+      await this.usuarioService.delUsuario({ documento: eliminarUsuarioDto.documento});
       return new ResponseBody(true, 201, "Se ha eliminado el usuario exitosamente");
     } catch (error) {
       this.handleException(error);

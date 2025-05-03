@@ -4,10 +4,10 @@ export class Usuario {
     private encryptedPassword: string;
 
     constructor(
-        public readonly username: string,
+        public readonly documento: string,
         password: string,
         public readonly id_rol?: number,
-        public readonly id_estado?: number,
+        public readonly estado_id?: number,
         isEncrypted: boolean = false 
     ) {
         this.encryptedPassword = isEncrypted ? password : PasswordService.encodePassword(password);

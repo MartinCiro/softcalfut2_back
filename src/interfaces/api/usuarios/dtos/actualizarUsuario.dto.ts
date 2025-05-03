@@ -7,7 +7,7 @@ export class ActualizarUsuarioDto {
 
   @IsOptional()
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
-  readonly id_estado!: number;
+  readonly estado_id!: number;
 
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @IsString({ message: 'El texto de nombre no es valido' })
@@ -15,11 +15,8 @@ export class ActualizarUsuarioDto {
 
   @IsNotEmpty({ message: 'El nombre de usuario es obligatorio' })
   @IsString({ message: 'El texto en nombre de usuario no es valido' })
-  readonly username!: string
+  readonly documento!: string
 
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
   readonly id_rol!: number
-
-  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
-  readonly id!: number
 }

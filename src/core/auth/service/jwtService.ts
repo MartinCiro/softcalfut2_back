@@ -4,14 +4,13 @@ import config from 'src/config';
 interface JwtPayload {
     userInfo: any;
     id_user: number;
-    username: string;
+    documento: string;
     id_rol: number;
     exp?: number;
 }
 
 export const generateJWT = (userInfo: any): string => {
     if (!config.JWT_SECRETO) throw new Error("JWT_SECRETO no está definido en la configuración.");
-
     return jwt.sign({ userInfo }, config.JWT_SECRETO, { expiresIn: 3600 });
 };
 
