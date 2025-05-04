@@ -1,9 +1,9 @@
 model Equipo {
-  id         String   @id @map("id")     
-  nom_equipo String?  @map("nom_equipo") 
-  documento  String?  @map("documento")  
-
-  usuario  Usuario?  @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
+  id         Int    @id @default(autoincrement())   
+  nom_equipo String @map("nom_equipo") @unique
+  documento  String  @map("documento") @unique
+  
+  usuario    Usuario?  @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
 
   cedulas    CedulaDeportiva[]
   programaciones Programacion[]

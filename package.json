@@ -5,12 +5,14 @@
   "main": "./src/index.ts",
   "scripts": {
     "start": "node -r ts-node/register src/index.ts",
-    "dev": "npm-run-all --parallel gen server docs",
+    "dev": "npm-run-all merge gen && npm-run-all --parallel server docs",
     "server": "nodemon --exec \"node -r tsconfig-paths/register -r ts-node/register\" ./src/index.ts",
     "docs": "aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api",
     "gen": "npx prisma generate",
     "merge": "node prisma/mergeModels.mjs",
-    "migrate": "npm run merge && npx prisma migrate dev --name init",
+    "migrate:dev": "npx prisma migrate dev --name init",
+    "migrate:deploy": "npx prisma migrate deploy",
+    "migrate:reset": "npx prisma migrate reset",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },

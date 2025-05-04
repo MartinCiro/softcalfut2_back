@@ -5,7 +5,7 @@ model CedulaDeportiva {
   id_categoria               Int?
   id_torneo                  Int?
   fecha_registro_cedula      DateTime?
-  id_equipo                  String?
+  id_equipo                  Int?
   id_foto                    Int?
 
   // Relaciones

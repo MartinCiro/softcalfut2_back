@@ -1,5 +1,5 @@
 model UsuarioXEquipo {
-  id_equipo      String
+  id_equipo      Int
   documento_user String
 
   equipo  Equipo  @relation(fields: [id_equipo], references: [id], onUpdate: Cascade, onDelete: Cascade)

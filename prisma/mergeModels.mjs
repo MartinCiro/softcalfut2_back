@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 
+const modelsDir  = path.join("prisma", "models");
 const schemaPath = path.join("prisma", "schema.prisma");
-const modelsDir = path.join("prisma", "models");
 
 const baseSchema = `
 datasource db {
@@ -21,5 +21,3 @@ const modelsContent = modelFiles.map((file) =>
 ).join("\n\n");
 
 fs.writeFileSync(schemaPath, baseSchema + "\n\n" + modelsContent);
-
-// Ejecutar `npx prisma generate` para actualizar la base de datos

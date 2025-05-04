@@ -26,7 +26,7 @@ model CedulaDeportiva {
   id_categoria               Int?
   id_torneo                  Int?
   fecha_registro_cedula      DateTime?
-  id_equipo                  String?
+  id_equipo                  Int?
   id_foto                    Int?
 
   // Relaciones
@@ -40,11 +40,11 @@ model CedulaDeportiva {
 
 
 model Equipo {
-  id         String   @id @map("id")     
-  nom_equipo String?  @map("nom_equipo") 
-  documento  String?  @map("documento")  
-
-  usuario  Usuario?  @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
+  id         Int    @id @default(autoincrement())   
+  nom_equipo String @map("nom_equipo") @unique
+  documento  String  @map("documento") @unique
+  
+  usuario    Usuario?  @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
 
   cedulas    CedulaDeportiva[]
   programaciones Programacion[]
@@ -117,7 +117,7 @@ model Programacion {
   fase                String?
   equipo_local        String? @map("equipo_local")
   quipo_visitante     String? @map("quipo_visitante")
-  id_equipo           String? // FK a equipo.id
+  id_equipo           Int? // FK a equipo.id
 
   // Relaciones
   equipo Equipo? @relation(fields: [id_equipo], references: [id])
@@ -160,6 +160,18 @@ model Torneo {
 }
 
 
+model UsuarioXEquipo {
+  id_equipo      Int
+  documento_user String
+
+  equipo  Equipo  @relation(fields: [id_equipo], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  usuario Usuario @relation(fields: [documento_user], references: [documento], onDelete: Cascade, name: "UsuarioXEquipo")
+
+  @@id([id_equipo, documento_user]) 
+  @@map("usuario_x_equipo")
+}
+
+
 model Usuario {
   documento              String   @id @map("documento")
   nombres                String
@@ -170,14 +182,14 @@ model Usuario {
   nom_user               String
   pass                   String
   id_rol                 Int
-  estado_id              Int     // Columna escalar para la relación con Estado
+  estado_id              Int
   id_fecha_nacimiento    Int?
   id_fecha_registro      Int?
 
   rol     Rol     @relation(fields: [id_rol], references: [id], onDelete: Cascade, onUpdate: NoAction)
   estado  Estado  @relation(fields: [estado_id], references: [id])
 
-  fecha_nacimiento       Fecha? @relation("FechaNacimiento", fields: [id_fecha_nacimiento], references: [id], onDelete: Cascade)
+  fecha_nacimiento      Fecha? @relation("FechaNacimiento", fields: [id_fecha_nacimiento], references: [id], onDelete: Cascade)
   fecha_registro        Fecha? @relation("FechaRegistro", fields: [id_fecha_registro], references: [id], onDelete: Cascade)
 
   usuarioXEquipos UsuarioXEquipo[] @relation("UsuarioXEquipo")
@@ -187,16 +199,4 @@ model Usuario {
 
   @@unique([documento])
   @@map("usuario")
-}
-
-
-model UsuarioXEquipo {
-  id_equipo      String
-  documento_user String
-
-  equipo  Equipo  @relation(fields: [id_equipo], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  usuario Usuario @relation(fields: [documento_user], references: [documento], onDelete: Cascade, name: "UsuarioXEquipo")
-
-  @@id([id_equipo, documento_user]) 
-  @@map("usuarioxequipo")
 }

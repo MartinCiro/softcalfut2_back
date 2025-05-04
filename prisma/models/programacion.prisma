@@ -9,7 +9,7 @@ model Programacion {
   fase                String?
   equipo_local        String? @map("equipo_local")
   quipo_visitante     String? @map("quipo_visitante")
-  id_equipo           String? // FK a equipo.id
+  id_equipo           Int? // FK a equipo.id
 
   // Relaciones
   equipo Equipo? @relation(fields: [id_equipo], references: [id])

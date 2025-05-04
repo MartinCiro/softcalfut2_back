@@ -25,10 +25,9 @@ services:
       - DB_URL=postgresql://${USER_DB}:${PASS_DB}@${HOST_DB}:${PORT_DB}/${NAME_DB}
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - docker_app_network
-    command: ["sh", "-c", "npm install && yes | npx prisma generate && npm run dev"]
+    command: ["sh", "-c", "npm install && npm run merge && npm run gen && npm run migrate:deploy && npm run server"]
 
   nats:
     image: nats:latest
