@@ -18,7 +18,7 @@ export default class AuthService {
             const usuarioRetrieved = await this.authPort.retrieveUser({ documento });
 
             const isPasswordValid = new Usuario(
-                usuarioRetrieved.id_user,
+                usuarioRetrieved.documento,
                 usuarioRetrieved.password,
                 usuarioRetrieved.id_rol,
                 usuarioRetrieved.estado,
@@ -27,8 +27,8 @@ export default class AuthService {
 
             if (!isPasswordValid) throw new Error('Usuario o contraseña inválida');
 
-            const userCacheKey = `user:${usuarioRetrieved.id_user}`;
-            const eventKey = `event:usuario.logeado:${usuarioRetrieved.id_user}`;
+            const userCacheKey = `user:${usuarioRetrieved.documento}`;
+            const eventKey = `event:usuario.logeado:${usuarioRetrieved.documento}`;
 
             // Revisar si el usuario ya está en cache
             const cachedUser = await this.redisService.get(userCacheKey);
@@ -38,7 +38,7 @@ export default class AuthService {
                 userData = JSON.parse(cachedUser);
             } else {
                 userData = {
-                    id_user: usuarioRetrieved.id_user,
+                    id_user: usuarioRetrieved.documento,
                     nombre: usuarioRetrieved.usuario,
                     id_rol: usuarioRetrieved.id_rol
                 };
@@ -53,7 +53,6 @@ export default class AuthService {
 
             // Generar siempre un nuevo JWT para el usuario
             const token = generateJWT(userData);
-
             // Verificar si el evento ya se publicó en Redis
             const eventExists = await this.redisService.get(eventKey);
 

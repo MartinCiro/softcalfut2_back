@@ -6,5 +6,5 @@ model UsuarioXEquipo {
   usuario Usuario @relation(fields: [documento_user], references: [documento], onDelete: Cascade, name: "UsuarioXEquipo")
 
   @@id([id_equipo, documento_user]) 
-  @@map("usuarioxequipo")
+  @@map("usuario_x_equipo")
 }

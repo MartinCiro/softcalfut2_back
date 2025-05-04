@@ -4,6 +4,7 @@ import { EstadoModule } from 'api/estados/estado.module';
 import { PermisoModule } from 'api/permisos/permiso.module';
 import { AppController } from 'src/app.controller';
 import { UsuarioModule } from 'api/usuarios/usuario.module';
+import { CategoriaModule } from 'api/categoria/categoria.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { Module } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { Module } from '@nestjs/common';
     PermisoModule,
     RolModule,
     EstadoModule,
+    CategoriaModule,
     AuthModule,
   ],
   controllers: [AppController],

@@ -19,9 +19,8 @@ export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; 
 
     // Decodificar sin verificar la firma
     const decoded = jwt.decode(token) as JwtPayload | null;
-
     if (!decoded || !decoded.userInfo?.id_user) throw { ok: false, status_cod: 401, data: "El JWT es inválido" };
-
+    
     // Si está en entorno de desarrollo, retornar sin verificar
     if (config.env === 'Dev') return { userInfo: decoded };
 
