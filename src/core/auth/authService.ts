@@ -38,7 +38,7 @@ export default class AuthService {
                 userData = JSON.parse(cachedUser);
             } else {
                 userData = {
-                    id_user: usuarioRetrieved.documento,
+                    doc: usuarioRetrieved.documento,
                     nombre: usuarioRetrieved.usuario,
                     id_rol: usuarioRetrieved.id_rol
                 };
@@ -73,9 +73,9 @@ export default class AuthService {
                 result: {
                     token,
                     usuario: {
-                        id: userData.id_user,
+                        doc: userData.id_user,
                         nombre: userData.nombre,
-                        rol: userData.id_rol
+                        rol: userData.rol
                     }
                 }
             };
