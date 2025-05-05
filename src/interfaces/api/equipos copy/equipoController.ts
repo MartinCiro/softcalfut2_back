@@ -5,7 +5,6 @@ import {
 import { EquipoService } from 'core/equipos/equipoService';
 import { ResponseBody } from 'api/models/ResponseBody';
 import { CrearEquipoDto } from './dtos/crearEquipo.dto';
-import { AsignarUsuarioEquipoDto } from './dtos/asignarUsuarioEquipo.dto';
 import { ObtenerEquiposDto } from './dtos/obtenerEquipo.dto';
 import { ActualizarEquipoDto } from './dtos/actualizarEquipo.dto';
 import { EliminarEquipoDto } from './dtos/eliminarEquipo.dto';
@@ -37,29 +36,6 @@ export class EquipoController {
     try {
       await this.equipoService.crearEquipo(body);
       return new ResponseBody<string>(true, 201, "Se ha creado el rol exitosamente");
-    } catch (error) {
-      handleException(error);
-    }
-  }
-
-  @Post('asignar')
-  @HttpCode(HttpStatus.CREATED)
-  @UseGuards(PermissionsGuard)
-  @Permissions('Crea')
-  @UsePipes(new ValidationPipe({
-    whitelist: true, transform: true, exceptionFactory: (errors) => {
-      const mensajes = errors.map(err => ({
-        campo: err.property,
-        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-      }));
-      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-    }
-  }))
-
-  async asignarJugador(@Body() body: AsignarUsuarioEquipoDto): Promise<ResponseBody<string>> {
-    try {
-      await this.equipoService.asignarJugadores(body);
-      return new ResponseBody<string>(true, 201, "Se ha asignado los jugadores exitosamente");
     } catch (error) {
       handleException(error);
     }

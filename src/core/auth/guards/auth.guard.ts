@@ -36,14 +36,14 @@ export class AuthGuard implements CanActivate {
       const { userInfo, jwt } = await verifyJWT(token);
       
       // Almacenar usuario en caché
-      if (!userInfo.userInfo?.id_user) {
+      if (!userInfo.userInfo?.doc) {
         const error = new UnauthorizedException('Token inválido');
         throw new HttpException(
           new ResponseBody(false, 404, error.message),
           404
         );
       };
-      userCache.set(userInfo.userInfo.id_user.toString(), userInfo);
+      userCache.set(userInfo.userInfo.doc.toString(), userInfo);
 
       // Adjuntar la información del usuario a la solicitud
       request.user = userInfo;
@@ -51,6 +51,7 @@ export class AuthGuard implements CanActivate {
 
       return true;
     } catch (error: any) {
+      console.error(error);
       const err = new UnauthorizedException(error.data || 'Token inválido o expirado');
       throw new HttpException(
         new ResponseBody(false, 404, err.message),
@@ -59,9 +60,9 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  // Método estático para obtener información del usuario desde la caché
+/*   // Método estático para obtener información del usuario desde la caché
   static getUserInfo(id_user: string) {
     return userCache.get(id_user);
-  }
+  } */
 }
 

@@ -13,7 +13,7 @@ export class PermissionsGuard implements CanActivate {
     if (!requiredPermissions.length) return true; 
 
     const request = context.switchToHttp().getRequest();
-    const userId = request.user?.userInfo?.id_user;
+    const userId = request.user?.userInfo?.doc;
     
     if (!userId) throw new ForbiddenException('No autenticado');
     

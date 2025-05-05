@@ -3,7 +3,6 @@ import config from 'src/config';
 
 interface JwtPayload {
     userInfo: any;
-    id_user: number;
     documento: string;
     id_rol: number;
     exp?: number;
@@ -19,8 +18,7 @@ export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; 
 
     // Decodificar sin verificar la firma
     const decoded = jwt.decode(token) as JwtPayload | null;
-    if (!decoded || !decoded.userInfo?.id_user) throw { ok: false, status_cod: 401, data: "El JWT es inválido" };
-    
+    if (!decoded || !decoded.userInfo?.doc) throw { ok: false, status_cod: 401, data: "El JWT es inválido" };
     // Si está en entorno de desarrollo, retornar sin verificar
     if (config.env === 'Dev') return { userInfo: decoded };
 
@@ -42,8 +40,8 @@ export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; 
 
         response.userInfo = verified;
         return response;
-
     } catch (error: any) {
+        console.error(error);
         throw error.name === 'TokenExpiredError' ? { ok: false, status_cod: 401, data: 'JWT expirado. Por favor inicie sesión nuevamente' } : { ok: false, status_cod: 401, data: "El JWT es inválido" };
     }
 };

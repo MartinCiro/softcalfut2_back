@@ -10,6 +10,10 @@ interface EquipoDataXid {
   id: number | string;
 }
 
+interface AsignarDocumentosInput extends Pick<EquipoData, 'nombre_equipo'> {
+  jugadores: (number | string)[];
+}
+
 type EquipoDataUpdate = Partial<Omit<EquipoData, 'id'>> & EquipoDataXid;
 
 @Injectable() 
@@ -24,6 +28,10 @@ export class EquipoService {
 
   async crearEquipo(equipoData: EquipoData) {
     return await this.equipoPort.crearEquipos(equipoData);
+  }
+
+  async asignarJugadores(equipoData: AsignarDocumentosInput) {
+    return await this.equipoPort.asignarJugadores(equipoData);
   }
 
   async obtenerEquipoXid(equipoData: EquipoDataXid) {

@@ -42,7 +42,6 @@ export default class EquiposAdapter implements EquiposPort {
       return nuevaEquipo;
   
     } catch (error: any) {
-      console.error("Error (equipoAdapter), no se pudo crear el equipo:", error);
       // Validación de errores
       const validacion = validarExistente(error.code, equipoData.nombre_equipo);
       if (!validacion.ok) {
@@ -73,7 +72,55 @@ export default class EquiposAdapter implements EquiposPort {
     }
   }
   
-
+  async asignarJugadores(equipoData: { nombre_equipo: string; jugadores: (number | string)[]; }) {
+    try {
+      // Buscar el equipo por nombre
+      const equipo = await prisma.equipo.findUnique({
+        where: {
+          nom_equipo: equipoData.nombre_equipo
+        },
+        select: {
+          id: true
+        }
+      });
+  
+      if (!equipo) {
+        throw {
+          ok: false,
+          status_cod: 404,
+          data: `El equipo ${equipoData.nombre_equipo} no existe.`
+        };
+      }
+  
+      const id_equipo = equipo.id;
+  
+      // Mapear los documentos a la estructura requerida por la tabla UsuarioXEquipo
+      const relaciones = equipoData.jugadores.map(documento => ({
+        id_equipo,
+        documento_user: documento.toString()
+      }));
+  
+      // Asignar los documentos al equipo
+      const resultado = await prisma.usuarioXEquipo.createMany({
+        data: relaciones,
+        skipDuplicates: true  
+      });
+  
+      return {
+        ok: true,
+        status_cod: 200,
+        data: `Se asignaron ${resultado.count} documento(s) al equipo "${equipoData.nombre_equipo}".`
+      };
+  
+    } catch (error: any) {
+      throw {
+        ok: false,
+        status_cod: 500,
+        data: error.data || 'Ocurrió un error asignando documentos al equipo.'
+      };
+    }
+  }
+  
   async obtenerEquipos() {
     try {
       const cacheKey = 'equipos:lista';
