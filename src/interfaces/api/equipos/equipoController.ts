@@ -36,7 +36,7 @@ export class EquipoController {
   async crearEquipo(@Body() body: CrearEquipoDto): Promise<ResponseBody<string>> {
     try {
       await this.equipoService.crearEquipo(body);
-      return new ResponseBody<string>(true, 201, "Se ha creado el rol exitosamente");
+      return new ResponseBody<string>(true, 201, "Se ha creado el equipo exitosamente");
     } catch (error) {
       handleException(error);
     }
@@ -139,7 +139,7 @@ export class EquipoController {
   async delEquipo(@Body() eliminarEquipoDto: EliminarEquipoDto): Promise<ResponseBody<string>> {
     try {
       await this.equipoService.delEquipo({ id: eliminarEquipoDto.id });
-      return new ResponseBody(true, 201, "Se ha eliminado la equipo exitosamente");
+      return new ResponseBody(true, 201, "Se ha eliminado el equipo exitosamente");
     } catch (error) {
       handleException(error);
     }
