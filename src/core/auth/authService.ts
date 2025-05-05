@@ -66,16 +66,16 @@ export default class AuthService {
                 // Marcar el evento como enviado en Redis
                 await this.redisService.set(JSON.stringify(eventKey), 'true');
             }
-
             return {
                 ok: true,
                 statusCode: 200,
                 result: {
                     token,
                     usuario: {
-                        doc: userData.id_user,
-                        nombre: userData.nombre,
-                        rol: userData.rol
+                        doc: usuarioRetrieved.documento,
+                        nombre: usuarioRetrieved.usuario,
+                        rol: usuarioRetrieved.rol,
+                        estado: usuarioRetrieved.estado,
                     }
                 }
             };
