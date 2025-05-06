@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 @Injectable()
 export default class UsuariosAdapter implements UsuariosPort {
 
-  async crearUsuarios(usuarioData: {
+  /* async crearUsuarios(usuarioData: {
     nombres: string;
     passwd: string; 
     id_rol?: number | string; 
@@ -77,6 +77,145 @@ export default class UsuariosAdapter implements UsuariosPort {
         if (!rolInvitado) throw new ForbiddenException("No se encontró el rol 'Invitado', por favor contacte al administrador");
 
         idRol = rolInvitado.id;
+      }
+
+      // Crear el usuario con contraseña encriptada
+      const user = new Usuario(usuarioData.numero_documento, usuarioData.passwd);
+      const nuevoUsuario = await prisma.usuario.create({
+        data: {
+          documento: usuarioData.numero_documento,
+          nombres: usuarioData.nombres,
+          apellido: usuarioData.apellido,
+          email: usuarioData.email,
+          info_perfil: usuarioData.info_perfil,
+          num_contacto: usuarioData.numero_contacto,
+          nom_user: usuarioData.nom_user,
+          id_fecha_nacimiento: fechaId,
+          id_fecha_registro: idFechaRegistro, 
+          pass: user.getEncryptedPassword(),
+          estado_id: estado.id,
+          id_rol: idRol
+        },
+        select: { documento: true }
+      });
+
+      return nuevoUsuario;
+    } catch (error: any) {
+      const validacion = validarExistente(error.code, usuarioData.numero_documento);
+      if (!validacion.ok) {
+        throw {
+          ok: false,
+          status_cod: 409,
+          data: validacion.data
+        };
+      }
+
+      const resultado = error.meta?.target?.[0] || "valor";
+      const valNoExistente = validarNoExistente(error.code, `El ${resultado} asignado`);
+
+      if (!valNoExistente.ok) {
+        throw {
+          ok: false,
+          status_cod: 409,
+          data: valNoExistente.data
+        };
+      }
+
+      throw {
+        ok: false,
+        status_cod: 400,
+        data: error.data || "Ocurrió un error creando el usuario"
+      };
+    }
+  } */
+
+  async crearUsuarios(usuarioData: {
+    nombres: string;
+    passwd: string; 
+    id_rol?: number | string; 
+    apellido: string;
+    numero_documento: string;
+    email: string;
+    estado_id?: number | string; 
+    info_perfil?: string;
+    nom_user: string;
+    numero_contacto?: string;
+    fecha_nacimiento: string | Date;
+  }) {
+    try {
+      let fechaId;
+      let fecha_registro: number | Date = new Date();
+
+      const fechaExistente = await prisma.fecha.findUnique({
+        where: { fecha: new Date(usuarioData.fecha_nacimiento) || usuarioData.fecha_nacimiento },
+        select: { id: true }
+      });
+      
+      fechaId = fechaExistente ? fechaExistente.id : await prisma.fecha.create({
+        data: { fecha: new Date(usuarioData.fecha_nacimiento) || usuarioData.fecha_nacimiento },
+        select: { id: true }
+      }).then((nuevaFecha) => nuevaFecha.id);
+
+      const fecha_registro_id = await prisma.fecha.findUnique({
+        where: { fecha: fecha_registro.toISOString() },  
+        select: { id: true }
+      });
+      
+      const idFechaRegistro = fecha_registro_id ? fecha_registro_id.id : await prisma.fecha.create({
+        data: { fecha: fecha_registro.toISOString() },  
+        select: { id: true }
+      }).then((nuevaFecha) => nuevaFecha.id);
+
+      // Buscar el estado 'activo'
+      let estado = await prisma.estado.findUnique({
+        where: { nombre: 'Activo' },
+        select: { id: true }
+      });
+
+      // Si no existe, crear el estado 'activo'
+      if (!estado) {
+        estado = await prisma.estado.create({
+          data: { nombre: 'Activo' },
+          select: { id: true }
+        });
+      }
+
+      let idRol: number;
+
+      if (usuarioData.id_rol) {
+        // Convertir a número si viene como string
+        const rolExiste = await prisma.rol.findUnique({
+          where: { id: Number(usuarioData.id_rol) },
+          select: { id: true }
+        });
+
+        if (!rolExiste) throw new ForbiddenException(`El rol con ID ${Number(usuarioData.id_rol)} no existe`);
+
+        idRol = Number(usuarioData.id_rol);
+      } else {
+        // Si no se proporciona id_rol, buscar el rol 'Invitado'
+        const rolInvitado = await prisma.rol.findUnique({
+          where: { nombre: 'Invitado' },
+          select: { id: true }
+        });
+        // Si no existe, crear el rol 'Invitado' y asignar permisos
+        if (!rolInvitado) {
+          const nuevoRol = await prisma.rol.create({
+            data: { nombre: 'Invitado' },
+            select: { id: true }
+          });
+          await prisma.permiso.create({
+            data: {
+              nombre: 'Leer',
+              descripcion: 'Permisos para el rol Invitado'
+            },
+            select: { id: true }
+          });
+          idRol = nuevoRol.id;
+        } else {
+          if (!rolInvitado) throw new Error("El rol 'Invitado' no existe y no se pudo crear.");
+          idRol = rolInvitado.id;
+        }
       }
 
       // Crear el usuario con contraseña encriptada
