@@ -1,8 +1,9 @@
 model Categoria {
   id               Int                @id @default(autoincrement())
-  nombre_categoria String?           @map("nombre_categoria")
+  nombre_categoria String?            @map("nombre_categoria")
 
-  cedulas CedulaDeportiva[]          @relation("CategoriaToCedulaDeportiva")
+  cedulas      CedulaDeportiva[]      @relation("CategoriaToCedulaDeportiva")
+  programacion Programacion[]         @relation("programacion")
 
   @@map("categoria")
 }

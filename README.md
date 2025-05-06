@@ -160,5 +160,15 @@ Si tienes dudas, revisa los logs de Docker con:
 ```bash
 docker logs -f psql
 ```
+---
+
+---
+
+🔹 **Aplicar cambios en bd.**  
+Para generar migraciones nuevas o aplicar los modelos (PERDERAS LOS DATOS):  
+
+```bash
+    command: ["sh", "-c", "npm install && npm run merge && npm run gen && npx prisma migrate dev --name init && npx prisma migrate reset --force && npm run server"]
+```
 
 ---  

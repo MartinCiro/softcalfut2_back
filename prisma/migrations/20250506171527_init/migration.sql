@@ -13,7 +13,7 @@ CREATE TABLE "cedula_deportiva" (
     "estado_cedula" INTEGER NOT NULL,
     "id_categoria" INTEGER NOT NULL,
     "id_torneo" INTEGER NOT NULL,
-    "id_fecha_registro_cedula" INTEGER NOT NULL,
+    "id_fecha_actualizacion" INTEGER NOT NULL,
     "id_equipo" INTEGER NOT NULL,
     "foto_base" TEXT,
 
@@ -47,23 +47,6 @@ CREATE TABLE "Fecha" (
 );
 
 -- CreateTable
-CREATE TABLE "fotos" (
-    "id" SERIAL NOT NULL,
-    "base" TEXT,
-
-    CONSTRAINT "fotos_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "lcf" (
-    "id" SERIAL NOT NULL,
-    "id_equipo" TEXT,
-    "documento" TEXT,
-
-    CONSTRAINT "lcf_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "permiso" (
     "id" SERIAL NOT NULL,
     "nombre_permiso" TEXT NOT NULL,
@@ -75,16 +58,13 @@ CREATE TABLE "permiso" (
 -- CreateTable
 CREATE TABLE "programacion" (
     "id" SERIAL NOT NULL,
-    "rama" INTEGER,
-    "categoria_encuentro" TEXT,
-    "lugar_encuentro" TEXT,
-    "fecha_encuentro" TIMESTAMP(3),
-    "nombre_competencia" TEXT,
-    "id_lcf" INTEGER,
-    "fase" TEXT,
-    "equipo_local" TEXT,
-    "quipo_visitante" TEXT,
-    "id_equipo" INTEGER,
+    "rama" TEXT NOT NULL,
+    "categoria_encuentro" INTEGER NOT NULL,
+    "lugar_encuentro" TEXT NOT NULL,
+    "fecha_encuentro" INTEGER NOT NULL,
+    "nombre_competencia" TEXT NOT NULL,
+    "id_equipo_local" INTEGER NOT NULL,
+    "id_equipo_visitante" INTEGER NOT NULL,
 
     CONSTRAINT "programacion_pkey" PRIMARY KEY ("id")
 );
@@ -171,7 +151,7 @@ ALTER TABLE "cedula_deportiva" ADD CONSTRAINT "cedula_deportiva_id_categoria_fke
 ALTER TABLE "cedula_deportiva" ADD CONSTRAINT "cedula_deportiva_id_torneo_fkey" FOREIGN KEY ("id_torneo") REFERENCES "torneos"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "cedula_deportiva" ADD CONSTRAINT "cedula_deportiva_id_fecha_registro_cedula_fkey" FOREIGN KEY ("id_fecha_registro_cedula") REFERENCES "Fecha"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "cedula_deportiva" ADD CONSTRAINT "cedula_deportiva_id_fecha_actualizacion_fkey" FOREIGN KEY ("id_fecha_actualizacion") REFERENCES "Fecha"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "cedula_deportiva" ADD CONSTRAINT "cedula_deportiva_id_fecha_creacion_deportiva_fkey" FOREIGN KEY ("id_fecha_creacion_deportiva") REFERENCES "Fecha"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -183,10 +163,16 @@ ALTER TABLE "cedula_deportiva" ADD CONSTRAINT "cedula_deportiva_estado_cedula_fk
 ALTER TABLE "equipo" ADD CONSTRAINT "equipo_documento_fkey" FOREIGN KEY ("documento") REFERENCES "usuario"("documento") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "programacion" ADD CONSTRAINT "programacion_id_equipo_fkey" FOREIGN KEY ("id_equipo") REFERENCES "equipo"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "programacion" ADD CONSTRAINT "programacion_id_equipo_local_fkey" FOREIGN KEY ("id_equipo_local") REFERENCES "equipo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "programacion" ADD CONSTRAINT "programacion_id_lcf_fkey" FOREIGN KEY ("id_lcf") REFERENCES "lcf"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "programacion" ADD CONSTRAINT "programacion_id_equipo_visitante_fkey" FOREIGN KEY ("id_equipo_visitante") REFERENCES "equipo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "programacion" ADD CONSTRAINT "programacion_fecha_encuentro_fkey" FOREIGN KEY ("fecha_encuentro") REFERENCES "Fecha"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "programacion" ADD CONSTRAINT "programacion_categoria_encuentro_fkey" FOREIGN KEY ("categoria_encuentro") REFERENCES "categoria"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "rol_x_permiso" ADD CONSTRAINT "rol_x_permiso_id_rol_fkey" FOREIGN KEY ("id_rol") REFERENCES "rol"("id") ON DELETE CASCADE ON UPDATE CASCADE;

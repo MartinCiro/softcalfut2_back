@@ -1,19 +1,19 @@
 model Programacion {
-  id                 Int      @id @default(autoincrement())
-  rama               Int?
-  categoria_encuentro String? @map("categoria_encuentro")
-  lugar_encuentro     String? @map("lugar_encuentro")
-  fecha_encuentro     DateTime? @map("fecha_encuentro")
-  nombre_competencia  String? @map("nombre_competencia")
-  id_lcf              Int?
-  fase                String?
-  equipo_local        String? @map("equipo_local")
-  quipo_visitante     String? @map("quipo_visitante")
-  id_equipo           Int? // FK a equipo.id
+  id                  Int      @id @default(autoincrement())
+  rama                String
+  categoria_encuentro Int      @map("categoria_encuentro")
+  lugar_encuentro     String   @map("lugar_encuentro")
+  fecha_encuentro     Int      @map("fecha_encuentro")
+  nombre_competencia  String   @map("nombre_competencia")
+  
+  id_equipo_local     Int
+  id_equipo_visitante Int
 
   // Relaciones
-  equipo Equipo? @relation(fields: [id_equipo], references: [id])
-  lcf    LCF?    @relation(fields: [id_lcf], references: [id], onDelete: Cascade)
+  equipoLocal     Equipo    @relation("EquipoLocal", fields: [id_equipo_local], references: [id])
+  equipoVisitante Equipo    @relation("EquipoVisitante", fields: [id_equipo_visitante], references: [id])
+  fecha           Fecha    @relation("programacion_fecha", fields: [fecha_encuentro], references: [id])
+  categoria       Categoria @relation("programacion", fields: [categoria_encuentro], references: [id])
 
   @@map("programacion")
 }

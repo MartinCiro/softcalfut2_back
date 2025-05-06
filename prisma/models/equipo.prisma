@@ -1,13 +1,17 @@
 model Equipo {
-  id         Int    @id @default(autoincrement())   
+  id         Int    @id @default(autoincrement())
   nom_equipo String @map("nom_equipo") @unique
-  documento  String  @map("documento") @unique
-  
-  usuario    Usuario?  @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
+  documento  String @map("documento") @unique
 
-  cedulas    CedulaDeportiva[]
-  programaciones Programacion[]
-  usuariosxEquipo UsuarioXEquipo[]
+  usuario Usuario? @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
+
+  // Relaciones con Programacion
+  programacion_local     Programacion[] @relation("EquipoLocal")
+  programacion_visitante Programacion[] @relation("EquipoVisitante")
+
+  // Relaciones adicionales
+  cedulas          CedulaDeportiva[]
+  usuariosxEquipo  UsuarioXEquipo[]
 
   @@map("equipo")
 }

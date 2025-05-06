@@ -1,9 +1,0 @@
-model LCF {
-  id        Int     @id @default(autoincrement())
-  id_equipo String? @map("id_equipo")    // FK potencial a Equipo (no definida como tal)
-  documento String?                      // FK potencial a Usuario (no definida como tal)
-
-  programaciones Programacion[] // relación inversa desde Programacion.id_lcf
-
-  @@map("lcf")
-}
