@@ -4,6 +4,7 @@ model Estado {
   descripcion String?
 
   usuarios    Usuario[]
+  cedulaDeportiva CedulaDeportiva[]
 
   @@map("estado") 
 }

@@ -6,6 +6,7 @@ import { AppController } from 'src/app.controller';
 import { UsuarioModule } from 'api/usuarios/usuario.module';
 import { CategoriaModule } from 'src/interfaces/api/categorias/categoria.module';
 import { EquipoModule } from 'src/interfaces/api/equipos/equipo.module';
+import { CedulaDeportivaModule } from 'src/interfaces/api/cedulaDeportiva/cedulaDeportiva.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { Module } from '@nestjs/common';
@@ -22,6 +23,7 @@ import { Module } from '@nestjs/common';
     EstadoModule,
     CategoriaModule,
     EquipoModule,
+    CedulaDeportivaModule,
     AuthModule,
   ],
   controllers: [AppController],

@@ -5,4 +5,6 @@ model Fecha {
   // Relaciones inversas
   usuariosNacimiento Usuario[] @relation("FechaNacimiento")
   usuariosRegistro   Usuario[] @relation("FechaRegistro")
+  fecha_registro_cedula CedulaDeportiva[] @relation("Fecha_r_cc")
+  fecha_creacion_deportiva   CedulaDeportiva[] @relation("Fecha_c_depo")
 }

@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsNumber, IsNotEmpty } from 'class-validator';
 
-export class ActualizarEquipoDto {
+export class ActualizarCedulaDeportivaDto {
   @IsOptional()
   @IsString({ message: 'El nombre del equipo no es valido' })
   readonly nombre_equipo!: string
