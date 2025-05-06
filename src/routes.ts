@@ -7,6 +7,7 @@ import { UsuarioModule } from 'api/usuarios/usuario.module';
 import { CategoriaModule } from 'src/interfaces/api/categorias/categoria.module';
 import { EquipoModule } from 'src/interfaces/api/equipos/equipo.module';
 import { CedulaDeportivaModule } from 'src/interfaces/api/cedulaDeportiva/cedulaDeportiva.module';
+import { TorneoModule } from 'src/interfaces/api/torneos/torneo.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { Module } from '@nestjs/common';
@@ -24,6 +25,7 @@ import { Module } from '@nestjs/common';
     CategoriaModule,
     EquipoModule,
     CedulaDeportivaModule,
+    TorneoModule,
     AuthModule,
   ],
   controllers: [AppController],

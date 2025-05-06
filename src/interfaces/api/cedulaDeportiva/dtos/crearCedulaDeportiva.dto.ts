@@ -1,14 +1,6 @@
 import { IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CrearCedulaDeportivaDto {
-  @IsNotEmpty({ message: 'El nombre del equipo es obligatorio' })
-  @IsString({ message: 'El texto del nombre del equipo no es válido' })
-  readonly nombre_equipo!: string;
-
-  @IsNotEmpty({ message: 'El documento del jugador es obligatorio' })
-  @IsString({ message: 'El número de documento debe ser un texto' })
-  readonly num_doc!: string;
-
   @IsNotEmpty({ message: 'La categoría es obligatoria' })
   @IsNumber({}, { message: 'La categoría debe ser un número' })
   readonly categoria!: number;

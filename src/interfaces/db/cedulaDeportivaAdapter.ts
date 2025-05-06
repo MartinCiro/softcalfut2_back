@@ -42,7 +42,7 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
         select: { id: true }
       });
 
-      if (!estadoId) throw new ForbiddenException("El estado Activo no existe en la base de datos");
+      if (!estadoId) throw new ForbiddenException("El estado activo no existe en la base de datos");
   
       const nuevaCedulaDeportiva = await prisma.cedulaDeportiva.create({
         data: {
@@ -60,6 +60,7 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
   
       return nuevaCedulaDeportiva;
     } catch (error: any) {
+      console.log(error);
       const validacion = validarExistente(error.code, "cedula deportiva");
       if (!validacion.ok) {
         throw {
@@ -101,31 +102,41 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
           id: true,
           foto_base: true,
           fecha_creacion_deportiva: {
-            select: { id: true, fecha: true }
+            select: { fecha: true }
           },
           fecha_actualizacion: {
-            select: { id: true, fecha: true }
+            select: { fecha: true }
           },
           estado: {
-            select: { id: true, nombre: true }
+            select: { nombre: true }
           },
           equipo: {
-            select: { id: true, nom_equipo: true }
+            select: { nom_equipo: true }
           },
           categoria: {
-            select: { id: true, nombre_categoria: true }
+            select: { nombre_categoria: true }
           },
           torneo: {
-            select: { id: true, nombre_torneo: true }
+            select: { nombre_torneo: true }
           },
         }
       });
   
       if (!cedulaDeportiva)
         throw new ForbiddenException("La cédula deportiva solicitada no existe en la base de datos");
+
+      const cedulaParseada = {
+        estado: cedulaDeportiva.estado.nombre,
+        equipo: cedulaDeportiva.equipo?.nom_equipo,
+        torneo: cedulaDeportiva.torneo?.nombre_torneo,
+        categoria: cedulaDeportiva.categoria?.nombre_categoria,
+        fechaActualizacion: cedulaDeportiva.fecha_actualizacion?.fecha,
+        fechaCreacionDeportiva: cedulaDeportiva.fecha_creacion_deportiva?.fecha,
+        fotoBase: cedulaDeportiva.foto_base,
+      };
   
-      await this.redisService.set(cacheKey, JSON.stringify(cedulaDeportiva));
-      return cedulaDeportiva;
+      await this.redisService.set(cacheKey, JSON.stringify(cedulaParseada));
+      return cedulaParseada;
   
     } catch (error: any) {
       throw {

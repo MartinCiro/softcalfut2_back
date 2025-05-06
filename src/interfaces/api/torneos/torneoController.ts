@@ -2,20 +2,21 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { CedulaDeportivaService } from 'core/cedulaDeportiva/cedulaDeportivaService';
+import { TorneoService } from 'core/torneos/torneoService';
 import { ResponseBody } from 'api/models/ResponseBody';
-import { CrearCedulaDeportivaDto } from './dtos/crearCedulaDeportiva.dto';
-import { ActualizarCedulaDeportivaDto } from './dtos/actualizarCedulaDeportiva.dto';
-import { EliminarCedulaDeportivaDto } from './dtos/eliminarCedulaDeportiva.dto';
+import { CrearTorneoDto } from './dtos/crearTorneo.dto';
+import { ObtenerTorneosDto } from './dtos/obtenerTorneo.dto';
+import { ActualizarTorneoDto } from './dtos/actualizarTorneo.dto';
+import { EliminarTorneoDto } from './dtos/eliminarTorneo.dto';
 import { AuthGuard } from 'core/auth/guards/auth.guard';
 import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
 import { Permissions } from 'core/auth/decorators/permissions.decorator';
 import { handleException } from 'api/utils/validaciones';
 
-@Controller('cedulaDeportiva')
+@Controller('torneos')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
-export class CedulaDeportivaController {
-  constructor(private readonly cedulaDeportivaService: CedulaDeportivaService) { }
+export class TorneoController {
+  constructor(private readonly rolService: TorneoService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -31,10 +32,10 @@ export class CedulaDeportivaController {
     }
   }))
 
-  async crearCedulaDeportiva(@Body() body: CrearCedulaDeportivaDto): Promise<ResponseBody<string>> {
+  async crearTorneo(@Body() body: CrearTorneoDto): Promise<ResponseBody<string>> {
     try {
-      await this.cedulaDeportivaService.CrearCedulaDeportiva(body);
-      return new ResponseBody<string>(true, 201, "Se ha creado la cedula deportiva exitosamente");
+      await this.rolService.crearTorneo(body);
+      return new ResponseBody<string>(true, 201, "Se ha creado el torneo exitosamente");
     } catch (error) {
       handleException(error);
     }
@@ -53,11 +54,13 @@ export class CedulaDeportivaController {
       return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
     }
   }))
-  async obtenerCedulaDeportiva(@Body() body: EliminarCedulaDeportivaDto): Promise<ResponseBody<any>> {
+  async obtenerTorneos(@Body() body: ObtenerTorneosDto): Promise<ResponseBody<any>> {
     try {
-      const cedulaDeportiva = await this.cedulaDeportivaService.ObtenerCedulaDeportivaXid(body);
+      const torneos = body.id
+        ? await this.rolService.obtenerTorneoXid({ id: body.id })
+        : await this.rolService.obtenerTorneos();
 
-      return new ResponseBody<any>(true, 200, cedulaDeportiva);
+      return new ResponseBody<any>(true, 200, torneos);
     } catch (error) {
       handleException(error);
     }
@@ -76,16 +79,21 @@ export class CedulaDeportivaController {
       return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
     }
   }))
-  async actualizarCedulaDeportiva(@Body() body: ActualizarCedulaDeportivaDto): Promise<ResponseBody<string>> {
+  async actualizarTorneo(@Body() body: ActualizarTorneoDto): Promise<ResponseBody<string>> {
 
     if (!body.id) throw new HttpException(
-      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar la cedula deportiva a actualizar."),
+      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar el torneo a actualizar."),
+      HttpStatus.BAD_REQUEST,
+    );
+
+    if (!body.nombre) throw new HttpException(
+      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,
     );
 
     try {
-      await this.cedulaDeportivaService.UpCedulaDeportiva(body);
-      return new ResponseBody(true, HttpStatus.OK, "Cedula deportiva actualizado exitosamente.");
+      await this.rolService.upTorneo(body);
+      return new ResponseBody(true, HttpStatus.OK, "Torneo actualizado exitosamente.");
     } catch (error) {
       handleException(error);
     }
@@ -104,10 +112,10 @@ export class CedulaDeportivaController {
     }
   }))
 
-  async delCedulaDeportiva(@Body() eliminarCedulaDeportivaDto: EliminarCedulaDeportivaDto): Promise<ResponseBody<string>> {
+  async delTorneo(@Body() eliminarTorneoDto: EliminarTorneoDto): Promise<ResponseBody<string>> {
     try {
-      await this.cedulaDeportivaService.DelCedulaDeportiva({ id: eliminarCedulaDeportivaDto.id });
-      return new ResponseBody(true, 201, "Se ha eliminado la cedula deportiva exitosamente");
+      await this.rolService.delTorneo({ id: eliminarTorneoDto.id });
+      return new ResponseBody(true, 201, "Se ha eliminado la torneo exitosamente");
     } catch (error) {
       handleException(error);
     }

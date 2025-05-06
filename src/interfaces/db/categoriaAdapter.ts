@@ -66,7 +66,7 @@ export default class CategoriasAdapter implements CategoriasPort {
         }
       });
 
-      if (!categorias.length) throw new ForbiddenException("No se ha encontrado ningun categoria");
+      if (!categorias.length) throw new ForbiddenException("No se ha encontrado ninguna categoria");
       
       await this.redisService.set(cacheKey, JSON.stringify(categorias));
       return categorias;
