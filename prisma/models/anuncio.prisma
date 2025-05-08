@@ -1,0 +1,16 @@
+model Anuncio {
+  id               Int      @id @default(autoincrement())
+  titulo           String   @unique
+  contenido        String
+  imagenUrl        String
+
+  idFechaCreacion  Int @map("id_fecha_creacion")
+  idEstado         Int @map("id_estado")
+
+  fechaCreacion    Fecha   @relation("fecha_anuncio", fields: [idFechaCreacion], references: [id], onDelete: Cascade)
+  estado           Estado  @relation("estado_anuncio", fields: [idEstado], references: [id], onDelete: Cascade)
+
+  actualizadoEn    DateTime @updatedAt
+
+  @@map("anuncio")
+}

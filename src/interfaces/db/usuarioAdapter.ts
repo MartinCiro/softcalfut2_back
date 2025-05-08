@@ -12,95 +12,100 @@ export default class UsuariosAdapter implements UsuariosPort {
   
   async crearUsuarios(usuarioData: {
     nombres: string;
-    passwd: string; 
-    id_rol?: number | string; 
+    passwd: string;
+    id_rol?: number | string;
     apellido: string;
     numero_documento: string;
     email: string;
-    estado_id?: number | string; 
+    estado_id?: number | string;
     info_perfil?: string;
     nom_user: string;
     numero_contacto?: string;
     fecha_nacimiento: string | Date;
   }) {
     try {
-      let fechaId;
-      let fecha_registro: number | Date = new Date();
-
-      const fechaExistente = await prisma.fecha.findUnique({
-        where: { fecha: new Date(usuarioData.fecha_nacimiento) || usuarioData.fecha_nacimiento },
+      const fechaNacimiento = new Date(usuarioData.fecha_nacimiento);
+      const fechaRegistro = new Date();
+  
+      // Obtener o crear la fecha de nacimiento
+      const fechaNacimientoId = await prisma.fecha.upsert({
+        where: { fecha: fechaNacimiento },
+        update: {},
+        create: { fecha: fechaNacimiento },
         select: { id: true }
       });
-      
-      fechaId = fechaExistente ? fechaExistente.id : await prisma.fecha.create({
-        data: { fecha: new Date(usuarioData.fecha_nacimiento) || usuarioData.fecha_nacimiento },
-        select: { id: true }
-      }).then((nuevaFecha) => nuevaFecha.id);
-
-      const fecha_registro_id = await prisma.fecha.findUnique({
-        where: { fecha: fecha_registro.toISOString() },  
+  
+      // Obtener o crear la fecha de registro
+      const fechaRegistroId = await prisma.fecha.upsert({
+        where: { fecha: fechaRegistro },
+        update: {},
+        create: { fecha: fechaRegistro },
         select: { id: true }
       });
-      
-      const idFechaRegistro = fecha_registro_id ? fecha_registro_id.id : await prisma.fecha.create({
-        data: { fecha: fecha_registro.toISOString() },  
-        select: { id: true }
-      }).then((nuevaFecha) => nuevaFecha.id);
-
-      // Buscar el estado 'activo'
-      let estado = await prisma.estado.findUnique({
+  
+      // Obtener o crear estado "Activo"
+      const estado = await prisma.estado.upsert({
         where: { nombre: 'Activo' },
+        update: {},
+        create: { nombre: 'Activo' },
         select: { id: true }
       });
-
-      // Si no existe, crear el estado 'activo'
-      if (!estado) {
-        estado = await prisma.estado.create({
-          data: { nombre: 'Activo' },
-          select: { id: true }
-        });
-      }
-
+  
+      // Determinar o crear el rol
       let idRol: number;
-
       if (usuarioData.id_rol) {
-        // Convertir a número si viene como string
-        const rolExiste = await prisma.rol.findUnique({
+        const rol = await prisma.rol.findUnique({
           where: { id: Number(usuarioData.id_rol) },
           select: { id: true }
         });
-
-        if (!rolExiste) throw new ForbiddenException(`El rol con ID ${Number(usuarioData.id_rol)} no existe`);
-
-        idRol = Number(usuarioData.id_rol);
+  
+        if (!rol) throw new ForbiddenException(`El rol con ID ${usuarioData.id_rol} no existe`);
+        idRol = rol.id;
       } else {
-        // Si no se proporciona id_rol, buscar el rol 'Invitado'
-        const rolInvitado = await prisma.rol.findUnique({
+        // Rol invitado
+        const rolInvitado = await prisma.rol.upsert({
           where: { nombre: 'Invitado' },
+          update: {},
+          create: { nombre: 'Invitado' },
           select: { id: true }
         });
-        // Si no existe, crear el rol 'Invitado' y asignar permisos
-        if (!rolInvitado) {
-          const nuevoRol = await prisma.rol.create({
-            data: { nombre: 'Invitado' },
-            select: { id: true }
-          });
-          await prisma.permiso.create({
+  
+        const permisoLee = await prisma.permiso.upsert({
+          where: { nombre: 'Lee' },
+          update: {},
+          create: {
+            nombre: 'Lee',
+            descripcion: 'Permisos para el rol Invitado'
+          },
+          select: { id: true }
+        });
+  
+        // Verificar si la relación ya existe
+        const existeRelacion = await prisma.rolXPermiso.findUnique({
+          where: {
+            id_rol_id_permiso: {
+              id_rol: rolInvitado.id,
+              id_permiso: permisoLee.id
+            }
+          }
+        });
+  
+        if (!existeRelacion) {
+          await prisma.rolXPermiso.create({
             data: {
-              nombre: 'Lee',
-              descripcion: 'Permisos para el rol Invitado'
-            },
-            select: { id: true }
+              id_rol: rolInvitado.id,
+              id_permiso: permisoLee.id
+            }
           });
-          idRol = nuevoRol.id;
-        } else {
-          if (!rolInvitado) throw new Error("El rol 'Invitado' no existe y no se pudo crear.");
-          idRol = rolInvitado.id;
         }
+  
+        idRol = rolInvitado.id;
       }
-
-      // Crear el usuario con contraseña encriptada
+  
+      // Encriptar la contraseña
       const user = new Usuario(usuarioData.numero_documento, usuarioData.passwd);
+  
+      // Crear el usuario
       const nuevoUsuario = await prisma.usuario.create({
         data: {
           documento: usuarioData.numero_documento,
@@ -110,15 +115,15 @@ export default class UsuariosAdapter implements UsuariosPort {
           info_perfil: usuarioData.info_perfil,
           num_contacto: usuarioData.numero_contacto,
           nom_user: usuarioData.nom_user,
-          id_fecha_nacimiento: fechaId,
-          id_fecha_registro: idFechaRegistro, 
+          id_fecha_nacimiento: fechaNacimientoId.id,
+          id_fecha_registro: fechaRegistroId.id,
           pass: user.getEncryptedPassword(),
           estado_id: estado.id,
           id_rol: idRol
         },
         select: { documento: true }
       });
-
+  
       return nuevoUsuario;
     } catch (error: any) {
       const validacion = validarExistente(error.code, usuarioData.numero_documento);
@@ -129,10 +134,10 @@ export default class UsuariosAdapter implements UsuariosPort {
           data: validacion.data
         };
       }
-
+  
       const resultado = error.meta?.target?.[0] || "valor";
       const valNoExistente = validarNoExistente(error.code, `El ${resultado} asignado`);
-
+  
       if (!valNoExistente.ok) {
         throw {
           ok: false,
@@ -140,7 +145,7 @@ export default class UsuariosAdapter implements UsuariosPort {
           data: valNoExistente.data
         };
       }
-
+  
       throw {
         ok: false,
         status_cod: 400,

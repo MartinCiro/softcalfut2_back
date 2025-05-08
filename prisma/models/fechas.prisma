@@ -7,5 +7,6 @@ model Fecha {
   usuariosRegistro   Usuario[] @relation("FechaRegistro")
   fecha_registro_cedula CedulaDeportiva[] @relation("Fecha_r_cc")
   fecha_creacion_deportiva   CedulaDeportiva[] @relation("Fecha_c_depo")
+  fecha_anuncio      Anuncio[] @relation("fecha_anuncio")
   programacion Programacion[]         @relation("programacion_fecha")
 }
