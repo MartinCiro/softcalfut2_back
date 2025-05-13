@@ -5,6 +5,7 @@ interface AnuncioData {
   nombre: string;
   contenido: string;
   imagenUrl: string;
+  estado?: boolean;
 }
 
 interface AnuncioDataXid {

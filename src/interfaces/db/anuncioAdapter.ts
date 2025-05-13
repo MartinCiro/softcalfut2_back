@@ -84,7 +84,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       const cacheKey = 'anuncios:lista';
       const anunciosCache = await this.redisService.get(cacheKey);
 
-      if (anunciosCache)  return JSON.parse(anunciosCache);
+      if (anunciosCache) return JSON.parse(anunciosCache);
 
       const anuncios = await prisma.anuncio.findMany({
         select: {
@@ -110,13 +110,16 @@ export default class AnunciosAdapter implements AnunciosPort {
         }
       });
 
-      if (!anuncios.length)  throw new ForbiddenException("No se ha encontrado ningún anuncio");
+      if (!anuncios.length) throw new ForbiddenException("No se ha encontrado ningún anuncio");
 
-      // Puedes transformar la fecha si deseas que llegue como string legible
+      // Aquí solo transformamos los resultados necesarios
       const resultados = anuncios.map(anuncio => ({
-        ...anuncio,
+        id: anuncio.id,
+        titulo: anuncio.titulo,
+        contenido: anuncio.contenido,
+        imagenUrl: anuncio.imagenUrl,
         fechaCreacion: anuncio.fechaCreacion.fecha.toISOString(),
-        estado: anuncio.estado.nombre
+        estado: anuncio.estado.nombre // Asegúrate de solo incluir 'estado.nombre'
       }));
 
       // Guarda en caché con TTL de 1 hora (opcional, configurable)
@@ -132,6 +135,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       };
     }
   }
+
 
   async obtenerAnunciosXEstado(estadoData: { estado: string }) {
     try {
@@ -266,18 +270,19 @@ export default class AnunciosAdapter implements AnunciosPort {
   }
 
   async actualizaAnuncio(anuncioData: {
-    titulo?: string;
+    nombre?: string;
     contenido?: string;
     imagenUrl?: string;
+    estado?: boolean;
     id: number | string;
   }) {
     try {
-      const { id, titulo, contenido, imagenUrl } = anuncioData;
-  
+      const { id, nombre, contenido, imagenUrl, estado } = anuncioData;
+      const updates: any = {};
       const anuncioExistente = await prisma.anuncio.findUnique({
         where: { id: Number(id) }
       });
-  
+
       if (!anuncioExistente) {
         throw {
           ok: false,
@@ -285,35 +290,32 @@ export default class AnunciosAdapter implements AnunciosPort {
           message: "El anuncio solicitado no existe en la base de datos",
         };
       }
-  
-      const updates: any = {};
-      if (titulo !== undefined) updates.titulo = titulo;
+      if (estado !== undefined) {
+        const estadoBd = estado ? "Activo" : "Inactivo";
+        const estadoRelacionado = await prisma.estado.findUnique({
+          where: { nombre: estadoBd }
+        });
+        if (!estadoRelacionado) {
+          throw {
+            ok: false,
+            status_cod: 400,
+            message: "El estado especificado no existe en la base de datos",
+          };
+        }
+        updates.idEstado = estadoRelacionado.id;
+      }
+
+
+      if (nombre !== undefined) updates.titulo = nombre;
       if (contenido !== undefined) updates.contenido = contenido;
       if (imagenUrl !== undefined) updates.imagenUrl = imagenUrl;
-  
+
       const anuncioActualizado = await prisma.anuncio.update({
         where: { id: Number(id) },
         data: updates
       });
-  
-      // Limpiar caché individual
-      await this.redisService.delete(`anuncio:${id}`);
-  
-      // Actualizar caché de lista si existe
-      const anunciosCache = await this.redisService.get('anuncios:lista');
-      if (anunciosCache) {
-        let anuncios = JSON.parse(anunciosCache);
-        anuncios = anuncios.map((e: any) =>
-          e.id === Number(id)
-            ? {
-                ...e,
-                ...updates
-              }
-            : e
-        );
-        await this.redisService.set('anuncios:lista', JSON.stringify(anuncios), 3600);
-      }
-  
+
+      await this.redisService.delete('anuncios:lista');
       return {
         ok: true,
         message: "Anuncio actualizado correctamente",
@@ -327,7 +329,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       };
     }
   }
-  
+
 
 }
 

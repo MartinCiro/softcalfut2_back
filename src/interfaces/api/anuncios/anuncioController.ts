@@ -44,7 +44,7 @@ export class AnuncioController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Lee') 
+  @Permissions('Lee')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -69,7 +69,7 @@ export class AnuncioController {
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Actualiza') 
+  @Permissions('Actualiza')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -80,17 +80,16 @@ export class AnuncioController {
     }
   }))
   async actualizarAnuncio(@Body() body: ActualizarAnuncioDto): Promise<ResponseBody<string>> {
-
-    if (!body.id) throw new HttpException(
-      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar el anuncio a actualizar."),
-      HttpStatus.BAD_REQUEST,
-    );
-
-    if (!body.nombre) throw new HttpException(
+    if (
+      !("nombre" in body) &&
+      !("contenido" in body) &&
+      !("imagenUrl" in body) &&
+      !("estado" in body)
+    ) {
+      throw new HttpException(
       new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,
-    );
-
+    );}
     try {
       await this.anuncioService.upAnuncio(body);
       return new ResponseBody(true, HttpStatus.OK, "Anuncio actualizado exitosamente.");

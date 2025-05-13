@@ -172,3 +172,14 @@ Para generar migraciones nuevas o aplicar los modelos (PERDERAS LOS DATOS):
 ```
 
 ---  
+
+---
+
+🔹 **Eliminar cache redis.**  
+Para eliminar el cache problematico en los response:  
+
+```bash
+redis-cli DEL anuncios:lista
+```
+
+--- 

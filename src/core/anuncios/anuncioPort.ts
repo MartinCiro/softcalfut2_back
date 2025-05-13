@@ -12,6 +12,7 @@ export default interface AnunciosPort {
         nombre?: string;
         contenido?: string;
         imagenUrl?: string;
+        estado?: boolean;
     }): Promise<any>;
 }
 
