@@ -21,7 +21,7 @@ export class PermisoController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
-  @Permissions('Crea')
+  @Permissions('permisos:Crea')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
     const mensajes = errors.map(err => ({
       campo: err.property,
@@ -42,7 +42,7 @@ export class PermisoController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Lee')
+  @Permissions('permisos:Lee')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -67,7 +67,7 @@ export class PermisoController {
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Actualiza')
+  @Permissions('permisos:Actualiza')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -78,7 +78,7 @@ export class PermisoController {
     }
   }))
   async actualizarPermiso(@Body() body: ActualizarPermisoDto): Promise<ResponseBody<string>> {
-    if (!body.apellido && !body.nombres && !body.id_rol && !body.estado_id && !body.documento && !body.id) {
+    if (!body.descripcion && !body.estado && !body.nombre) {
       throw new HttpException(
         new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
         HttpStatus.BAD_REQUEST,
@@ -95,7 +95,7 @@ export class PermisoController {
 
   @Delete()
   @UseGuards(PermissionsGuard)
-  @Permissions('Elimina')
+  @Permissions('permisos:Elimina')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({

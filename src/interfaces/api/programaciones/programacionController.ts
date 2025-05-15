@@ -21,7 +21,7 @@ export class ProgramacionController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
-  @Permissions('Crea')
+  @Permissions('programaciones:Crea')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -44,7 +44,7 @@ export class ProgramacionController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Lee') 
+  @Permissions('programaciones:Lee') 
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -69,7 +69,7 @@ export class ProgramacionController {
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Actualiza') 
+  @Permissions('programaciones:Actualiza') 
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -86,7 +86,7 @@ export class ProgramacionController {
       HttpStatus.BAD_REQUEST,
     );
 
-    if (!body.nombre) throw new HttpException(
+    if (!body.rama && !body.lugar_encuentro && !body.nombre_competencia && !body.fecha_encuentro && !body.equipo_local && !body.equipo_visitante && !body.categoria_encuentro) throw new HttpException(
       new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,
     );
@@ -101,7 +101,7 @@ export class ProgramacionController {
 
   @Delete()
   @UseGuards(PermissionsGuard)
-  @Permissions('Elimina')
+  @Permissions('programaciones:Elimina')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({

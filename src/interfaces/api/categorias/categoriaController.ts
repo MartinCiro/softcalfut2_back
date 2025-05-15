@@ -21,7 +21,7 @@ export class CategoriaController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
-  @Permissions('Crea')
+  @Permissions('categorias:Crea')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -35,7 +35,7 @@ export class CategoriaController {
   async crearCategoria(@Body() body: CrearCategoriaDto): Promise<ResponseBody<string>> {
     try {
       await this.rolService.crearCategoria(body);
-      return new ResponseBody<string>(true, 201, "Se ha creado el rol exitosamente");
+      return new ResponseBody<string>(true, 201, "Se ha creado la categoria exitosamente");
     } catch (error) {
       handleException(error);
     }
@@ -44,7 +44,7 @@ export class CategoriaController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Lee') 
+  @Permissions('categorias:Lee') 
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -69,7 +69,7 @@ export class CategoriaController {
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Actualiza') 
+  @Permissions('categorias:Actualiza') 
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -101,7 +101,7 @@ export class CategoriaController {
 
   @Delete()
   @UseGuards(PermissionsGuard)
-  @Permissions('Elimina')
+  @Permissions('categorias:Elimina')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({

@@ -22,7 +22,7 @@ export class EquipoController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
-  @Permissions('Crea')
+  @Permissions('equipos:Crea')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -45,7 +45,7 @@ export class EquipoController {
   @Post('asignar')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
-  @Permissions('Crea')
+  @Permissions('equipos:Asigna')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -68,7 +68,7 @@ export class EquipoController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Lee') 
+  @Permissions('equipos:Lee')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -93,7 +93,7 @@ export class EquipoController {
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Actualiza') 
+  @Permissions('equipos:Actualiza') 
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -125,7 +125,7 @@ export class EquipoController {
 
   @Delete()
   @UseGuards(PermissionsGuard)
-  @Permissions('Elimina')
+  @Permissions('equipos:Elimina')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({

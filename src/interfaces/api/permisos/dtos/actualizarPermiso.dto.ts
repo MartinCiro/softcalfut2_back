@@ -2,23 +2,16 @@ import { IsString, IsOptional, IsInt, IsNumber, IsNotEmpty } from 'class-validat
 
 export class ActualizarPermisoDto {
   @IsOptional()
-  @IsString({ message: 'El texto de apellido no es valido' })
-  readonly apellido!: string;
+  @IsString({ message: 'El texto de descripción no es valido' })
+  readonly descripcion!: string;
 
   @IsOptional()
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
-  readonly estado_id!: number;
+  readonly estado!: number;
 
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @IsString({ message: 'El texto de nombre no es valido' })
-  readonly nombres!: string
-
-  @IsNotEmpty({ message: 'El nombre de usuario es obligatorio' })
-  @IsString({ message: 'El texto en nombre de usuario no es valido' })
-  readonly documento!: string
-
-  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
-  readonly id_rol!: number
+  readonly nombre!: string
 
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
   readonly id!: number

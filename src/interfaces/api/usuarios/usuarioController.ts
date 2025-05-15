@@ -21,7 +21,7 @@ export class UsuarioController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
-  @Permissions('Crea')
+  @Permissions('usuarios:Crea')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
     const mensajes = errors.map(err => ({
       campo: err.property,
@@ -45,7 +45,7 @@ export class UsuarioController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Lee')
+  @Permissions('usuarios:Lee')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -70,7 +70,7 @@ export class UsuarioController {
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
-  @Permissions('Actualiza')
+  @Permissions('usuarios:Actualiza')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -98,7 +98,7 @@ export class UsuarioController {
 
   @Delete()
   @UseGuards(PermissionsGuard)
-  @Permissions('Elimina')
+  @Permissions('usuarios:Elimina')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -118,10 +118,17 @@ export class UsuarioController {
     }
   }
 
-  /**
-   * ✅ Métodos protegidos con roles específicos
-   */
-
+  @UseGuards(PermissionsGuard)
+  @Permissions('usuarios:LeeProfile')
+  @UsePipes(new ValidationPipe({
+    whitelist: true, transform: true, exceptionFactory: (errors) => {
+      const mensajes = errors.map(err => ({
+        campo: err.property,
+        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
+      }));
+      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
+    }
+  }))
   @Get('perfil')
   async getPerfil(@Req() request: any) {
     return new ResponseBody(true, 200, { mensaje: 'Usuario autenticado', usuario: request.user });

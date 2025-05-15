@@ -4,6 +4,7 @@ import PermisosPort from './permisoPort';
 interface PermisoData {
   nombre: string;
   descripcion?: string;
+  estado?: number | string;
 }
 
   

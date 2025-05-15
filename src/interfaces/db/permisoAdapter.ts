@@ -123,7 +123,7 @@ export default class PermisosAdapter implements PermisosPort {
   }
 
 
-  async actualizaPermiso(permisoData: {  nombre?: string; descripcion?: string; id: number | string; }) {
+  async actualizaPermiso(permisoData: {  nombre?: string; descripcion?: string; id: number | string; estado?: number | string;}) {
     try {
       const { id, ...updates } = permisoData;
   
