@@ -1,6 +1,6 @@
 import PermisosPort from 'core/permisos/permisoPort';
 import { PrismaClient } from '@prisma/client';
-import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
+import { validarExistente, validarNoExistente, capitalize } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
 
@@ -53,8 +53,8 @@ export default class PermisosAdapter implements PermisosPort {
       const permisos = await prisma.permiso.findMany({
         select: {
           id: true,
-          nombre: true,
-          descripcion: true,
+          nombre: true,        // Ejemplo: "anuncios:crear"
+          descripcion: true    // Ejemplo: "Permiso para anuncios"
         }
       });
 
@@ -62,15 +62,29 @@ export default class PermisosAdapter implements PermisosPort {
         throw new ForbiddenException("No se encontró ningún permiso");
       }
 
-      // Agrupar permisos por entidad (antes de ":")
-      const permisosAgrupados = permisos.reduce((acc: any, permiso: any) => {
-        const [clave, valor] = permiso.nombre.split(':');
-        if (!acc[clave]) acc[clave] = [];
-        acc[clave].push(valor);
-        return acc;
-      }, {});
+      const agrupados: Record<string, { descripcion: string, acciones: Set<string> }> = {};
 
-      return permisosAgrupados;
+      for (const permiso of permisos) {
+        const [entidad, accionRaw] = permiso.nombre.split(':');
+        const accion = capitalize(accionRaw);
+
+        if (!agrupados[entidad]) {
+          agrupados[entidad] = {
+            descripcion: permiso.descripcion ?? "",
+            acciones: new Set([accion])
+          };
+        } else {
+          agrupados[entidad].acciones.add(accion);
+        }
+      }
+
+      // Convertir a array con el formato deseado
+      const resultado = Object.entries(agrupados).map(([entidad, { descripcion, acciones }]) => ({
+        descripcion,
+        [entidad]: Array.from(acciones)
+      }));
+
+      return resultado;
 
     } catch (error: any) {
       throw {
