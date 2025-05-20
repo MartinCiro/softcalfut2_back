@@ -3,36 +3,43 @@ import { PrismaClient } from '@prisma/client';
 import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
-import { ResponseBody } from '../api/models/ResponseBody';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export default class RolesAdapter implements RolesPort {
 
-  async crearRoles(rolData: { nombre: string; descripcion?: string; permisos: (string | number)[] }) {
+  async crearRoles(rolData: {
+    nombre: string;
+    descripcion?: string;
+    permisos: string[]; 
+  }) {
     try {
-      // Buscar los permisos en la BD que coincidan con los proporcionados
+      // Buscamos en la BD los permisos válidos
       const permisosEncontrados = await prisma.permiso.findMany({
         where: {
-          OR: rolData.permisos.map((permiso) => ({
-            OR: [{ id: typeof permiso === "number" ? permiso : undefined }, { nombre: typeof permiso === "string" ? permiso : undefined }]
-          }))
+          nombre: {
+            in: rolData.permisos
+          }
         }
       });
 
-      // Si no se encontraron permisos, buscar el permiso "Lectura"
+      // Validación por si no se encontró ningún permiso válido
       if (permisosEncontrados.length === 0) {
         const permisoLectura = await prisma.permiso.findFirst({
           where: { nombre: "Lectura" }
         });
 
-        if (!permisoLectura) throw new ForbiddenException("No se encontraron permisos válidos y tampoco existe el permiso 'Lectura'.");
+        if (!permisoLectura) {
+          throw new ForbiddenException(
+            "No se encontraron permisos válidos y tampoco existe el permiso 'Lectura'."
+          );
+        }
 
         permisosEncontrados.push(permisoLectura);
       }
 
-      // Crear el nuevo rol con los permisos encontrados
+      // Crear el nuevo rol
       const nuevoRol = await prisma.rol.create({
         data: {
           nombre: rolData.nombre,
@@ -40,11 +47,13 @@ export default class RolesAdapter implements RolesPort {
         }
       });
 
+      // Asociar los permisos al rol
       await prisma.rolXPermiso.createMany({
-        data: permisosEncontrados.map((permiso: { id: any }) => ({
+        data: permisosEncontrados.map((permiso) => ({
           id_rol: nuevoRol.id,
           id_permiso: permiso.id
-        }))
+        })),
+        skipDuplicates: true
       });
 
       return nuevoRol;
@@ -77,6 +86,8 @@ export default class RolesAdapter implements RolesPort {
     }
   }
 
+
+
   async obtenerRoles() {
     try {
       const roles = await prisma.rol.findMany({
@@ -99,12 +110,24 @@ export default class RolesAdapter implements RolesPort {
       if (!roles.length) throw new ForbiddenException("No se encontraron roles");
 
 
-      return roles.map((rol: { id: any; nombre: any; descripcion: any; rolXPermiso: any[]; }) => ({
-        id: rol.id,
-        nombre: rol.nombre,
-        descripcion: rol.descripcion,
-        permisos: rol.rolXPermiso.map((rp: { permiso: { nombre: any; }; }) => rp.permiso.nombre) // Agrupar nombres de permisos en una lista
-      }));
+      return roles.map((rol: any) => {
+        const permisosList = rol.rolXPermiso.map((rp: any) => rp.permiso.nombre);
+
+        // Agrupamos por la parte antes de ":"
+        const permisosAgrupados = permisosList.reduce((acc: any, permiso: string) => {
+          const [clave, valor] = permiso.split(':');
+          if (!acc[clave]) acc[clave] = [];
+          acc[clave].push(valor);
+          return acc;
+        }, {});
+
+        return {
+          id: rol.id,
+          nombre: rol.nombre,
+          descripcion: rol.descripcion,
+          permisos: permisosAgrupados
+        };
+      });
     } catch (error: any) {
       throw {
         ok: false,
@@ -150,7 +173,6 @@ export default class RolesAdapter implements RolesPort {
     }
   }
 
-
   async delRol(rolData: { id: string }) {
     try {
       const rol = await prisma.rol.delete({
@@ -171,7 +193,6 @@ export default class RolesAdapter implements RolesPort {
       };
     }
   }
-
 
   async actualizaRol(rolData: {
     nombre?: string;
@@ -201,36 +222,41 @@ export default class RolesAdapter implements RolesPort {
       });
 
       // Actualizar el rol con los nuevos datos
-      const rolActualizado = await prisma.rol.update({
-        where: { id: Number(id) },
-        data: updates
-      });
+      if (updates) {
+        await prisma.rol.update({
+          where: { id: Number(id) },
+          data: updates
+        });
+      }
 
       // Si hay permisos nuevos, insertarlos en RolXPermiso
       if (permisos && permisos.length > 0) {
+        const nombresPermisos = permisos.filter(p => typeof p === "string") as string[];
+        const idsPermisos = permisos.filter(p => typeof p === "number") as number[];
+
         const permisosEncontrados = await prisma.permiso.findMany({
           where: {
-            OR: permisos.map((permiso) => ({
-              id: typeof permiso === "number" ? permiso : undefined,
-              nombre: typeof permiso === "string" ? permiso : undefined
-            }))
+            OR: [
+              ...(nombresPermisos.length ? [{ nombre: { in: nombresPermisos } }] : []),
+              ...(idsPermisos.length ? [{ id: { in: idsPermisos } }] : []),
+            ]
           }
         });
 
         if (permisosEncontrados.length > 0) {
           await prisma.rolXPermiso.createMany({
-            data: permisosEncontrados.map((permiso: { id: any; }) => ({
+            data: permisosEncontrados.map(p => ({
               id_rol: Number(id),
-              id_permiso: permiso.id
-            }))
+              id_permiso: p.id
+            })),
+            skipDuplicates: true
           });
         }
       }
 
       return {
         ok: true,
-        message: "Rol actualizado correctamente",
-        rol: rolActualizado
+        message: "Rol actualizado correctamente"
       };
     } catch (error: any) {
       validarExistente(error.code, "El rol solicitado");
@@ -241,7 +267,4 @@ export default class RolesAdapter implements RolesPort {
       };
     }
   }
-
-
 }
-

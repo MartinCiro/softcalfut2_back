@@ -71,11 +71,11 @@ export default class UsuariosAdapter implements UsuariosPort {
         });
   
         const permisoLee = await prisma.permiso.upsert({
-          where: { nombre: 'Lee' },
+          where: { nombre: 'anuncios:Lee' },
           update: {},
           create: {
-            nombre: 'Lee',
-            descripcion: 'Permisos para el rol Invitado'
+            nombre: 'anuncios:Lee',
+            descripcion: 'Permiso de solo lectura en anuncios'
           },
           select: { id: true }
         });
@@ -257,7 +257,6 @@ export default class UsuariosAdapter implements UsuariosPort {
       };
     }
   }
-
 
   async actualizaUsuario(usuarioData: {
     nombres?: string;

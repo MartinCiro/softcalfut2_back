@@ -57,19 +57,26 @@ export default class PermisosAdapter implements PermisosPort {
           descripcion: true,
         }
       });
-      if (!permisos.length) throw new ForbiddenException("No se encontró el permiso");
 
+      if (!permisos.length) {
+        throw new ForbiddenException("No se encontró ningún permiso");
+      }
 
-      return permisos.map((permiso: { id: any; nombre: any; descripcion: any; }) => ({
-        id: permiso.id,
-        nombre: permiso.nombre,
-        descripcion: permiso.descripcion
-      }));
+      // Agrupar permisos por entidad (antes de ":")
+      const permisosAgrupados = permisos.reduce((acc: any, permiso: any) => {
+        const [clave, valor] = permiso.nombre.split(':');
+        if (!acc[clave]) acc[clave] = [];
+        acc[clave].push(valor);
+        return acc;
+      }, {});
+
+      return permisosAgrupados;
+
     } catch (error: any) {
       throw {
         ok: false,
         status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el permiso"
+        data: error.message || "Ocurrió un error consultando los permisos"
       };
     }
   }
@@ -123,17 +130,17 @@ export default class PermisosAdapter implements PermisosPort {
   }
 
 
-  async actualizaPermiso(permisoData: {  nombre?: string; descripcion?: string; id: number | string; estado?: number | string;}) {
+  async actualizaPermiso(permisoData: { nombre?: string; descripcion?: string; id: number | string; estado?: number | string; }) {
     try {
       const { id, ...updates } = permisoData;
-  
+
       const permisoActualizado = await prisma.permiso.update({
-        where: { id: Number(id) }, 
+        where: { id: Number(id) },
         data: {
           ...updates,
         },
       });
-  
+
       return {
         ok: true,
         message: "Permiso actualizado correctamente",
@@ -148,6 +155,6 @@ export default class PermisosAdapter implements PermisosPort {
       };
     }
   }
-  
+
 }
 

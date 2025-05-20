@@ -32,7 +32,7 @@ export class RolController {
 
   async crearRol(@Body() body: CrearRolDto): Promise<ResponseBody<string>> {
     try {
-      if(body.permisos.length === 0)   throw new ResponseBody(false, HttpStatus.BAD_REQUEST, "El rol debe tener al menos un permiso");
+      if(body.permisos.length === 0) throw new ResponseBody(false, HttpStatus.BAD_REQUEST, "El rol debe tener al menos un permiso");
       await this.rolService.crearRol(body);
       return new ResponseBody<string>(true, 201, "Se ha creado el rol exitosamente");
     } catch (error) {
