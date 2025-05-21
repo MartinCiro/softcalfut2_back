@@ -1,6 +1,6 @@
 import PermisosPort from 'core/permisos/permisoPort';
 import { PrismaClient } from '@prisma/client';
-import { validarExistente, validarNoExistente, capitalize } from 'api/utils/validaciones';
+import { validarExistente, capitalize } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
 
@@ -16,41 +16,21 @@ export default class PermisosAdapter implements PermisosPort {
       const permisosCreados = [];
 
       for (const nombre of permisos) {
-        try {
-          const nuevoPermiso = await prisma.permiso.create({
-            data: {
-              nombre,
-              descripcion,
-            },
-          });
-          permisosCreados.push(nuevoPermiso);
-        } catch (error: any) {
-          const validacion = validarExistente(error.code, nombre);
-          if (!validacion.ok) {
-            throw {
-              ok: false,
-              status_cod: 409,
-              data: validacion.data,
-            };
-          }
+        // Buscar si ya existe
+        const permisoExistente = await prisma.permiso.findUnique({
+          where: { nombre },
+        });
 
-          const resultado = error.meta?.target?.[0] || "valor";
-          const valNoExistente = validarNoExistente(error.code, `El ${resultado} asignado`);
+        if (permisoExistente) continue; 
+        
+        const nuevoPermiso = await prisma.permiso.create({
+          data: {
+            nombre,
+            descripcion,
+          },
+        });
 
-          if (!valNoExistente.ok) {
-            throw {
-              ok: false,
-              status_cod: 409,
-              data: valNoExistente.data,
-            };
-          }
-
-          throw {
-            ok: false,
-            status_cod: 400,
-            data: error.message || "Ocurrió un error creando un permiso",
-          };
-        }
+        permisosCreados.push(nuevoPermiso);
       }
 
       return {
@@ -115,56 +95,55 @@ export default class PermisosAdapter implements PermisosPort {
   }
 
   async actualizaPermisos(permisoData: { descripcion?: string; permisos: string[] }) {
-  const { descripcion, permisos } = permisoData;
+    const { descripcion, permisos } = permisoData;
 
-  try {
-    // 1. Obtener el prefijo (nombre de la entidad, ej: "cedula")
-    const entidad = permisos[0]?.split(":")[0];
-    if (!entidad) throw new Error("Nombre de permiso no válido");
+    try {
+      // 1. Obtener el prefijo (nombre de la entidad, ej: "cedula")
+      const entidad = permisos[0]?.split(":")[0];
+      if (!entidad) throw new Error("Nombre de permiso no válido");
 
-    // 2. Obtener todos los permisos actuales de esa entidad
-    const permisosExistentes = await prisma.permiso.findMany({
-      where: {
-        nombre: {
-          startsWith: `${entidad}:`
+      // 2. Obtener todos los permisos actuales de esa entidad
+      const permisosExistentes = await prisma.permiso.findMany({
+        where: {
+          nombre: {
+            startsWith: `${entidad}:`
+          }
         }
-      }
-    });
+      });
 
-    // 3. Extraer nombres actuales y los que deben eliminarse
-    const nombresActuales = permisosExistentes.map(p => p.nombre);
-    const permisosAEliminar = nombresActuales.filter(nombre => !permisos.includes(nombre));
+      // 3. Extraer nombres actuales y los que deben eliminarse
+      const nombresActuales = permisosExistentes.map(p => p.nombre);
+      const permisosAEliminar = nombresActuales.filter(nombre => !permisos.includes(nombre));
 
-    // 4. Eliminar los permisos que ya no están
-    await Promise.all(
-      permisosAEliminar.map(nombre =>
-        prisma.permiso.delete({ where: { nombre } })
-      )
-    );
+      // 4. Eliminar los permisos que ya no están
+      await Promise.all(
+        permisosAEliminar.map(nombre =>
+          prisma.permiso.delete({ where: { nombre } })
+        )
+      );
 
-    // 5. Actualizar los permisos que se mantienen (no crear nuevos)
-    await Promise.all(
-      permisos.map(async (nombre) => {
-        return await prisma.permiso.update({
-          where: { nombre },
-          data: { descripcion }
-        });
-      })
-    );
+      // 5. Actualizar los permisos que se mantienen (no crear nuevos)
+      await Promise.all(
+        permisos.map(async (nombre) => {
+          return await prisma.permiso.update({
+            where: { nombre },
+            data: { descripcion }
+          });
+        })
+      );
 
-    return {
-      ok: true,
-      message: `Los permisos de ${entidad} han sido actualizados`,
-    };
-  } catch (error: any) {
-    validarExistente(error.code, "Alguno de los permisos solicitados");
-    throw {
-      ok: false,
-      status_cod: 400,
-      data: error.message || "Ocurrió un error actualizando los permisos",
-    };
+      return {
+        ok: true,
+        message: `Los permisos de ${entidad} han sido actualizados`,
+      };
+    } catch (error: any) {
+      validarExistente(error.code, "Alguno de los permisos solicitados");
+      throw {
+        ok: false,
+        status_cod: 400,
+        data: error.message || "Ocurrió un error actualizando los permisos",
+      };
+    }
   }
-}
-
 }
 
