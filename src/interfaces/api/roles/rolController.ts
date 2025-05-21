@@ -79,11 +79,6 @@ export class RolController {
     }
   }))
   async actualizarRol(@Body() body: ActualizarRolDto): Promise<ResponseBody<string>> {
-
-    if (!body.id) throw new HttpException(
-        new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al rol a actualizar."),
-        HttpStatus.BAD_REQUEST,
-      );
     
     if (!body.nombre && !body.descripcion && !body.permisos)throw new HttpException(
         new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),

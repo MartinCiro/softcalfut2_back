@@ -54,10 +54,7 @@ export class PermisoController {
   }))
   async obtenerPermisos(@Body() body: ObtenerPermisosDto): Promise<ResponseBody<any>> {
     try {
-      const permisos = body.id
-        ? await this.permisoService.obtenerPermisoXid({ id: Number(body.id) })
-        : await this.permisoService.obtenerPermisos();
-
+      const permisos = await this.permisoService.obtenerPermisos();
       return new ResponseBody<any>(true, 200, permisos);
     } catch (error) {
       handleException(error);
@@ -78,38 +75,9 @@ export class PermisoController {
     }
   }))
   async actualizarPermiso(@Body() body: ActualizarPermisoDto): Promise<ResponseBody<string>> {
-    if (!body.descripcion && !body.estado && !body.nombre) {
-      throw new HttpException(
-        new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     try {
       await this.permisoService.upPermiso(body);
       return new ResponseBody(true, HttpStatus.OK, "Permiso actualizado exitosamente.");
-    } catch (error) {
-      handleException(error);
-    }
-  }
-
-  @Delete()
-  @UseGuards(PermissionsGuard)
-  @Permissions('permisos:Elimina')
-  @UsePipes(new ValidationPipe({
-    whitelist: true, transform: true, exceptionFactory: (errors) => {
-      const mensajes = errors.map(err => ({
-        campo: err.property,
-        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-      }));
-      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-    }
-  }))
-
-  async delPermiso(@Body() eliminarPermisoDto: EliminarPermisoDto): Promise<ResponseBody<string>> {
-    try {
-      await this.permisoService.delPermiso({ id: eliminarPermisoDto.id});
-      return new ResponseBody(true, 201, "Se ha eliminado el permiso exitosamente");
     } catch (error) {
       handleException(error);
     }
