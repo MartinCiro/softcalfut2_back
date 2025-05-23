@@ -2,19 +2,12 @@ import { Injectable, Inject } from '@nestjs/common';
 import EquiposPort from './equipoPort';
 
 interface EquipoData {
-  nombre_equipo: string;
-  num_doc: number | string;
+  nom_equipo: string; 
+  encargado: string; 
+  jugadores?: (number | string)[];
 }
 
-interface EquipoDataXid {
-  id: number | string;
-}
-
-interface AsignarDocumentosInput extends Pick<EquipoData, 'nombre_equipo'> {
-  jugadores: (number | string)[];
-}
-
-type EquipoDataUpdate = Partial<Omit<EquipoData, 'id'>> & EquipoDataXid;
+type EquipoDataUpdate = Partial<Omit<EquipoData, 'id'>> & { id: string | number };
 
 @Injectable() 
 export class EquipoService {
@@ -30,19 +23,7 @@ export class EquipoService {
     return await this.equipoPort.crearEquipos(equipoData);
   }
 
-  async asignarJugadores(equipoData: AsignarDocumentosInput) {
-    return await this.equipoPort.asignarJugadores(equipoData);
-  }
-
-  async obtenerEquipoXid(equipoData: EquipoDataXid) {
-    return await this.equipoPort.obtenerEquiposXid(equipoData);
-  }
-
   async upEquipo(equipoData: EquipoDataUpdate) {
     return await this.equipoPort.actualizaEquipo(equipoData);
-  }
-
-  async delEquipo(equipoData: EquipoDataXid) {
-    return await this.equipoPort.delEquipo(equipoData);
   }
 }

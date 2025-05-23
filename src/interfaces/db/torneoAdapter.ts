@@ -201,7 +201,14 @@ export default class TorneosAdapter implements TorneosPort {
         torneo: torneoActualizado
       };
     } catch (error: any) {
-      validarExistente(error.code, "La torneo solicitada");
+      const validacion = validarExistente(error.code, error.meta?.target);
+      if (!validacion.ok) {
+        throw {
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data,
+        };
+      }
       throw {
         ok: false,
         status_cod: 400,

@@ -11,44 +11,73 @@ const prisma = new PrismaClient();
 export default class EquiposAdapter implements EquiposPort {
   constructor(private readonly redisService: RedisService) { }
 
-  async crearEquipos(equipoData: { nombre_equipo: string; num_doc: number; }) {
+  async crearEquipos(equipoData: { nom_equipo: string; encargado: string; jugadores?: (number | string)[] }) {
     try {
-      // Verificar si el documento ya existe en la base de datos
-      const equipoExistente = await prisma.equipo.findUnique({
-        where: {
-          nom_equipo: equipoData.nombre_equipo
+      const { nom_equipo, encargado, jugadores } = equipoData;
+
+      // Crear el nuevo equipo
+      const nuevoEquipo = await prisma.equipo.create({
+        data: {
+          nom_equipo,
+          documento: encargado.toString()
         }
       });
 
-      if (equipoExistente) {
-        throw {
-          ok: false,
-          status_cod: 409, // Conflicto: ya existe el documento
-          data: `El equipo ${equipoData.nombre_equipo} ya existe.`
-        };
+      const id_equipo = nuevoEquipo.id;
+
+      let relaciones: { id_equipo: number; documento_user: string }[] = [];
+
+      // Si se envió la lista de jugadores
+      if (jugadores && jugadores.length > 0) {
+        const documentosStr = jugadores.map(doc => doc.toString());
+
+        // Verificar jugadores existentes
+        const usuariosExistentes = await prisma.usuario.findMany({
+          where: { documento: { in: documentosStr } },
+          select: { documento: true }
+        });
+
+        const documentosValidos = usuariosExistentes.map(u => u.documento);
+        const documentosInexistentes = documentosStr.filter(doc => !documentosValidos.includes(doc));
+
+        if (documentosInexistentes.length > 0) {
+          throw {
+            ok: false,
+            status_cod: 404,
+            data: `Los siguientes documentos no están registrados: ${documentosInexistentes.join(", ")}`
+          };
+        }
+
+        // Crear relaciones
+        relaciones = documentosValidos.map(doc => ({
+          id_equipo,
+          documento_user: doc
+        }));
+
+        await prisma.usuarioXEquipo.createMany({
+          data: relaciones,
+          skipDuplicates: true
+        });
       }
 
-      // Si no existe, crear el nuevo equipo
-      const nuevaEquipo = await prisma.equipo.create({
-        data: {
-          nom_equipo: equipoData.nombre_equipo,
-          documento: equipoData.num_doc.toString()
-        }
-      });
-
-      // Limpiar cache
+      // Limpiar caché
       await this.redisService.delete('equipos:lista');
 
-      return nuevaEquipo;
+      return {
+        ok: true,
+        status_cod: 201,
+        data: `Equipo "${nom_equipo}" creado con ${relaciones.length} jugadores asignados.`
+      };
 
     } catch (error: any) {
-      // Validación de errores
-      const validacion = validarExistente(error.code, equipoData.nombre_equipo);
+      // Validaciones específicas si necesitas
+      console.log(error);
+      const validacion = validarExistente(error.code, error.meta?.target);
       if (!validacion.ok) {
         throw {
-          ok: false,
+          ok: validacion.ok,
           status_cod: 409,
-          data: validacion.data
+          data: validacion.data,
         };
       }
 
@@ -63,60 +92,10 @@ export default class EquiposAdapter implements EquiposPort {
         };
       }
 
-      // Si el error no es de validación, lanzar error genérico
       throw {
         ok: false,
-        status_cod: 400,
-        data: error.data || "Ocurrió un error consultando el equipo"
-      };
-    }
-  }
-
-  async asignarJugadores(equipoData: { nombre_equipo: string; jugadores: (number | string)[]; }) {
-    try {
-      // Buscar el equipo por nombre
-      const equipo = await prisma.equipo.findUnique({
-        where: {
-          nom_equipo: equipoData.nombre_equipo
-        },
-        select: {
-          id: true
-        }
-      });
-
-      if (!equipo) {
-        throw {
-          ok: false,
-          status_cod: 404,
-          data: `El equipo ${equipoData.nombre_equipo} no existe.`
-        };
-      }
-
-      const id_equipo = equipo.id;
-
-      // Mapear los documentos a la estructura requerida por la tabla UsuarioXEquipo
-      const relaciones = equipoData.jugadores.map(documento => ({
-        id_equipo,
-        documento_user: documento.toString()
-      }));
-
-      // Asignar los documentos al equipo
-      const resultado = await prisma.usuarioXEquipo.createMany({
-        data: relaciones,
-        skipDuplicates: true
-      });
-
-      return {
-        ok: true,
-        status_cod: 200,
-        data: `Se asignaron ${resultado.count} documento(s) al equipo "${equipoData.nombre_equipo}".`
-      };
-
-    } catch (error: any) {
-      throw {
-        ok: false,
-        status_cod: 500,
-        data: error.data || 'Ocurrió un error asignando documentos al equipo.'
+        status_cod: error.status_cod || 500,
+        data: error.data || 'Ocurrió un error creando el equipo.'
       };
     }
   }
@@ -126,13 +105,26 @@ export default class EquiposAdapter implements EquiposPort {
       const cacheKey = 'equipos:lista';
       const equiposCache = await this.redisService.get(cacheKey);
 
-      if (equiposCache) return JSON.parse(equiposCache);
+      //if (equiposCache) return JSON.parse(equiposCache);
 
       const equipos = await prisma.equipo.findMany({
         select: {
           id: true,
           nom_equipo: true,
-          usuariosxEquipo: {
+          documento: true,
+          usuario: { // Datos del representante
+            select: {
+              documento: true,
+              nombres: true,
+              apellido: true,
+              estado: {
+                select: {
+                  nombre: true
+                }
+              }
+            }
+          },
+          usuariosxEquipo: { // Jugadores del equipo
             select: {
               usuario: {
                 select: {
@@ -151,18 +143,20 @@ export default class EquiposAdapter implements EquiposPort {
         }
       });
 
-      if (!equipos.length) throw new ForbiddenException("No se ha encontrado ningun equipo");
+      if (!equipos.length) throw new ForbiddenException("No se ha encontrado ningún equipo");
 
       const equiposParseados = equipos.map(equipo => ({
         id: equipo.id,
         nom_equipo: equipo.nom_equipo,
+        representante: {
+          documento: equipo.usuario?.documento || equipo.documento,
+          nombres: `${equipo.usuario?.nombres} ${equipo.usuario?.apellido}`,
+          estado: equipo.usuario?.estado?.nombre || "Desconocido"
+        },
         jugadores: equipo.usuariosxEquipo.map(rel => ({
-          usuario: {
-            documento: rel.usuario.documento,
-            nombres: rel.usuario.nombres,
-            apellido: rel.usuario.apellido,
-            estado: rel.usuario.estado?.nombre || "Desconocido"
-          }
+          documento: rel.usuario.documento,
+          nombres: `${rel.usuario.nombres} ${rel.usuario.apellido}`,
+          estado: rel.usuario.estado?.nombre || "Desconocido"
         }))
       }));
 
@@ -177,128 +171,78 @@ export default class EquiposAdapter implements EquiposPort {
     }
   }
 
-  async obtenerEquiposXid(equipoData: { id: string | number }) {
-    try {
-      const cacheKey = `equipo:${equipoData.id}`;
-      const equipoCache = await this.redisService.get(cacheKey);
-
-      if (equipoCache) return JSON.parse(equipoCache);
-
-      const equipo = await prisma.equipo.findUnique({
-        where: { id: Number(equipoData.id) },
-        select: {
-          id: true,
-          nom_equipo: true,
-          usuariosxEquipo: {
-            select: {
-              usuario: {
-                select: {
-                  documento: true,
-                  nombres: true,
-                  apellido: true,
-                  estado: {
-                    select: {
-                      nombre: true
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      });
-
-      if (!equipo) throw new ForbiddenException("La categoría solicitada no existe en la base de datos");
-
-      const resultado = {
-        id: equipo.id,
-        nom_equipo: equipo.nom_equipo,
-        jugadores: equipo.usuariosxEquipo.map(rel => ({
-          documento: rel.usuario.documento,
-          nombre: rel.usuario.nombres,
-          apellido: rel.usuario.apellido,
-          estado: rel.usuario.estado?.nombre || "Desconocido"
-        }))
-      };
-
-      await this.redisService.set(cacheKey, JSON.stringify(resultado));
-      return resultado;
-
-    } catch (error: any) {
-      throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el equipo",
-      };
-    }
-  }
-
-  async delEquipo(equipoData: { id: string }) {
-    try {
-      const id = equipoData.id;
-
-      // Eliminar de la base de datos primero
-      const equipo = await prisma.equipo.delete({
-        where: { id: Number(id) },
-      });
-
-      // Borrar caché específica por ID
-      await this.redisService.delete(`equipo:${id}`);
-
-      // Actualizar la lista cacheada
-      const equiposCache = await this.redisService.get('equipos:lista');
-      if (equiposCache) {
-        const equipos = JSON.parse(equiposCache).filter((e: any) => e.id !== id);
-        await this.redisService.set('equipos:lista', JSON.stringify(equipos), 3600); // TTL de 1 hora
-      }
-
-      return {
-        ok: true,
-        message: "Categoría eliminada correctamente",
-        equipo: equipo.id,
-      };
-
-    } catch (error: any) {
-      validarNoExistente(error.code, "La categoría solicitada");
-      throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error eliminando la categoría",
-      };
-    }
-  }
-
   async actualizaEquipo(equipoData: {
-    nombre?: string;
-    id: string;
+    id: number | string;
+    nom_equipo?: string;
+    encargado?: string;
+    jugadores?: (number | string)[];
   }) {
     try {
-      const { id, nombre } = equipoData;
+      const { id, nom_equipo, encargado, jugadores } = equipoData;
+      const equipoId = Number(id);
 
-      // Verificar si la categoría existe
+      // Verificar si el equipo existe
       const equipoExistente = await prisma.equipo.findUnique({
-        where: { id: Number(id) }
+        where: { id: equipoId }
       });
 
       if (!equipoExistente) {
         throw {
           ok: false,
-          status_cod: 400,
-          message: "La categoría solicitada no existe en la base de datos",
+          status_cod: 404,
+          message: "El equipo solicitado no existe en la base de datos.",
         };
       }
 
-      // Preparar los nuevos datos
-      const updates = {} as any;
-      if (nombre !== undefined) updates.nombre_equipo = nombre;
+      // Construir objeto de actualización
+      const updates: any = {};
+      if (nom_equipo !== undefined) updates.nom_equipo = nom_equipo;
+      if (encargado !== undefined) updates.documento = encargado.toString();
 
-      // Actualizar en base de datos
-      const equipoActualizado = await prisma.equipo.update({
-        where: { id: Number(id) },
-        data: updates
-      });
+      let equipoActualizado = equipoExistente;
 
-      // Borrar caché individual
+      if (Object.keys(updates).length > 0) {
+        equipoActualizado = await prisma.equipo.update({
+          where: { id: equipoId },
+          data: updates
+        });
+      }
+
+      // Actualizar jugadores si se enviaron
+      if (jugadores !== undefined) {
+        const documentosStr = jugadores.map(j => j.toString());
+        const usuariosExistentes = await prisma.usuario.findMany({
+          where: { documento: { in: documentosStr } },
+          select: { documento: true }
+        });
+
+        const documentosValidos = usuariosExistentes.map(u => u.documento);
+        const documentosInexistentes = documentosStr.filter(d => !documentosValidos.includes(d));
+
+        if (documentosInexistentes.length > 0) {
+          throw {
+            ok: false,
+            status_cod: 404,
+            data: `Los siguientes documentos no están registrados: ${documentosInexistentes.join(", ")}`
+          };
+        }
+
+        await prisma.usuarioXEquipo.deleteMany({
+          where: { id_equipo: equipoId }
+        });
+
+        const nuevasRelaciones = documentosValidos.map(doc => ({
+          id_equipo: equipoId,
+          documento_user: doc
+        }));
+
+        await prisma.usuarioXEquipo.createMany({
+          data: nuevasRelaciones,
+          skipDuplicates: true
+        });
+      }
+
+      // Limpiar caché individual
       await this.redisService.delete(`equipo:${id}`);
 
       // Actualizar caché de lista si existe
@@ -306,30 +250,29 @@ export default class EquiposAdapter implements EquiposPort {
       if (equiposCache) {
         let equipos = JSON.parse(equiposCache);
         equipos = equipos.map((e: any) =>
-          e.id === Number(id)
+          e.id === equipoId
             ? {
               ...e,
-              nombre_equipo: equipoActualizado.nom_equipo,
+              ...(nom_equipo !== undefined && { nom_equipo }),
+              ...(encargado !== undefined && { documento: encargado.toString() })
             }
             : e
         );
-        await this.redisService.set('equipos:lista', JSON.stringify(equipos), 3600); // TTL 1 hora
+        await this.redisService.set('equipos:lista', JSON.stringify(equipos), 3600);
       }
 
       return {
         ok: true,
-        message: "Categoría actualizada correctamente",
+        message: "Equipo actualizado correctamente",
         equipo: equipoActualizado
       };
     } catch (error: any) {
-      validarExistente(error.code, "La categoría solicitada");
       throw {
         ok: false,
-        status_cod: 400,
-        data: error.message || error.data || "Ocurrió un error actualizando la categoría",
+        status_cod: error.status_cod || 500,
+        data: error.message || error.data || "Ocurrió un error actualizando el equipo",
       };
     }
   }
-
 }
 

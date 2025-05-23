@@ -65,12 +65,12 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       return nuevaProgramacion;
     } catch (error: any) {
-      const validacion = validarExistente(error.code, programacionData.nombre);
+      const validacion = validarExistente(error.code, error.meta?.target);
       if (!validacion.ok) {
         throw {
-          ok: false,
+          ok: validacion.ok,
           status_cod: 409,
-          data: validacion.data
+          data: validacion.data,
         };
       }
 
@@ -242,7 +242,14 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         programacion: programacionActualizado
       };
     } catch (error: any) {
-      validarExistente(error.code, "La categoría solicitada");
+      const validacion = validarExistente(error.code, error.meta?.target);
+      if (!validacion.ok) {
+        throw {
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data,
+        };
+      }
       throw {
         ok: false,
         status_cod: 400,

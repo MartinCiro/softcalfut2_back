@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class ActualizarEstadoDto {
   @IsOptional()

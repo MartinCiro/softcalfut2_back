@@ -58,12 +58,12 @@ export default class RolesAdapter implements RolesPort {
 
       return nuevoRol;
     } catch (error: any) {
-      const validacion = validarExistente(error.code, rolData.nombre);
+      const validacion = validarExistente(error.code, error.meta?.target);
       if (!validacion.ok) {
         throw {
-          ok: false,
+          ok: validacion.ok,
           status_cod: 409,
-          data: validacion.data
+          data: validacion.data,
         };
       }
 
@@ -259,7 +259,14 @@ export default class RolesAdapter implements RolesPort {
         message: "Rol actualizado correctamente"
       };
     } catch (error: any) {
-      validarExistente(error.code, "El rol solicitado");
+      const validacion = validarExistente(error.code, error.meta?.target);
+      if (!validacion.ok) {
+        throw {
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data,
+        };
+      }
       throw {
         ok: false,
         status_cod: 400,

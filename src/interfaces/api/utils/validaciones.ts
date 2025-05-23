@@ -10,8 +10,18 @@ export const validarBlank = (valor: any, nombre: string): void => {
 };
 
 //metodos para validar si existe y otros
-export const validarExistente = (valor: string, nombre: string): { ok: boolean, data?: string } => {
-  if (valor === 'P2002') return { ok: false, data: `${nombre} ya existe en la base de datos` }
+export const validarExistente = (
+  code: string,
+  target?: string[] | string
+): { ok: boolean; data?: string } => {
+  if (code === 'P2002') {
+    const campo = Array.isArray(target) ? target[0] : target;
+    return {
+      ok: false,
+      data: `${campo} ya existe en la base de datos`
+    };
+  }
+
   return { ok: true };
 };
 

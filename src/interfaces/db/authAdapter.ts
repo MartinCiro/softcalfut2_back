@@ -46,7 +46,7 @@ class AuthAdapter implements AuthPort {
 
     } catch (error: any) {
       console.error("Error en auth del usuario:", error);
-      const validacion = validarExistente(error.code, authData.documento);
+      const validacion = validarExistente(error.code, error.meta?.target);
       if (!validacion.ok) {
         throw {
           ok: validacion.ok,

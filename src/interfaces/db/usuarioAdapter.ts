@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 @Injectable()
 export default class UsuariosAdapter implements UsuariosPort {
-  
+
   async crearUsuarios(usuarioData: {
     nombres: string;
     passwd: string;
@@ -26,7 +26,7 @@ export default class UsuariosAdapter implements UsuariosPort {
     try {
       const fechaNacimiento = new Date(usuarioData.fecha_nacimiento);
       const fechaRegistro = new Date();
-  
+
       // Obtener o crear la fecha de nacimiento
       const fechaNacimientoId = await prisma.fecha.upsert({
         where: { fecha: fechaNacimiento },
@@ -34,7 +34,7 @@ export default class UsuariosAdapter implements UsuariosPort {
         create: { fecha: fechaNacimiento },
         select: { id: true }
       });
-  
+
       // Obtener o crear la fecha de registro
       const fechaRegistroId = await prisma.fecha.upsert({
         where: { fecha: fechaRegistro },
@@ -42,7 +42,7 @@ export default class UsuariosAdapter implements UsuariosPort {
         create: { fecha: fechaRegistro },
         select: { id: true }
       });
-  
+
       // Obtener o crear estado "Activo"
       const estado = await prisma.estado.upsert({
         where: { nombre: 'Activo' },
@@ -50,7 +50,7 @@ export default class UsuariosAdapter implements UsuariosPort {
         create: { nombre: 'Activo' },
         select: { id: true }
       });
-  
+
       // Determinar o crear el rol
       let idRol: number;
       if (usuarioData.id_rol) {
@@ -58,7 +58,7 @@ export default class UsuariosAdapter implements UsuariosPort {
           where: { id: Number(usuarioData.id_rol) },
           select: { id: true }
         });
-  
+
         if (!rol) throw new ForbiddenException(`El rol con ID ${usuarioData.id_rol} no existe`);
         idRol = rol.id;
       } else {
@@ -69,7 +69,7 @@ export default class UsuariosAdapter implements UsuariosPort {
           create: { nombre: 'Invitado' },
           select: { id: true }
         });
-  
+
         const permisoLee = await prisma.permiso.upsert({
           where: { nombre: 'anuncios:Lee' },
           update: {},
@@ -79,7 +79,7 @@ export default class UsuariosAdapter implements UsuariosPort {
           },
           select: { id: true }
         });
-  
+
         // Verificar si la relación ya existe
         const existeRelacion = await prisma.rolXPermiso.findUnique({
           where: {
@@ -89,7 +89,7 @@ export default class UsuariosAdapter implements UsuariosPort {
             }
           }
         });
-  
+
         if (!existeRelacion) {
           await prisma.rolXPermiso.create({
             data: {
@@ -98,13 +98,13 @@ export default class UsuariosAdapter implements UsuariosPort {
             }
           });
         }
-  
+
         idRol = rolInvitado.id;
       }
-  
+
       // Encriptar la contraseña
       const user = new Usuario(usuarioData.numero_documento, usuarioData.passwd);
-  
+
       // Crear el usuario
       const nuevoUsuario = await prisma.usuario.create({
         data: {
@@ -123,21 +123,21 @@ export default class UsuariosAdapter implements UsuariosPort {
         },
         select: { documento: true }
       });
-  
+
       return nuevoUsuario;
     } catch (error: any) {
-      const validacion = validarExistente(error.code, usuarioData.numero_documento);
+      const validacion = validarExistente(error.code, error.meta?.target);
       if (!validacion.ok) {
         throw {
-          ok: false,
+          ok: validacion.ok,
           status_cod: 409,
-          data: validacion.data
+          data: validacion.data,
         };
       }
-  
+
       const resultado = error.meta?.target?.[0] || "valor";
       const valNoExistente = validarNoExistente(error.code, `El ${resultado} asignado`);
-  
+
       if (!valNoExistente.ok) {
         throw {
           ok: false,
@@ -145,7 +145,7 @@ export default class UsuariosAdapter implements UsuariosPort {
           data: valNoExistente.data
         };
       }
-  
+
       throw {
         ok: false,
         status_cod: 400,
@@ -159,13 +159,25 @@ export default class UsuariosAdapter implements UsuariosPort {
       const usuarios = await prisma.usuario.findMany({
         select: {
           nombres: true,
-          estado: {
-            select: { nombre: true }
+          apellido: true,
+          documento: true,
+          email: true,
+          info_perfil: true,
+          num_contacto: true,
+          nom_user: true,
+          fecha_nacimiento: {
+            select: { fecha: true }
+          },
+          fecha_registro: {
+            select: { fecha: true }
           },
           rol: {
             select: {
               nombre: true
             }
+          },
+          estado: {
+            select: { nombre: true }
           }
         }
       });
@@ -178,11 +190,31 @@ export default class UsuariosAdapter implements UsuariosPort {
         };
       }
 
-      return usuarios.map((usuario: { nombres: any; estado: { nombre: any; }; rol: { nombre: any; }; }) => ({
-        nombres: usuario.nombres,
-        estado_usuario: usuario.estado.nombre,
-        rol: usuario.rol.nombre
-      }));
+      return usuarios.map((usuario:
+        {
+          email: any; 
+          nombres: any; 
+          apellido: any; 
+          documento: any; 
+          nom_user: any; 
+          info_perfil: any; 
+          num_contacto: any; 
+          rol: { nombre: any; };
+          estado: { nombre: any; }; 
+          fecha_nacimiento: { fecha: Date } | null;
+          fecha_registro: { fecha: Date } | null; 
+        }) => ({
+          nombres: usuario.nombres + " " + usuario.apellido,
+          estado: usuario.estado.nombre,
+          rol: usuario.rol.nombre,
+          documento: usuario.documento,
+          email: usuario.email,
+          info_perfil: usuario.info_perfil,
+          num_contacto: usuario.num_contacto,
+          nom_user: usuario.nom_user,
+          fecha_nacimiento: usuario.fecha_nacimiento?.fecha,
+          fecha_registro: usuario.fecha_registro?.fecha
+        }));
     } catch (error: any) {
       throw {
         ok: false,
@@ -283,7 +315,14 @@ export default class UsuariosAdapter implements UsuariosPort {
         usuario: usuarioActualizado,
       };
     } catch (error: any) {
-      validarExistente(error.code, "El usuario solicitado");
+      const validacion = validarExistente(error.code, error.meta?.target);
+      if (!validacion.ok) {
+        throw {
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data,
+        };
+      }
       throw {
         ok: false,
         status_cod: 400,

@@ -81,11 +81,6 @@ export class EstadoController {
   }))
   async actualizarEstado(@Body() body: ActualizarEstadoDto): Promise<ResponseBody<string>> {
 
-    if (!body.id) throw new HttpException(
-      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar el rol a actualizar."),
-      HttpStatus.BAD_REQUEST,
-    );
-
     if (!body.nombre && !body.descripcion) throw new HttpException(
       new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,

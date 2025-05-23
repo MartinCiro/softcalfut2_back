@@ -162,6 +162,11 @@ export default class EstadosAdapter implements EstadosPort {
   }) {
     try {
       const estadosCache = await this.redisService.get('estados:lista');
+      const { id, ...updates } = estadoData;
+      const estadoActualizado = await prisma.estado.update({
+        where: { id: Number(id) },
+        data: updates
+      });
 
       if (estadosCache) {
         let estados = JSON.parse(estadosCache);
@@ -169,7 +174,6 @@ export default class EstadosAdapter implements EstadosPort {
         await this.redisService.set('estados:lista', JSON.stringify(estados), 3600);
       }
 
-      const { id, ...updates } = estadoData;
 
       // Verificar si el estado existe
       const estadoExistente = await prisma.estado.findUnique({
@@ -184,20 +188,20 @@ export default class EstadosAdapter implements EstadosPort {
         }
       }
 
-
-      // Actualizar el estado con los nuevos datos
-      const estadoActualizado = await prisma.estado.update({
-        where: { id: Number(id) },
-        data: updates
-      });
-
       return {
         ok: true,
         message: "Estado actualizado correctamente",
         estado: estadoActualizado
       };
     } catch (error: any) {
-      validarExistente(error.code, "El estado solicitado");
+      const validacion = validarExistente(error.code, error.meta?.target);
+      if (!validacion.ok) {
+        throw {
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data,
+        };
+      }
       throw {
         ok: false,
         status_cod: 400,

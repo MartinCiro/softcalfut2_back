@@ -137,7 +137,14 @@ export default class PermisosAdapter implements PermisosPort {
         message: `Los permisos de ${entidad} han sido actualizados`,
       };
     } catch (error: any) {
-      validarExistente(error.code, "Alguno de los permisos solicitados");
+      const validacion = validarExistente(error.code, error.meta?.target);
+      if (!validacion.ok) {
+        throw {
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data,
+        };
+      }
       throw {
         ok: false,
         status_cod: 400,

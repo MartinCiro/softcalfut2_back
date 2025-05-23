@@ -201,7 +201,14 @@ export default class CategoriasAdapter implements CategoriasPort {
         categoria: categoriaActualizado
       };
     } catch (error: any) {
-      validarExistente(error.code, "La categoría solicitada");
+      const validacion = validarExistente(error.code, error.meta?.target);
+      if (!validacion.ok) {
+        throw {
+          ok: validacion.ok,
+          status_cod: 409,
+          data: validacion.data,
+        };
+      }
       throw {
         ok: false,
         status_cod: 400,

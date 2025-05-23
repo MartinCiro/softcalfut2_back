@@ -51,7 +51,7 @@ export default class AnunciosAdapter implements AnunciosPort {
 
       return nuevaAnuncio;
     } catch (error: any) {
-      const validacion = validarExistente(error.code, anuncioData.nombre);
+      const validacion = validarExistente(error.code, error.meta?.target);
       if (!validacion.ok) {
         throw {
           ok: false,

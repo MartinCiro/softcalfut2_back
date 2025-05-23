@@ -9,13 +9,9 @@ export class CrearUsuarioDto {
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   readonly passwd!: string
 
-  @IsNotEmpty({ message: 'El documento es obligatorio' })
-  @IsString({ message: 'El texto de documento no es valido' })
-  readonly pass!: string
-
   @IsOptional()
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
-  readonly id_rol!: number;
+  readonly id_rol?: number;
 
   @IsNotEmpty({ message: 'El apellido es obligatorio' })
   @IsString({ message: 'El texto de apellido no es valido' })
@@ -31,11 +27,11 @@ export class CrearUsuarioDto {
 
   @IsOptional()
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'Debe ser un número' })
-  readonly estado_id!: number; 
+  readonly estado_id?: number; 
   
   @IsOptional()
   @IsString({ message: 'El texto ingresado en la informacion del perfil no es valido' })
-  readonly info_perfil!: string;
+  readonly info_perfil?: string;
 
   @IsNotEmpty({ message: 'El nombre de usuario es obligatorio' })
   @IsString({ message: 'El texto en nombre de usuario no es valido' })
@@ -43,7 +39,7 @@ export class CrearUsuarioDto {
   
   @IsOptional()
   @IsString({ message: 'El texto ingresado en el numero de contacto no es valido' })
-  readonly numero_contacto!: string; 
+  readonly numero_contacto?: string; 
 
   @IsNotEmpty({ message: 'La fecha es obligatoria' })
   @IsDate({ message: 'La fecha no es valida' })
