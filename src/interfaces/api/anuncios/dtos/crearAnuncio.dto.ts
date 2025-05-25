@@ -13,4 +13,3 @@ export class CrearAnuncioDto {
   @IsString({ message: 'El texto de la url de la imagen no es valido' })
   readonly imagenUrl!: string
 }
-
