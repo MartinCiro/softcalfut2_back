@@ -1,14 +1,13 @@
-Aquí tienes una versión mejorada de tu guía, con correcciones de formato, mayor claridad y consistencia en la información:  
-
 ---
 
 # 📌 **Guía para Configurar un Contenedor Postgres con Docker**
 
 Este documento explica cómo configurar un contenedor de **Postgres** con Docker, realizar operaciones con la base de datos y entender la estructura del proyecto.
-
 ---
 
+
 ## 🚀 **1. Iniciar el Contenedor**  
+
 Para desplegar el contenedor, ejecuta (renombrar example a .env sino lo tiene):
 
 ```bash
@@ -18,6 +17,7 @@ docker-compose up -d
 ---
 
 ## 🧪 **2. Ejecutar Pruebas**
+
 Para iniciar las pruebas de microservicios, usa:
 
 ```bash
@@ -27,6 +27,7 @@ docker exec -it nestjs_app sh -c "npm test"
 ---
 
 ## 📄 **3. Acceder a la Documentación de la API**
+
 La documentación de la API se aloja en la siguiente ruta (el puerto varia segun el .env):
 
 ```
@@ -40,6 +41,7 @@ Si la documentación no carga, verifica que el archivo `docs.html` exista en la 
 # 🏗 **Configuración de la Base de Datos**
 
 ## **4. Crear el Contenedor de PostgreSQL**
+
 Para desplegar un contenedor con **PostgreSQL** y exponer el puerto `5432`, ejecuta:
 
 ```bash
@@ -49,6 +51,7 @@ docker run --name psql -e POSTGRES_USER=ciro -e POSTGRES_PASSWORD=tu_contraseña
 ---
 
 ## **5. Crear la Base de Datos**  
+
 Si la base de datos `softcalfut_psql` no existe, créala con:
 
 ```bash
@@ -58,6 +61,7 @@ docker exec -it psql psql -U postgres -c "CREATE DATABASE softcalfut_psql;"
 ---
 
 ## **6. Crear una Copia de Seguridad**  
+
 Para generar un respaldo de la base de datos `softcalfut_psql`, usa:
 
 ```bash
@@ -69,6 +73,7 @@ docker exec -t psql pg_dump -U postgres -F c -b -v -f /var/lib/postgresql/data/b
 ---
 
 ## **7. Restaurar una Copia de Seguridad**
+
 Para restaurar una copia de seguridad, ejecuta:
 
 ```bash
@@ -80,6 +85,7 @@ docker exec -i psql pg_restore -U postgres -d softcalfut_psql < backup.dump
 ---
 
 # 📂 **Estructura del Back**
+
 Este proyecto sigue una organización modular basada en **arquitectura hexagonal**, lo que mejora la mantenibilidad y escalabilidad.
 
 ```
@@ -109,6 +115,7 @@ Este proyecto sigue una organización modular basada en **arquitectura hexagonal
 ---
 
 # 📌 **Descripción General**
+
 - **`/core`** → Contiene la lógica de negocio pura, independiente de la infraestructura.  
 - **`/interfaces/api`** → Define los controladores, módulos y DTOs para la API REST.  
 - **`/config`** → Configuración general del proyecto (variables de entorno, NestJS, etc.).  
@@ -119,6 +126,7 @@ Esta estructura modular **facilita la escalabilidad y el mantenimiento** del có
 ---
 
 # 📂 **Estructura del Front**
+
 Este proyecto sigue una organización modular **tradicional**.
 
 ```
@@ -146,6 +154,7 @@ Este proyecto sigue una organización modular **tradicional**.
 ---
 
 # 📌 **Descripción General**
+
 - **`/Utils`** →  Centraliza la lógica auxiliar y definiciones globales que pueden ser utilizadas por todo el proyecto.  
 - **`/Lib`** → Contiene funcionalidades esenciales del sistema como hooks, servicios y providers globales.  
 - **`/UI`** →  Agrupa todos los elementos visuales, estructurados por su nivel de reutilización o por pantalla.
@@ -160,6 +169,7 @@ Si tienes dudas, revisa los logs de Docker con:
 ```bash
 docker logs -f psql
 ```
+
 ---
 
 ---
@@ -182,4 +192,4 @@ Para eliminar el cache problematico en los response:
 redis-cli DEL anuncios:lista
 ```
 
---- 
+---
