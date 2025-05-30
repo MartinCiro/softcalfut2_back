@@ -2,10 +2,12 @@ model UsuarioXEquipo {
   id_equipo      Int
   documento_user String
   id_nota        Int?
+  id_estado      Int?
 
   equipo  Equipo  @relation(fields: [id_equipo], references: [id], onUpdate: Cascade, onDelete: Cascade)
   usuario Usuario @relation(fields: [documento_user], references: [documento], onDelete: Cascade, name: "UsuarioXEquipo")
-  notas   Notas?  @relation("notas_jugador", fields: [id_nota], references: [id])
+  notas   Notas?  @relation("notas_jugador",  fields: [id_nota],   references: [id])
+  estado  Estado? @relation("estado_jugador", fields: [id_estado], references: [id])
 
   @@id([id_equipo, documento_user]) 
   @@map("usuario_x_equipo")
