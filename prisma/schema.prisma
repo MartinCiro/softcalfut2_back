@@ -30,8 +30,7 @@ model Anuncio {
 model Categoria {
   id               Int                @id @default(autoincrement())
   nombre_categoria String?            @map("nombre_categoria")
-
-  cedulas      CedulaDeportiva[]      @relation("CategoriaToCedulaDeportiva")
+  
   equipo       Equipo[]               @relation("equipo")
 
   @@map("categoria")
@@ -42,7 +41,6 @@ model CedulaDeportiva {
   id                        Int       @id @default(autoincrement())
   id_fecha_creacion_deportiva   Int
   estado_cedula              Int
-  id_categoria               Int
   id_torneo                  Int
   id_fecha_actualizacion     Int
   id_equipo                  Int
@@ -50,7 +48,6 @@ model CedulaDeportiva {
 
   // Relaciones
   equipo                     Equipo?      @relation(fields: [id_equipo], references: [id], onDelete: Cascade)
-  categoria                  Categoria?   @relation(fields: [id_categoria], references: [id], onDelete: Cascade, name: "CategoriaToCedulaDeportiva")
   torneo                     Torneo?      @relation(fields: [id_torneo], references: [id], onDelete: Cascade, name: "TorneoToCedulaDeportiva")
   fecha_actualizacion        Fecha?       @relation("Fecha_r_cc", fields: [id_fecha_actualizacion], references: [id], onDelete: Cascade)
   fecha_creacion_deportiva   Fecha?       @relation("Fecha_c_depo", fields: [id_fecha_creacion_deportiva], references: [id], onDelete: Cascade)
@@ -115,6 +112,17 @@ model LugarEncuentro {
   programacion  Programacion[]   @relation("lugar_encuentro")
 
   @@map("lugar_encuentro")
+}
+
+
+model Notas {
+  id          Int     @id @default(autoincrement())  
+  nombre      String  @unique
+  descripcion String?
+
+  usuarioXequipo  UsuarioXEquipo[]      @relation("notas_jugador")
+
+  @@map("notas") 
 }
 
 
@@ -185,9 +193,11 @@ model Torneo {
 model UsuarioXEquipo {
   id_equipo      Int
   documento_user String
+  id_nota        Int?
 
   equipo  Equipo  @relation(fields: [id_equipo], references: [id], onUpdate: Cascade, onDelete: Cascade)
   usuario Usuario @relation(fields: [documento_user], references: [documento], onDelete: Cascade, name: "UsuarioXEquipo")
+  notas   Notas?  @relation("notas_jugador", fields: [id_nota], references: [id])
 
   @@id([id_equipo, documento_user]) 
   @@map("usuario_x_equipo")

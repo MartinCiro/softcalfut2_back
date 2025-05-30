@@ -2,7 +2,6 @@ import { Injectable, Inject } from '@nestjs/common';
 import CedulaDeportivaPort from './cedulaDeportivaPort';
 
 interface CedulaDeportivaData {
-  categoria: number;
   torneo: number;
   equipo: number;
   foto?: string;
