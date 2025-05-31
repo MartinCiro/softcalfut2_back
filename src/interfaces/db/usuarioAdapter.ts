@@ -305,7 +305,7 @@ export default class UsuariosAdapter implements UsuariosPort {
         data: {
           ...updates,
           estado_id: estado_id !== undefined ? Number(estado_id) : undefined,
-          id_rol: id_rol !== undefined ? Number(id_rol) : undefined,
+          id_rol: id_rol ? Number(id_rol) : undefined,
         },
       });
 

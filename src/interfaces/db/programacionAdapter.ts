@@ -210,7 +210,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       // Preparar los nuevos datos
       const updates = {} as any;
-      if (nombre !== undefined) updates.nombre_programacion = nombre;
+      if (nombre) updates.nombre_programacion = nombre;
 
       // Actualizar en base de datos
       const programacionActualizado = await prisma.programacion.update({

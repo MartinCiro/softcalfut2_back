@@ -306,9 +306,9 @@ export default class AnunciosAdapter implements AnunciosPort {
       }
 
 
-      if (nombre !== undefined) updates.titulo = nombre;
-      if (contenido !== undefined) updates.contenido = contenido;
-      if (imagenUrl !== undefined) updates.imagenUrl = imagenUrl;
+      if (nombre) updates.titulo = nombre;
+      if (contenido) updates.contenido = contenido;
+      if (imagenUrl) updates.imagenUrl = imagenUrl;
 
       const anuncioActualizado = await prisma.anuncio.update({
         where: { id: Number(id) },

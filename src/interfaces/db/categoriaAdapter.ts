@@ -169,7 +169,7 @@ export default class CategoriasAdapter implements CategoriasPort {
   
       // Preparar los nuevos datos
       const updates = {} as any;
-      if (nombre !== undefined) updates.nombre_categoria = nombre;
+      if (nombre) updates.nombre_categoria = nombre;
   
       // Actualizar en base de datos
       const categoriaActualizado = await prisma.categoria.update({

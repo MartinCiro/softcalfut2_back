@@ -169,7 +169,7 @@ export default class TorneosAdapter implements TorneosPort {
   
       // Preparar los nuevos datos
       const updates = {} as any;
-      if (nombre !== undefined) updates.nombre_torneo = nombre;
+      if (nombre) updates.nombre_torneo = nombre;
   
       // Actualizar en base de datos
       const torneoActualizado = await prisma.torneo.update({

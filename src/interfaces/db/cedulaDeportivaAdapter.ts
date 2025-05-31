@@ -215,9 +215,9 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
       };
   
       if (estado !== undefined) dataToUpdate.estado_cedula = estado;
-      if (torneo !== undefined) dataToUpdate.id_torneo = torneo;
-      if (equipo !== undefined) dataToUpdate.id_equipo = equipo;
-      if (foto !== undefined) dataToUpdate.foto = foto;
+      if (torneo) dataToUpdate.id_torneo = torneo;
+      if (equipo) dataToUpdate.id_equipo = equipo;
+      if (foto) dataToUpdate.foto = foto;
   
       // Actualizar en base de datos
       const actualizado = await prisma.cedulaDeportiva.update({
