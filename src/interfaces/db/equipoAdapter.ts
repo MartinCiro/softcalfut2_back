@@ -11,15 +11,25 @@ const prisma = new PrismaClient();
 export default class EquiposAdapter implements EquiposPort {
   constructor(private readonly redisService: RedisService) { }
 
-  async crearEquipos(equipoData: { nom_equipo: string; encargado: string; jugadores?: (number | string)[] }) {
+  async crearEquipos(equipoData: { categoria: string; nom_equipo: string; encargado: string; jugadores?: (number | string)[] }) {
     try {
-      const { nom_equipo, encargado, jugadores } = equipoData;
+      const { nom_equipo, encargado, jugadores, categoria } = equipoData;
+
+      const categoria_id = await prisma.categoria.findFirst({
+        where: { nombre_categoria: categoria },
+        select: {
+          id: true
+        }
+      });
+
+      if (!categoria_id) throw new ForbiddenException("La categoría solicitada no existe en la base de datos");
 
       // Crear el nuevo equipo
       const nuevoEquipo = await prisma.equipo.create({
         data: {
           nom_equipo,
-          documento: encargado.toString()
+          documento: encargado.toString(),
+          categoria_id: categoria_id?.id
         }
       });
 
@@ -100,7 +110,7 @@ export default class EquiposAdapter implements EquiposPort {
     }
   }
 
-  async obtenerEquipos() {
+  async obtenerEquipos(): Promise<any> {
     try {
       const cacheKey = 'equipos:lista';
       const equiposCache = await this.redisService.get(cacheKey);
@@ -112,7 +122,12 @@ export default class EquiposAdapter implements EquiposPort {
           id: true,
           nom_equipo: true,
           documento: true,
-          usuario: { // Datos del representante
+          categoria: {
+            select: {
+              nombre_categoria: true
+            }
+          },
+          usuario: {
             select: {
               documento: true,
               nombres: true,
@@ -124,7 +139,7 @@ export default class EquiposAdapter implements EquiposPort {
               }
             }
           },
-          usuariosxEquipo: { // Jugadores del equipo
+          usuariosxEquipo: {
             select: {
               usuario: {
                 select: {
@@ -137,6 +152,16 @@ export default class EquiposAdapter implements EquiposPort {
                     }
                   }
                 }
+              },
+              estado: {
+                select: {
+                  nombre: true
+                }
+              },
+              notas: {
+                select: {
+                  nombre: true
+                }
               }
             }
           }
@@ -145,18 +170,22 @@ export default class EquiposAdapter implements EquiposPort {
 
       if (!equipos.length) throw new ForbiddenException("No se ha encontrado ningún equipo");
 
-      const equiposParseados = equipos.map(equipo => ({
+      const equiposParseados = equipos.map((equipo: any) => ({
         id: equipo.id,
         nom_equipo: equipo.nom_equipo,
+        categoria: equipo.categoria?.nombre_categoria || "Sin categoría asignada",
         representante: {
           documento: equipo.usuario?.documento || equipo.documento,
-          nombres: `${equipo.usuario?.nombres} ${equipo.usuario?.apellido}`,
-          estado: equipo.usuario?.estado?.nombre || "Desconocido"
+          nombre: `${equipo.usuario?.nombres} ${equipo.usuario?.apellido}`,
+          estado: equipo.usuario?.estado?.nombre
         },
-        jugadores: equipo.usuariosxEquipo.map(rel => ({
+        jugadores: equipo.usuariosxEquipo.map((rel: any)  => ({
           documento: rel.usuario.documento,
-          nombres: `${rel.usuario.nombres} ${rel.usuario.apellido}`,
-          estado: rel.usuario.estado?.nombre || "Desconocido"
+          nombres: `${rel.usuario.nombres}`, 
+          apellidos: `${rel.usuario.apellido}`,
+          estado: rel.usuario.estado?.nombre,
+          estado_jugador: rel.estado?.nombre || "Sin penalizacion",
+          ...(rel.estado?.nombre === "Penalizado" || rel.estado?.nombre.toLowerCase() === "penalizado" ? { notas_jugador: rel.notas?.nombre } : {})
         }))
       }));
 
@@ -176,9 +205,10 @@ export default class EquiposAdapter implements EquiposPort {
     nom_equipo?: string;
     encargado?: string;
     jugadores?: (number | string)[];
+    categoria?: string
   }) {
     try {
-      const { id, nom_equipo, encargado, jugadores } = equipoData;
+      const { id, nom_equipo, encargado, jugadores, categoria } = equipoData;
       const equipoId = Number(id);
 
       // Verificar si el equipo existe
@@ -193,11 +223,24 @@ export default class EquiposAdapter implements EquiposPort {
           message: "El equipo solicitado no existe en la base de datos.",
         };
       }
+      const categoriaId = await prisma.categoria.findFirst({
+        where: { nombre_categoria: equipoData.categoria },
+        select: { id: true }
+      });
+
+      if (!categoriaId) {
+        throw {
+          ok: false,
+          status_cod: 404,
+          message: "La categoría solicitada no existe en la base de datos.",
+        };
+      }
 
       // Construir objeto de actualización
       const updates: any = {};
       if (nom_equipo !== undefined) updates.nom_equipo = nom_equipo;
       if (encargado !== undefined) updates.documento = encargado.toString();
+      if (categoria !== undefined) updates.id_categoria = categoriaId?.id;
 
       let equipoActualizado = equipoExistente;
 
