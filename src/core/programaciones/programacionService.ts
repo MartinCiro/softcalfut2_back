@@ -7,7 +7,6 @@ interface ProgramacionData {
   fechaEncuentro: string;
   equipoLocal: number;
   equipoVisitante: number;
-  categoriaEncuentro: number;
   rama: string;
 }
 

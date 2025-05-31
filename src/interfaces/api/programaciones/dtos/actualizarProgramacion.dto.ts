@@ -27,11 +27,6 @@ export class ActualizarProgramacionDto {
   readonly equipo_local!: number
 
   @IsOptional()
-  @IsNotEmpty({ message: 'La categoria es obligatorio' })
-  @IsNumber({}, { message: 'La categoria no es valido' })
-  readonly categoria_encuentro!: number;
-
-  @IsOptional()
   @IsNotEmpty({ message: 'El equipo visitante es obligatorio' })
   @IsNumber({}, { message: 'El equipo visitante no es valido' })
   readonly equipo_visitante!: number;

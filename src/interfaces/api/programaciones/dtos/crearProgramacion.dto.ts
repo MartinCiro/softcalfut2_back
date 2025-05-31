@@ -21,10 +21,6 @@ export class CrearProgramacionDto {
   @IsNumber({}, { message: 'El texto en equipo local no es valido' })
   readonly equipoLocal!: number
 
-  @IsNotEmpty({ message: 'La categoria es obligatorio' })
-  @IsNumber({}, { message: 'La categoria no es valido' })
-  readonly categoriaEncuentro!: number;
-
   @IsNotEmpty({ message: 'El equipo visitante es obligatorio' })
   @IsNumber({}, { message: 'El equipo visitante no es valido' })
   readonly equipoVisitante!: number;
