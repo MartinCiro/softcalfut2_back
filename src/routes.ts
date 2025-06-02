@@ -7,6 +7,7 @@ import { UsuarioModule } from 'api/usuarios/usuario.module';
 import { CategoriaModule } from 'api/categorias/categoria.module';
 import { EquipoModule } from 'api/equipos/equipo.module';
 import { NotaModule } from 'api/notas/nota.module';
+import { LugarEncuentroModule } from 'api/lugarEncuentro/lugarEncuentro.module';
 import { AnuncioModule } from 'api/anuncios/anuncio.module';
 import { CedulaDeportivaModule } from 'api/cedulaDeportiva/cedulaDeportiva.module';
 import { TorneoModule } from 'api/torneos/torneo.module';
@@ -30,7 +31,8 @@ import { Module } from '@nestjs/common';
     TorneoModule,
     AnuncioModule,
     AuthModule,
-    NotaModule
+    NotaModule,
+    LugarEncuentroModule
   ],
   controllers: [AppController],
 })
