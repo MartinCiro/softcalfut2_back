@@ -86,8 +86,6 @@ export default class RolesAdapter implements RolesPort {
     }
   }
 
-
-
   async obtenerRoles() {
     try {
       const roles = await prisma.rol.findMany({
@@ -107,8 +105,13 @@ export default class RolesAdapter implements RolesPort {
         }
       });
 
-      if (!roles.length) throw new ForbiddenException("No se encontraron roles");
-
+      if (roles.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ningun rol"
+        };
+      }
 
       return roles.map((rol: any) => {
         const permisosList = rol.rolXPermiso.map((rp: any) => rp.permiso.nombre);
@@ -130,8 +133,8 @@ export default class RolesAdapter implements RolesPort {
       });
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el rol"
       };
     }
@@ -157,7 +160,13 @@ export default class RolesAdapter implements RolesPort {
         }
       });
 
-      if (!rol) throw new ForbiddenException("El rol solicitado no existe en la base de datos");
+      if (!rol) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado el rol solicitado"
+        };
+      }
       return {
         id: rol.id,
         nombre: rol.nombre,
@@ -166,8 +175,8 @@ export default class RolesAdapter implements RolesPort {
       };
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el rol",
       };
     }

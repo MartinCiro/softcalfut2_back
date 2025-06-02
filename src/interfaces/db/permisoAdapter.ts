@@ -57,8 +57,12 @@ export default class PermisosAdapter implements PermisosPort {
         }
       });
 
-      if (!permisos.length) {
-        throw new ForbiddenException("No se encontró ningún permiso");
+      if (permisos.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ningun permiso"
+        };
       }
 
       const agrupados: Record<string, { descripcion: string, acciones: Set<string> }> = {};
@@ -87,8 +91,8 @@ export default class PermisosAdapter implements PermisosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando los permisos"
       };
     }

@@ -110,7 +110,13 @@ export default class AnunciosAdapter implements AnunciosPort {
         }
       });
 
-      if (!anuncios.length) throw new ForbiddenException("No se ha encontrado ningún anuncio");
+      if (anuncios.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado anuncios"
+        };
+      }
 
       // Aquí solo transformamos los resultados necesarios
       const resultados = anuncios.map(anuncio => ({
@@ -129,8 +135,8 @@ export default class AnunciosAdapter implements AnunciosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando los anuncios"
       };
     }
@@ -168,7 +174,13 @@ export default class AnunciosAdapter implements AnunciosPort {
         }
       });
 
-      if (!anuncios.length) throw new ForbiddenException("No se ha encontrado ningún anuncio");
+      if (!anuncios.length) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado anuncios"
+        };
+      }
 
 
 
@@ -177,8 +189,8 @@ export default class AnunciosAdapter implements AnunciosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando los anuncios",
       };
     }
@@ -226,13 +238,12 @@ export default class AnunciosAdapter implements AnunciosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el anuncio",
       };
     }
   }
-
 
   async delAnuncio(anuncioData: { id: string }) {
     try {
@@ -329,7 +340,5 @@ export default class AnunciosAdapter implements AnunciosPort {
       };
     }
   }
-
-
 }
 

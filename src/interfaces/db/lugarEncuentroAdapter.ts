@@ -78,14 +78,20 @@ export default class LugarEncuentroAdapter implements LugarEncuentroPort {
         }
       });
 
-      if (!lugarEncuentro.length) throw new ForbiddenException("No se ha encontrado ningún lugarEncuentro");
+      if (lugarEncuentro.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ningun lugar de encuentro"
+        };
+      }
 
       await this.redisService.set(cacheKey, JSON.stringify(lugarEncuentro));
       return lugarEncuentro;
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el lugarEncuentro"
       };
     }

@@ -168,7 +168,13 @@ export default class EquiposAdapter implements EquiposPort {
         }
       });
 
-      if (!equipos.length) throw new ForbiddenException("No se ha encontrado ningún equipo");
+      if (equipos.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado los equipos"
+        };
+      }
 
       const equiposParseados = equipos.map((equipo: any) => ({
         id: equipo.id,
@@ -193,8 +199,8 @@ export default class EquiposAdapter implements EquiposPort {
       return equiposParseados;
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el equipo"
       };
     }

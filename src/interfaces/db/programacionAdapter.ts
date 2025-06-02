@@ -103,19 +103,52 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       const programaciones = await prisma.programacion.findMany({
         select: {
           id: true,
-          nombre_programacion: true
+          rama: true,
+          fecha_encuentro: {
+            select: {
+              fecha: true
+            }
+          },
+          lugar_encuentro: {
+            select: {
+              nombre: true
+            }
+          },
+          nombre_competencia: true,
+          equipo_local: {
+            select: {
+              nom_equipo: true
+            }
+          },
+          equipo_visitante: {
+            select: {
+              nom_equipo: true
+            }
+          },
+          categoria_encuentro: {
+            select: {
+              nombre_categoria: true
+            }
+          }
         }
       });
 
-      if (!programaciones.length) throw new ForbiddenException("No se ha encontrado ninguna programacion");
+      if (programaciones.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ninguna programacion"
+        };
+      }
+
 
       await this.redisService.set(cacheKey, JSON.stringify(programaciones));
       return programaciones;
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el programacion"
       };
     }
@@ -135,7 +168,13 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           nombre_programacion: true
         }
       });
-      if (!programacion) throw new ForbiddenException("La categoría solicitada no existe en la base de datos");
+      if (!programacion) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado la programacion solicitada"
+        };
+      }
       const programacion_id = {
         id: programacion.id,
         nombre_programacion: programacion.nombre_programacion
@@ -146,8 +185,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el programacion",
       };
     }

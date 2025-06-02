@@ -66,15 +66,21 @@ export default class CategoriasAdapter implements CategoriasPort {
         }
       });
 
-      if (!categorias.length) throw new ForbiddenException("No se ha encontrado ninguna categoria");
+      if (categorias.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ninguna categoria"
+        };
+      }
       
       await this.redisService.set(cacheKey, JSON.stringify(categorias));
       return categorias;
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el categoria"
       };
     }
@@ -105,8 +111,8 @@ export default class CategoriasAdapter implements CategoriasPort {
       
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el categoria",
       };
     }

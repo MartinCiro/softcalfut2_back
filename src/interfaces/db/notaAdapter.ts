@@ -78,14 +78,20 @@ export default class NotasAdapter implements NotasPort {
         }
       });
 
-      if (!notas.length) throw new ForbiddenException("No se ha encontrado ningún nota");
+      if (notas.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ninguna nota"
+        };
+      }
 
       await this.redisService.set(cacheKey, JSON.stringify(notas));
       return notas;
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando el nota"
       };
     }

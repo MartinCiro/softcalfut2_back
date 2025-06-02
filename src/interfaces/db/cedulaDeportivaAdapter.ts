@@ -87,6 +87,65 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
     }
   }
 
+  async obtenerCedulaDeportiva(cedulaDeportivaData: { id: string | number }) {
+    try {
+      const cacheKey = `cedulaDeportiva:${cedulaDeportivaData.id}`;
+      const cedulaDeportivaCache = await this.redisService.get(cacheKey);
+  
+      if (cedulaDeportivaCache) return JSON.parse(cedulaDeportivaCache);
+  
+      const cedulasDeportiva = await prisma.cedulaDeportiva.findMany({
+        select: {
+          id: true,
+          foto_base: true,
+          fecha_creacion_deportiva: {
+            select: { fecha: true }
+          },
+          fecha_actualizacion: {
+            select: { fecha: true }
+          },
+          estado: {
+            select: { nombre: true }
+          },
+          equipo: {
+            select: { nom_equipo: true }
+          },
+          torneo: {
+            select: { nombre_torneo: true }
+          },
+        }
+      });
+      if (cedulasDeportiva.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado las cedulas deportivas"
+        };
+      }
+
+      const cedulasParseadas = cedulasDeportiva.map((cedula) => {
+        return {
+          estado: cedula.estado.nombre,
+          equipo: cedula.equipo?.nom_equipo,
+          torneo: cedula.torneo?.nombre_torneo,
+          fechaActualizacion: cedula.fecha_actualizacion?.fecha,
+          fechaCreacionDeportiva: cedula.fecha_creacion_deportiva?.fecha,
+          fotoBase: cedula.foto_base,
+        };
+      });
+  
+      await this.redisService.set(cacheKey, JSON.stringify(cedulasParseadas));
+      return cedulasParseadas;
+  
+    } catch (error: any) {
+      throw {
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || "Ocurrió un error consultando la cédula deportiva",
+      };
+    }
+  }
+
   async obtenerCedulaDeportivaXid(cedulaDeportivaData: { id: string | number }) {
     try {
       const cacheKey = `cedulaDeportiva:${cedulaDeportivaData.id}`;
@@ -117,8 +176,13 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
         }
       });
   
-      if (!cedulaDeportiva)
-        throw new ForbiddenException("La cédula deportiva solicitada no existe en la base de datos");
+      if (!cedulaDeportiva) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado la cedula deportiva"
+        };
+      }
 
       const cedulaParseada = {
         estado: cedulaDeportiva.estado.nombre,
@@ -134,8 +198,8 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
   
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
         data: error.message || "Ocurrió un error consultando la cédula deportiva",
       };
     }
