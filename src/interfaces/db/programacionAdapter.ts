@@ -4,6 +4,8 @@ import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
 import { RedisService } from 'shared/cache/redis.service';
+import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from 'api/programaciones/models/programacion.model';
+
 
 const prisma = new PrismaClient();
 
@@ -11,15 +13,7 @@ const prisma = new PrismaClient();
 export default class ProgramacionesAdapter implements ProgramacionesPort {
   constructor(private readonly redisService: RedisService) { }
 
-  async crearProgramaciones(programacionData: {
-    nombreCompetencia: string;
-    lugarEncuentro: string;
-    fechaEncuentro: string;
-    equipoLocal: number;
-    equipoVisitante: number;
-    categoriaEncuentro: number;
-    rama: string;
-  }) {
+  async crearProgramaciones(programacionData: ProgramacionData) {
     try {
 
       let fechaEncuentro = await prisma.fecha.findFirst({
@@ -35,14 +29,13 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         });
       }
 
-      const verifiexiste = await prisma.programacion.findFirst({                                                                                             
+      const verifiexiste = await prisma.programacion.findFirst({
         where: {
           nombre_competencia: programacionData.nombreCompetencia,
           lugar_encuentro: programacionData.lugarEncuentro,
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
-          categoria_encuentro: programacionData.categoriaEncuentro,
           rama: programacionData.rama
         }
       })
@@ -56,7 +49,6 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
-          categoria_encuentro: programacionData.categoriaEncuentro,
           rama: programacionData.rama
         }
       });
@@ -98,36 +90,31 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       const cacheKey = 'programaciones:lista';
       const programacionesCache = await this.redisService.get(cacheKey);
 
-      if (programacionesCache) return JSON.parse(programacionesCache);
+      //if (programacionesCache) return JSON.parse(programacionesCache);
 
       const programaciones = await prisma.programacion.findMany({
         select: {
           id: true,
           rama: true,
-          fecha_encuentro: {
+          nombre_competencia: true,
+          fecha: {
             select: {
               fecha: true
             }
           },
-          lugar_encuentro: {
+          lugarEncuentro: {
             select: {
               nombre: true
             }
           },
-          nombre_competencia: true,
-          equipo_local: {
+          equipoLocal: {
             select: {
               nom_equipo: true
             }
           },
-          equipo_visitante: {
+          equipoVisitante: {
             select: {
               nom_equipo: true
-            }
-          },
-          categoria_encuentro: {
-            select: {
-              nombre_categoria: true
             }
           }
         }
@@ -137,22 +124,33 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         throw {
           ok: true,
           status_cod: 200,
-          data: "No se han encontrado ninguna programacion"
+          data: "No se ha encontrado ninguna programación"
         };
       }
+      const programacionFilter = programaciones.map(programacion => {
+        return {
+          id: programacion.id,
+          rama: programacion.rama,
+          nombre_competencia: programacion.nombre_competencia,
+          fecha: programacion.fecha.fecha,
+          lugarEncuentro: programacion.lugarEncuentro?.nombre,
+          equipoLocal: programacion.equipoLocal.nom_equipo,
+          equipoVisitante: programacion.equipoVisitante.nom_equipo
+        }
+      })
 
-
-      await this.redisService.set(cacheKey, JSON.stringify(programaciones));
-      return programaciones;
+      await this.redisService.set(cacheKey, JSON.stringify(programacionFilter));
+      return programacionFilter;
 
     } catch (error: any) {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || error.data || "Ocurrió un error consultando el programacion"
+        data: error.message || error.data || "Ocurrió un error consultando las programaciones"
       };
     }
   }
+
 
   async obtenerProgramacionesXid(programacionData: { id: string | number }) {
     try {
@@ -165,32 +163,30 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         where: { id: Number(programacionData.id) },
         select: {
           id: true,
-          nombre_programacion: true
+          nombre_competencia: true
         }
       });
+
       if (!programacion) {
         throw {
           ok: true,
           status_cod: 200,
-          data: "No se han encontrado la programacion solicitada"
+          data: "No se ha encontrado la programación solicitada"
         };
       }
-      const programacion_id = {
-        id: programacion.id,
-        nombre_programacion: programacion.nombre_programacion
-      }
 
-      await this.redisService.set(cacheKey, JSON.stringify(programacion_id));
-      return programacion_id;
+      await this.redisService.set(cacheKey, JSON.stringify(programacion));
+      return programacion;
 
     } catch (error: any) {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || error.data || "Ocurrió un error consultando el programacion",
+        data: error.message || error.data || "Ocurrió un error consultando la programación"
       };
     }
   }
+
 
   async delProgramacion(programacionData: { id: string }) {
     try {
@@ -234,7 +230,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
     try {
       const { id, nombre } = programacionData;
 
-      // Verificar si la categoría existe
+      // Verificar si la programación existe
       const programacionExistente = await prisma.programacion.findUnique({
         where: { id: Number(id) }
       });
@@ -243,13 +239,13 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         throw {
           ok: false,
           status_cod: 400,
-          message: "La categoría solicitada no existe en la base de datos",
+          message: "La programación solicitada no existe en la base de datos",
         };
       }
 
       // Preparar los nuevos datos
-      const updates = {} as any;
-      if (nombre) updates.nombre_programacion = nombre;
+      const updates: any = {};
+      if (nombre) updates.nombre_competencia = nombre;
 
       // Actualizar en base de datos
       const programacionActualizado = await prisma.programacion.update({
@@ -268,7 +264,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           e.id === Number(id)
             ? {
               ...e,
-              nombre_programacion: programacionActualizado.nombre_programacion,
+              nombre_competencia: programacionActualizado.nombre_competencia,
             }
             : e
         );
@@ -277,7 +273,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       return {
         ok: true,
-        message: "Categoría actualizada correctamente",
+        message: "Programación actualizada correctamente",
         programacion: programacionActualizado
       };
     } catch (error: any) {
@@ -292,10 +288,9 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       throw {
         ok: false,
         status_cod: 400,
-        data: error.message || error.data || "Ocurrió un error actualizando la categoría",
+        data: error.message || error.data || "Ocurrió un error actualizando la programación",
       };
     }
   }
-
 }
 

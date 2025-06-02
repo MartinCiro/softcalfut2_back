@@ -35,7 +35,7 @@ export class ProgramacionController {
   async crearProgramacion(@Body() body: CrearProgramacionDto): Promise<ResponseBody<string>> {
     try {
       await this.rolService.crearProgramacion(body);
-      return new ResponseBody<string>(true, 201, "Se ha creado el rol exitosamente");
+      return new ResponseBody<string>(true, 201, "Se ha la programacion exitosamente");
     } catch (error) {
       handleException(error);
     }
@@ -82,11 +82,11 @@ export class ProgramacionController {
   async actualizarProgramacion(@Body() body: ActualizarProgramacionDto): Promise<ResponseBody<string>> {
 
     if (!body.id) throw new HttpException(
-      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar el rol a actualizar."),
+      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar la programacion a actualizar."),
       HttpStatus.BAD_REQUEST,
     );
 
-    if (!body.rama && !body.lugar_encuentro && !body.nombre_competencia && !body.fecha_encuentro && !body.equipo_local && !body.equipo_visitante && !body.categoria_encuentro) throw new HttpException(
+    if (!body.rama && !body.lugar_encuentro && !body.nombre_competencia && !body.fecha_encuentro && !body.equipo_local && !body.equipo_visitante) throw new HttpException(
       new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,
     );

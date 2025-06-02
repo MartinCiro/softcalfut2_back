@@ -1,20 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import ProgramacionesPort from './programacionPort';
-
-interface ProgramacionData {
-  nombreCompetencia: string;
-  lugarEncuentro: string;
-  fechaEncuentro: string;
-  equipoLocal: number;
-  equipoVisitante: number;
-  rama: string;
-}
-
-interface ProgramacionDataXid {
-  id: number | string;
-}
-
-type ProgramacionDataUpdate = Partial<Omit<ProgramacionData, 'id'>> & ProgramacionDataXid;
+import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from 'api/programaciones/models/programacion.model';
 
 @Injectable() 
 export class ProgramacionService {

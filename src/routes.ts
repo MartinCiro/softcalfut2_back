@@ -14,6 +14,7 @@ import { TorneoModule } from 'api/torneos/torneo.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { Module } from '@nestjs/common';
+import { ProgramacionModule } from 'api/programaciones/programacion.module';
 
 @Module({
   imports: [
@@ -21,18 +22,19 @@ import { Module } from '@nestjs/common';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/api-docs'
     }),
-    UsuarioModule,
-    PermisoModule,
     RolModule,
-    EstadoModule,
-    CategoriaModule,
-    EquipoModule,
-    CedulaDeportivaModule,
-    TorneoModule,
-    AnuncioModule,
     AuthModule,
     NotaModule,
-    LugarEncuentroModule
+    TorneoModule,
+    EstadoModule,
+    EquipoModule,
+    UsuarioModule,
+    PermisoModule,
+    AnuncioModule,
+    CategoriaModule,
+    ProgramacionModule,
+    LugarEncuentroModule,
+    CedulaDeportivaModule,
   ],
   controllers: [AppController],
 })

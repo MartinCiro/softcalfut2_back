@@ -1,6 +1,6 @@
 model Programacion {
   id                  Int      @id @default(autoincrement())
-  lugar_encuentro     Int?      @map("lugar_encuentro")
+  lugar_encuentro     Int      @map("lugar_encuentro")
   rama                String
   
   fecha_encuentro     Int      @map("fecha_encuentro")
@@ -12,8 +12,8 @@ model Programacion {
   // Relaciones
   equipoLocal     Equipo    @relation("EquipoLocal", fields: [id_equipo_local], references: [id])
   equipoVisitante Equipo    @relation("EquipoVisitante", fields: [id_equipo_visitante], references: [id])
-  fecha           Fecha    @relation("programacion_fecha", fields: [fecha_encuentro], references: [id])
-  lugarEncuentro   LugarEncuentro? @relation("lugar_encuentro", fields: [lugar_encuentro], references: [id])
+  fecha           Fecha     @relation("programacion_fecha", fields: [fecha_encuentro], references: [id])
+  lugarEncuentro   LugarEncuentro @relation("lugar_encuentro", fields: [lugar_encuentro], references: [id])
 
   @@map("programacion")
 }
