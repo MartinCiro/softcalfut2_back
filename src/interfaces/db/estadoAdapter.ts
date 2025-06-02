@@ -95,7 +95,7 @@ export default class EstadosAdapter implements EstadosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el estado"
+        data: error.message || error.data || "Ocurrió un error consultando el estado"
       };
     }
   }
@@ -135,7 +135,7 @@ export default class EstadosAdapter implements EstadosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el estado",
+        data: error.message || error.data || "Ocurrió un error consultando el estado",
       };
     }
   }

@@ -81,7 +81,7 @@ export default class TorneosAdapter implements TorneosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el torneo"
+        data: error.message || error.data || "Ocurrió un error consultando el torneo"
       };
     }
   }
@@ -119,7 +119,7 @@ export default class TorneosAdapter implements TorneosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el torneo",
+        data: error.message || error.data || "Ocurrió un error consultando el torneo",
       };
     }
   }

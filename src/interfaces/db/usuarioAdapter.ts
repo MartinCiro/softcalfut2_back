@@ -219,7 +219,7 @@ export default class UsuariosAdapter implements UsuariosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el usuario"
+        data: error.message || error.data || "Ocurrió un error consultando el usuario"
       };
     }
   }
@@ -258,7 +258,7 @@ export default class UsuariosAdapter implements UsuariosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el usuario",
+        data: error.message || error.data || "Ocurrió un error consultando el usuario",
       };
     }
   }

@@ -135,7 +135,7 @@ export default class RolesAdapter implements RolesPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el rol"
+        data: error.message || error.data || "Ocurrió un error consultando el rol"
       };
     }
   }
@@ -177,7 +177,7 @@ export default class RolesAdapter implements RolesPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el rol",
+        data: error.message || error.data || "Ocurrió un error consultando el rol",
       };
     }
   }

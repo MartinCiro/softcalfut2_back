@@ -81,7 +81,7 @@ export default class CategoriasAdapter implements CategoriasPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el categoria"
+        data: error.message || error.data || "Ocurrió un error consultando el categoria"
       };
     }
   }
@@ -113,7 +113,7 @@ export default class CategoriasAdapter implements CategoriasPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el categoria",
+        data: error.message || error.data || "Ocurrió un error consultando el categoria",
       };
     }
   }

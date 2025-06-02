@@ -149,7 +149,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el programacion"
+        data: error.message || error.data || "Ocurrió un error consultando el programacion"
       };
     }
   }
@@ -187,7 +187,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el programacion",
+        data: error.message || error.data || "Ocurrió un error consultando el programacion",
       };
     }
   }

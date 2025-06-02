@@ -82,7 +82,7 @@ export default class LugarEncuentroAdapter implements LugarEncuentroPort {
         throw {
           ok: true,
           status_cod: 200,
-          data: "No se han encontrado ningun lugar de encuentro"
+          data: "No se han encontrado lugares de encuentro"
         };
       }
 
@@ -92,7 +92,7 @@ export default class LugarEncuentroAdapter implements LugarEncuentroPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el lugarEncuentro"
+        data: error.message || error.data || "Ocurrió un error consultando el lugarEncuentro"
       };
     }
   }

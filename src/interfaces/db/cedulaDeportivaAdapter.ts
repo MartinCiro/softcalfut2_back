@@ -141,7 +141,7 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando la cédula deportiva",
+        data: error.message || error.data || "Ocurrió un error consultando la cédula deportiva",
       };
     }
   }
@@ -200,7 +200,7 @@ export default class CedulaDeportivaAdapter implements CedulaDeportivaPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando la cédula deportiva",
+        data: error.message || error.data || "Ocurrió un error consultando la cédula deportiva",
       };
     }
   }

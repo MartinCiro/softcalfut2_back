@@ -137,7 +137,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando los anuncios"
+        data: error.message || error.data || "Ocurrió un error consultando los anuncios"
       };
     }
   }
@@ -191,7 +191,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando los anuncios",
+        data: error.message || error.data || "Ocurrió un error consultando los anuncios",
       };
     }
   }
@@ -240,7 +240,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       throw {
         ok: error.ok || false,
         status_cod: error.status_cod || 400,
-        data: error.message || "Ocurrió un error consultando el anuncio",
+        data: error.message || error.data || "Ocurrió un error consultando el anuncio",
       };
     }
   }
