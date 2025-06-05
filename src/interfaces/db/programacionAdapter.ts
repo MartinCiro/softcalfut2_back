@@ -127,20 +127,61 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           data: "No se ha encontrado ninguna programación"
         };
       }
-      const programacionFilter = programaciones.map(programacion => {
-        return {
-          id: programacion.id,
-          rama: programacion.rama,
-          nombre_competencia: programacion.nombre_competencia,
-          fecha: programacion.fecha.fecha,
-          lugarEncuentro: programacion.lugarEncuentro?.nombre,
-          equipoLocal: programacion.equipoLocal.nom_equipo,
-          equipoVisitante: programacion.equipoVisitante.nom_equipo
-        }
-      })
 
-      await this.redisService.set(cacheKey, JSON.stringify(programacionFilter));
-      return programacionFilter;
+      const agrupado: Record<string, {
+        competencia: string;
+        eventos: {
+          local: string;
+          visitante: string;
+          hora: string;
+          lugar: string;
+          rama: string;
+          fecha: string;
+          dia: string;
+        }[];
+      }> = {};
+
+      // Procesar las fechas y agrupar
+      for (const programacion of programaciones) {
+        const fechaCompleta = new Date(programacion.fecha.fecha);
+
+        const fechaFormateada = fechaCompleta.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+
+        const diaSemana = fechaCompleta.toLocaleDateString('es-ES', { weekday: 'long' });
+
+        const hora = fechaCompleta.toLocaleTimeString('es-ES', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        }).toLowerCase().replace(/(\d)(\s?)(a|p)\.\s?m\./i, '$1 $3.m.');
+
+        const key = `${programacion.nombre_competencia}__${fechaFormateada}`;
+
+        if (!agrupado[key]) {
+          agrupado[key] = {
+            competencia: programacion.nombre_competencia,
+            eventos: []
+          };
+        }
+
+        agrupado[key].eventos.push({
+          local: programacion.equipoLocal.nom_equipo,
+          visitante: programacion.equipoVisitante.nom_equipo,
+          hora,
+          lugar: programacion.lugarEncuentro?.nombre ?? '',
+          rama: programacion.rama,
+          fecha: fechaFormateada,
+          dia: diaSemana
+        });
+      }
+
+      const listaFinal = Object.values(agrupado);
+      await this.redisService.set(cacheKey, JSON.stringify(listaFinal));
+      return listaFinal;
 
     } catch (error: any) {
       throw {

@@ -8,7 +8,7 @@ Este documento explica cómo configurar un contenedor de **Postgres** con Docker
 
 ## 🚀 **1. Iniciar el Contenedor**  
 
-Para desplegar el contenedor, ejecuta (renombrar example a .env sino lo tiene):
+Para desplegar el contenedor, ejecuta (renombrar example a .env sino lo tiene []):
 
 ```bash
 docker-compose up -d
