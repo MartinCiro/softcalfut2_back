@@ -69,7 +69,11 @@ docker exec -t psql pg_dump -U postgres -d softcalfut_psql -Fc > backup.dump
 docker exec -t psql pg_dump -U postgres -F c -b -v -f /var/lib/postgresql/data/backup.dump softcalfut_psql
 
 ```
+### Copiar bd a local
+```bash
+docker cp psql:/var/lib/postgresql/data/backup.dump ./src/bd_backup/backup.dump
 
+```
 ---
 
 ## **7. Restaurar una Copia de Seguridad**
