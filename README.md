@@ -86,6 +86,13 @@ docker exec -it psql psql -U postgres -c "CREATE DATABASE softcalfut_psql;"
 docker exec -i psql pg_restore -U postgres -d softcalfut_psql < backup.dump
 ```
 
+### En caso de error
+```bash
+docker cp .\backup.dump psql:/tmp/backup.dump
+docker exec -it psql pg_restore -U postgres -d softcalfut_psql /tmp/backup.dump
+
+```
+
 ---
 
 # 📂 **Estructura del Back**
