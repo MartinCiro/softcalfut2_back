@@ -16,27 +16,57 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
   async crearProgramaciones(programacionData: ProgramacionData) {
     try {
 
-      let fechaEncuentro = await prisma.fecha.findFirst({
-        where: { fecha: programacionData.fechaEncuentro },
-        select: { id: true }
-      })
+      const [lugarEncuentro, equipoLocal, equipoVisitante, torneo] = await Promise.all([
+        prisma.lugarEncuentro.findUnique({
+          where: { id: programacionData.lugarEncuentro },
+          select: { id: true }
+        }),
+        prisma.equipo.findUnique({
+          where: { id: programacionData.equipoLocal },
+          select: { id: true }
+        }),
+        prisma.equipo.findUnique({
+          where: { id: programacionData.equipoVisitante },
+          select: { id: true }
+        }),
+        prisma.torneo.findUnique({
+          where: { id: programacionData.torneo },
+          select: { id: true }
+        })
+      ]);
 
-      if (!fechaEncuentro) {
-        fechaEncuentro = await prisma.fecha.create({
-          data: {
-            fecha: programacionData.fechaEncuentro
-          }, select: { id: true }
-        });
+      // Verificación de existencia
+      const errors = [
+        { check: !lugarEncuentro, message: 'El lugar de encuentro no existe' },
+        { check: !equipoLocal, message: 'El equipo local no existe' },
+        { check: !equipoVisitante, message: 'El equipo visitante no existe' },
+        { check: !torneo, message: 'El torneo no existe' }
+      ].filter(item => item.check);
+
+      if (errors.length > 0) {
+        throw {
+          ok: false,
+          status_cod: 409,
+          data: errors.map(e => e.message).join(', ')
+        };
       }
+
+      const fechaEncuentro = await prisma.fecha.upsert({
+        where: { fecha: programacionData.fechaEncuentro },
+        create: { fecha: programacionData.fechaEncuentro },
+        update: {},
+        select: { id: true }
+      });
 
       const verifiexiste = await prisma.programacion.findFirst({
         where: {
-          nombre_competencia: programacionData.nombreCompetencia,
+          cronograma_juego: programacionData.cronogramaJuego,
           lugar_encuentro: programacionData.lugarEncuentro,
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
-          rama: programacionData.rama
+          rama: programacionData.rama,
+          id_torneo: programacionData.torneo
         }
       })
 
@@ -44,16 +74,18 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       const nuevaProgramacion = await prisma.programacion.create({
         data: {
-          nombre_competencia: programacionData.nombreCompetencia,
+          cronograma_juego: programacionData.cronogramaJuego,
           lugar_encuentro: programacionData.lugarEncuentro,
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
-          rama: programacionData.rama
+          rama: programacionData.rama,
+          id_torneo: programacionData.torneo
         }
       });
 
       await this.redisService.delete('programaciones:lista');
+      await this.redisService.set('programacion:lista', JSON.stringify(nuevaProgramacion));
 
       return nuevaProgramacion;
     } catch (error: any) {
@@ -96,7 +128,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         select: {
           id: true,
           rama: true,
-          nombre_competencia: true,
+          cronograma_juego: true,
           fecha: {
             select: {
               fecha: true
@@ -114,7 +146,12 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           },
           equipoVisitante: {
             select: {
-              nom_equipo: true
+              nom_equipo: true,
+              categoria: {
+                select: {
+                  nombre_categoria: true
+                }
+              }
             }
           }
         }
@@ -138,6 +175,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           rama: string;
           fecha: string;
           dia: string;
+          categoria: string
         }[];
       }> = {};
 
@@ -159,11 +197,11 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           hour12: true
         }).toLowerCase().replace(/(\d)(\s?)(a|p)\.\s?m\./i, '$1 $3.m.');
 
-        const key = `${programacion.nombre_competencia}__${fechaFormateada}`;
+        const key = `${programacion.cronograma_juego}__${fechaFormateada}`;
 
         if (!agrupado[key]) {
           agrupado[key] = {
-            competencia: programacion.nombre_competencia,
+            competencia: programacion.cronograma_juego,
             eventos: []
           };
         }
@@ -175,7 +213,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           lugar: programacion.lugarEncuentro?.nombre ?? '',
           rama: programacion.rama,
           fecha: fechaFormateada,
-          dia: diaSemana
+          dia: diaSemana,
+          categoria: programacion.equipoVisitante.categoria?.nombre_categoria ?? ''
         });
       }
 
@@ -204,7 +243,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         where: { id: Number(programacionData.id) },
         select: {
           id: true,
-          nombre_competencia: true
+          cronograma_juego: true
         }
       });
 
@@ -286,7 +325,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       // Preparar los nuevos datos
       const updates: any = {};
-      if (nombre) updates.nombre_competencia = nombre;
+      if (nombre) updates.cronograma_juego = nombre;
 
       // Actualizar en base de datos
       const programacionActualizado = await prisma.programacion.update({
@@ -305,7 +344,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           e.id === Number(id)
             ? {
               ...e,
-              nombre_competencia: programacionActualizado.nombre_competencia,
+              cronograma_juego: programacionActualizado.cronograma_juego,
             }
             : e
         );

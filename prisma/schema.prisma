@@ -143,16 +143,18 @@ model Programacion {
   rama                String
   
   fecha_encuentro     Int      @map("fecha_encuentro")
-  nombre_competencia  String   @map("nombre_competencia")
+  cronograma_juego    String   @map("cronograma_juego")
   
   id_equipo_local     Int
   id_equipo_visitante Int
+  id_torneo           Int
 
   // Relaciones
   equipoLocal     Equipo    @relation("EquipoLocal", fields: [id_equipo_local], references: [id])
   equipoVisitante Equipo    @relation("EquipoVisitante", fields: [id_equipo_visitante], references: [id])
   fecha           Fecha     @relation("programacion_fecha", fields: [fecha_encuentro], references: [id])
-  lugarEncuentro   LugarEncuentro @relation("lugar_encuentro", fields: [lugar_encuentro], references: [id])
+  torneo          Torneo    @relation("programacion_torneo", fields: [id_torneo], references: [id], onDelete: Cascade)
+  lugarEncuentro  LugarEncuentro @relation("lugar_encuentro", fields: [lugar_encuentro], references: [id])
 
   @@map("programacion")
 }
@@ -186,6 +188,7 @@ model Torneo {
   nombre_torneo String?            @map("nombre_torneo")
 
   cedulas       CedulaDeportiva[]  @relation("TorneoToCedulaDeportiva")
+  programacion  Programacion[]     @relation("programacion_torneo")
 
   @@map("torneos")
 }

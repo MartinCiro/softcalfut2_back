@@ -2,9 +2,10 @@ export interface ProgramacionData {
   rama: string;
   fechaEncuentro: Date | string;
   lugarEncuentro: number;
-  nombreCompetencia: string;
+  cronogramaJuego: string;
   equipoLocal: number;
   equipoVisitante: number;
+  torneo: number;
 }
 
 export interface ProgramacionDataXid {

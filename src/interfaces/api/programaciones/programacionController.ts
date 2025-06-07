@@ -81,7 +81,7 @@ export class ProgramacionController {
   }))
   async actualizarProgramacion(@Body() body: ActualizarProgramacionDto): Promise<ResponseBody<string>> {
 
-    if (!body.rama && !body.lugar_encuentro && !body.nombre_competencia && !body.fecha_encuentro && !body.equipo_local && !body.equipo_visitante) throw new HttpException(
+    if (!body.rama && !body.lugar_encuentro && !body.cronograma_juego && !body.fecha_encuentro && !body.equipo_local && !body.equipo_visitante) throw new HttpException(
       new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,
     );
