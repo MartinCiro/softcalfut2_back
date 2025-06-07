@@ -182,11 +182,11 @@ export default class UsuariosAdapter implements UsuariosPort {
         }
       });
 
-      if (!usuarios.length) {
+      if (usuarios.length === 0) {
         throw {
-          ok: false,
-          status_cod: 404,
-          data: "No se encontraron datos"
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado usuarios"
         };
       }
 
@@ -217,9 +217,9 @@ export default class UsuariosAdapter implements UsuariosPort {
         }));
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el usuario"
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando el usuario"
       };
     }
   }
@@ -242,8 +242,8 @@ export default class UsuariosAdapter implements UsuariosPort {
 
       if (!usuario) {
         throw {
-          ok: false,
-          status_cod: 409,
+          ok: true,
+          status_cod: 200,
           data: "El usuario solicitado no existe en la base de datos",
         };
       }
@@ -256,9 +256,9 @@ export default class UsuariosAdapter implements UsuariosPort {
       };
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el usuario",
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando el usuario",
       };
     }
   }
@@ -305,7 +305,7 @@ export default class UsuariosAdapter implements UsuariosPort {
         data: {
           ...updates,
           estado_id: estado_id !== undefined ? Number(estado_id) : undefined,
-          id_rol: id_rol !== undefined ? Number(id_rol) : undefined,
+          id_rol: id_rol ? Number(id_rol) : undefined,
         },
       });
 

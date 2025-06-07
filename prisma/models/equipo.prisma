@@ -1,7 +1,8 @@
 model Equipo {
-  id         Int    @id @default(autoincrement())
-  nom_equipo String @map("nom_equipo") @unique
-  documento  String @map("documento") @unique
+  id           Int    @id @default(autoincrement())
+  nom_equipo   String @map("nom_equipo") @unique
+  documento    String @map("documento") @unique
+  categoria_id Int?     @map("categoria")
 
   usuario Usuario? @relation(fields: [documento], references: [documento], onDelete: Cascade, name: "EquipoToUsuario")
 
@@ -12,6 +13,7 @@ model Equipo {
   // Relaciones adicionales
   cedulas          CedulaDeportiva[]
   usuariosxEquipo  UsuarioXEquipo[]
+  categoria        Categoria? @relation("equipo", fields: [categoria_id], references: [id])
 
   @@map("equipo")
 }

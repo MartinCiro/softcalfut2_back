@@ -62,7 +62,7 @@ CREATE TABLE "programacion" (
     "categoria_encuentro" INTEGER NOT NULL,
     "lugar_encuentro" TEXT NOT NULL,
     "fecha_encuentro" INTEGER NOT NULL,
-    "nombre_competencia" TEXT NOT NULL,
+    "cronograma_juego" TEXT NOT NULL,
     "id_equipo_local" INTEGER NOT NULL,
     "id_equipo_visitante" INTEGER NOT NULL,
 

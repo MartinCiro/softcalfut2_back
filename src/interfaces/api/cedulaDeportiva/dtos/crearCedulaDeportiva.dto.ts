@@ -1,10 +1,6 @@
 import { IsNotEmpty, IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CrearCedulaDeportivaDto {
-  @IsNotEmpty({ message: 'La categoría es obligatoria' })
-  @IsNumber({}, { message: 'La categoría debe ser un número' })
-  readonly categoria!: number;
-
   @IsNotEmpty({ message: 'El torneo es obligatorio' })
   @IsNumber({}, { message: 'El torneo debe ser un número' })
   readonly torneo!: number;

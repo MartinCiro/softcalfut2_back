@@ -1,1 +1,1 @@
-export const ProgramacionessPortToken = 'ProgramacionessPort';
+export const ProgramacionesPortToken = 'ProgramacionesPort';

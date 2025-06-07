@@ -3,15 +3,16 @@
     "baseUrl": ".",
     "paths": {
       "@src/*": ["src/*"],
-      "@hooks/*": ["src/Lib/Hooks/*"],
       "@utils/*": ["src/Utils/*"],
       "@routes/*": ["src/routes/*"],
       "@assets/*": ["src/assets/*"],
-      "@styles/*": ["src/UI/screens/styles/*"],
+      "@hooks/*": ["src/Lib/Hooks/*"],
       "@screens/*": ["src/UI/screens/*"],
       "@layouts/*": ["src/Lib/Layouts/*"],
       "@services/*": ["src/Lib/Services/*"],
+      "@styles/*": ["src/UI/screens/styles/*"],
       "@constants/*": ["src/Utils/constants/*"],
+      "@api/*": ["src/interfaces/api/*"],
       "@componentsUseable/*": ["src/UI/useable-components/*"]
     }
   },

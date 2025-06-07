@@ -12,5 +12,9 @@ export class CrearEquipoDto {
   @IsArray({ message: 'Debe ser una lista de permisos' })
   @IsString({ each: true, message: 'Cada permiso debe ser un texto válido' })
   readonly jugadores!: string[];
+
+  @IsNotEmpty({ message: 'La categoria es obligatoria' })
+  @IsString({ message: 'El nombre de la categoria no es válido' })
+  readonly categoria!: string
 }
 

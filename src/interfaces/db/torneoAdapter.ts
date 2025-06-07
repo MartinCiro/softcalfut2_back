@@ -66,16 +66,22 @@ export default class TorneosAdapter implements TorneosPort {
         }
       });
 
-      if (!torneos.length) throw new ForbiddenException("No se ha encontrado ningun torneo");
+      if (torneos.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ningun torneo"
+        };
+      }
       
       await this.redisService.set(cacheKey, JSON.stringify(torneos));
       return torneos;
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el torneo"
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando el torneo"
       };
     }
   }
@@ -94,7 +100,13 @@ export default class TorneosAdapter implements TorneosPort {
           nombre_torneo: true
         }
       });
-      if (!torneo) throw new ForbiddenException("La torneo solicitada no existe en la base de datos");
+      if (!torneo) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "El torneo solicitado no existe en la base de datos"
+        };
+      }
       const torneo_id = {
         id: torneo.id,
         nombre_torneo: torneo.nombre_torneo
@@ -105,9 +117,9 @@ export default class TorneosAdapter implements TorneosPort {
       
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el torneo",
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando el torneo",
       };
     }
   }
@@ -169,7 +181,7 @@ export default class TorneosAdapter implements TorneosPort {
   
       // Preparar los nuevos datos
       const updates = {} as any;
-      if (nombre !== undefined) updates.nombre_torneo = nombre;
+      if (nombre) updates.nombre_torneo = nombre;
   
       // Actualizar en base de datos
       const torneoActualizado = await prisma.torneo.update({

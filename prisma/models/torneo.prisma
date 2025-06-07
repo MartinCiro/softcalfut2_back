@@ -3,6 +3,7 @@ model Torneo {
   nombre_torneo String?            @map("nombre_torneo")
 
   cedulas       CedulaDeportiva[]  @relation("TorneoToCedulaDeportiva")
+  programacion  Programacion[]     @relation("programacion_torneo")
 
   @@map("torneos")
 }

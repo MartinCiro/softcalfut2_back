@@ -1,6 +1,5 @@
 type CedulaBaseInput = {
     estado?: number;
-    categoria: number;
     torneo: number;
     equipo: number;
     foto?: string;
