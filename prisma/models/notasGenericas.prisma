@@ -1,0 +1,9 @@
+model Notas {
+  id          Int     @id @default(autoincrement())  
+  nombre      String  @unique
+  descripcion String?
+
+  usuarioXequipo  UsuarioXEquipo[]      @relation("notas_jugador")
+
+  @@map("notas") 
+}

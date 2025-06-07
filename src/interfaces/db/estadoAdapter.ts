@@ -75,7 +75,13 @@ export default class EstadosAdapter implements EstadosPort {
         }
       });
 
-      if (!estados.length) throw new ForbiddenException("No se ha encontrado ningun estado");
+      if (estados.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado ningun estado"
+        };
+      }
       
       let estados_list = estados.map((estado: { id: any; nombre: any; descripcion: any; }) => ({
         id: estado.id,
@@ -87,9 +93,9 @@ export default class EstadosAdapter implements EstadosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el estado"
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando el estado"
       };
     }
   }
@@ -109,7 +115,13 @@ export default class EstadosAdapter implements EstadosPort {
           descripcion: true,
         }
       });
-      if (!estado) throw new ForbiddenException("El estado solicitado no existe en la base de datos");
+      if (!estado) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se ha encontrado el estado solicitado"
+        };
+      }
       const estado_id = {
         id: estado.id,
         nombre: estado.nombre,
@@ -121,9 +133,9 @@ export default class EstadosAdapter implements EstadosPort {
       
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el estado",
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando el estado",
       };
     }
   }
@@ -209,7 +221,5 @@ export default class EstadosAdapter implements EstadosPort {
       };
     }
   }
-
-
 }
 

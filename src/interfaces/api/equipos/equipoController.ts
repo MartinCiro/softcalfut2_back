@@ -77,7 +77,7 @@ export class EquipoController {
   }))
   async actualizarEquipo(@Body() body: ActualizarEquipoDto): Promise<ResponseBody<string>> {
 
-    if (!body.nom_equipo && !body.encargado && (!body.jugadores || body.jugadores.length === 0)) throw new HttpException(
+    if (!body.nom_equipo && !body.encargado && (!body.jugadores || body.jugadores.length === 0) && !body.categoria) throw new HttpException(
       new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,
     );

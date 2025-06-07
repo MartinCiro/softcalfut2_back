@@ -4,14 +4,17 @@ import { EstadoModule } from 'api/estados/estado.module';
 import { PermisoModule } from 'api/permisos/permiso.module';
 import { AppController } from 'src/app.controller';
 import { UsuarioModule } from 'api/usuarios/usuario.module';
-import { CategoriaModule } from 'src/interfaces/api/categorias/categoria.module';
-import { EquipoModule } from 'src/interfaces/api/equipos/equipo.module';
-import { AnuncioModule } from 'src/interfaces/api/anuncios/anuncio.module';
-import { CedulaDeportivaModule } from 'src/interfaces/api/cedulaDeportiva/cedulaDeportiva.module';
-import { TorneoModule } from 'src/interfaces/api/torneos/torneo.module';
+import { CategoriaModule } from 'api/categorias/categoria.module';
+import { EquipoModule } from 'api/equipos/equipo.module';
+import { NotaModule } from 'api/notas/nota.module';
+import { LugarEncuentroModule } from 'api/lugarEncuentro/lugarEncuentro.module';
+import { AnuncioModule } from 'api/anuncios/anuncio.module';
+import { CedulaDeportivaModule } from 'api/cedulaDeportiva/cedulaDeportiva.module';
+import { TorneoModule } from 'api/torneos/torneo.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { Module } from '@nestjs/common';
+import { ProgramacionModule } from 'api/programaciones/programacion.module';
 
 @Module({
   imports: [
@@ -19,16 +22,19 @@ import { Module } from '@nestjs/common';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/api-docs'
     }),
+    RolModule,
+    AuthModule,
+    NotaModule,
+    TorneoModule,
+    EstadoModule,
+    EquipoModule,
     UsuarioModule,
     PermisoModule,
-    RolModule,
-    EstadoModule,
-    CategoriaModule,
-    EquipoModule,
-    CedulaDeportivaModule,
-    TorneoModule,
     AnuncioModule,
-    AuthModule,
+    CategoriaModule,
+    ProgramacionModule,
+    LugarEncuentroModule,
+    CedulaDeportivaModule,
   ],
   controllers: [AppController],
 })

@@ -1,0 +1,8 @@
+model LugarEncuentro {
+  id               Int           @id @default(autoincrement())
+  nombre       String?           @map("nombre")
+  direccion    String?           @map("direccion")
+  programacion  Programacion[]   @relation("lugar_encuentro")
+
+  @@map("lugar_encuentro")
+}

@@ -110,7 +110,13 @@ export default class AnunciosAdapter implements AnunciosPort {
         }
       });
 
-      if (!anuncios.length) throw new ForbiddenException("No se ha encontrado ningún anuncio");
+      if (anuncios.length === 0) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado anuncios"
+        };
+      }
 
       // Aquí solo transformamos los resultados necesarios
       const resultados = anuncios.map(anuncio => ({
@@ -129,9 +135,9 @@ export default class AnunciosAdapter implements AnunciosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando los anuncios"
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando los anuncios"
       };
     }
   }
@@ -168,7 +174,13 @@ export default class AnunciosAdapter implements AnunciosPort {
         }
       });
 
-      if (!anuncios.length) throw new ForbiddenException("No se ha encontrado ningún anuncio");
+      if (!anuncios.length) {
+        throw {
+          ok: true,
+          status_cod: 200,
+          data: "No se han encontrado anuncios"
+        };
+      }
 
 
 
@@ -177,9 +189,9 @@ export default class AnunciosAdapter implements AnunciosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando los anuncios",
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando los anuncios",
       };
     }
   }
@@ -226,13 +238,12 @@ export default class AnunciosAdapter implements AnunciosPort {
 
     } catch (error: any) {
       throw {
-        ok: false,
-        status_cod: 400,
-        data: error.message || "Ocurrió un error consultando el anuncio",
+        ok: error.ok || false,
+        status_cod: error.status_cod || 400,
+        data: error.message || error.data || "Ocurrió un error consultando el anuncio",
       };
     }
   }
-
 
   async delAnuncio(anuncioData: { id: string }) {
     try {
@@ -306,9 +317,9 @@ export default class AnunciosAdapter implements AnunciosPort {
       }
 
 
-      if (nombre !== undefined) updates.titulo = nombre;
-      if (contenido !== undefined) updates.contenido = contenido;
-      if (imagenUrl !== undefined) updates.imagenUrl = imagenUrl;
+      if (nombre) updates.titulo = nombre;
+      if (contenido) updates.contenido = contenido;
+      if (imagenUrl) updates.imagenUrl = imagenUrl;
 
       const anuncioActualizado = await prisma.anuncio.update({
         where: { id: Number(id) },
@@ -329,7 +340,5 @@ export default class AnunciosAdapter implements AnunciosPort {
       };
     }
   }
-
-
 }
 

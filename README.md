@@ -8,7 +8,7 @@ Este documento explica cómo configurar un contenedor de **Postgres** con Docker
 
 ## 🚀 **1. Iniciar el Contenedor**  
 
-Para desplegar el contenedor, ejecuta (renombrar example a .env sino lo tiene):
+Para desplegar el contenedor, ejecuta (renombrar example a .env sino lo tiene []):
 
 ```bash
 docker-compose up -d
@@ -69,7 +69,11 @@ docker exec -t psql pg_dump -U postgres -d softcalfut_psql -Fc > backup.dump
 docker exec -t psql pg_dump -U postgres -F c -b -v -f /var/lib/postgresql/data/backup.dump softcalfut_psql
 
 ```
+### Copiar bd a local
+```bash
+docker cp psql:/var/lib/postgresql/data/backup.dump ./src/bd_backup/backup.dump
 
+```
 ---
 
 ## **7. Restaurar una Copia de Seguridad**
@@ -80,6 +84,13 @@ Para restaurar una copia de seguridad, ejecuta:
 docker exec -it psql psql -U postgres -c "DROP DATABASE IF EXISTS softcalfut_psql;"
 docker exec -it psql psql -U postgres -c "CREATE DATABASE softcalfut_psql;"
 docker exec -i psql pg_restore -U postgres -d softcalfut_psql < backup.dump
+```
+
+### En caso de error
+```bash
+docker cp .\backup.dump psql:/tmp/backup.dump
+docker exec -it psql pg_restore -U postgres -d softcalfut_psql /tmp/backup.dump
+
 ```
 
 ---
