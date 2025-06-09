@@ -65,13 +65,12 @@ docker exec -it psql psql -U postgres -c "CREATE DATABASE softcalfut_psql;"
 Para generar un respaldo de la base de datos `softcalfut_psql`, usa:
 
 ```bash
-docker exec -t psql pg_dump -U postgres -d softcalfut_psql -Fc > backup.dump
-docker exec -t psql pg_dump -U postgres -F c -b -v -f /var/lib/postgresql/data/backup.dump softcalfut_psql
+docker exec -t psql bash -c 'pg_dump -U postgres -Fc -d softcalfut_psql > /tmp/backup.dump'
 
 ```
 ### Copiar bd a local
 ```bash
-docker cp psql:/var/lib/postgresql/data/backup.dump ./src/bd_backup/backup.dump
+docker cp psql:/tmp/backup.dump ./src/bd_backup/backup.dump
 
 ```
 ---
@@ -89,7 +88,7 @@ docker exec -i psql pg_restore -U postgres -d softcalfut_psql < backup.dump
 ### En caso de error
 ```bash
 docker cp .\backup.dump psql:/tmp/backup.dump
-docker exec -it psql pg_restore -U postgres -d softcalfut_psql /tmp/backup.dump
+docker exec -it psql pg_restore -U postgres -d softcalfut_psql -Fc /tmp/backup.dump
 
 ```
 
