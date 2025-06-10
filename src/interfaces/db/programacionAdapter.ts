@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
 import { RedisService } from 'shared/cache/redis.service';
 import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from 'api/programaciones/models/programacion.model';
-
+import { Genero } from '@prisma/client'
 
 const prisma = new PrismaClient();
 
@@ -57,7 +57,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         update: {},
         select: { id: true }
       });
-
+      
+      
       const verifiexiste = await prisma.programacion.findFirst({
         where: {
           cronograma_juego: programacionData.cronogramaJuego,
@@ -65,7 +66,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
-          rama: programacionData.rama,
+          rama: programacionData.rama || Genero.M,
           id_torneo: programacionData.torneo
         }
       })
@@ -85,7 +86,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       });
 
       await this.redisService.delete('programaciones:lista');
-      await this.redisService.set('programacion:lista', JSON.stringify(nuevaProgramacion));
+      const devUp= await this.obtenerProgramaciones()
+      await this.redisService.set('programacion:lista', JSON.stringify(devUp));
 
       return nuevaProgramacion;
     } catch (error: any) {

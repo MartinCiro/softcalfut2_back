@@ -1,10 +1,11 @@
-import { IsString, IsOptional, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsNotEmpty, IsEnum } from 'class-validator';
+import { Genero } from '@prisma/client';
 
 export class ActualizarProgramacionDto {
   @IsOptional()
-  @IsNotEmpty({ message: 'El genero de la programacion es obligatorio' })
-  @IsString({ message: 'El texto en genero de la programacion no es valido' })
-  readonly rama?: string
+  @IsNotEmpty({ message: 'El género de la programación es obligatorio' })
+  @IsEnum(Genero, { message: 'El género proporcionado no es válido' })
+  readonly rama?: Genero;
 
   @IsOptional()
   @IsNotEmpty({ message: 'El lugar de la programacion es obligatorio' })

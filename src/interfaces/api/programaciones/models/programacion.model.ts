@@ -1,5 +1,6 @@
+import { Genero } from '@prisma/client'
 export interface ProgramacionData {
-  rama: string;
+  rama: Genero;
   fechaEncuentro: Date | string;
   lugarEncuentro: number;
   cronogramaJuego: string;
