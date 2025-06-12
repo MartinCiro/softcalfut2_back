@@ -18,7 +18,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       const [lugarEncuentro, equipoLocal, equipoVisitante, torneo] = await Promise.all([
         prisma.lugarEncuentro.findUnique({
-          where: { id: programacionData.lugarEncuentro },
+          where: { id: programacionData.lugar },
           select: { id: true }
         }),
         prisma.equipo.findUnique({
@@ -52,17 +52,17 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       }
 
       const fechaEncuentro = await prisma.fecha.upsert({
-        where: { fecha: programacionData.fechaEncuentro },
-        create: { fecha: programacionData.fechaEncuentro },
+        where: { fecha: programacionData.fecha },
+        create: { fecha: programacionData.fecha },
         update: {},
         select: { id: true }
       });
-      
-      
+
+
       const verifiexiste = await prisma.programacion.findFirst({
         where: {
-          cronograma_juego: programacionData.cronogramaJuego,
-          lugar_encuentro: programacionData.lugarEncuentro,
+          cronograma_juego: programacionData.competencia,
+          lugar_encuentro: programacionData.lugar,
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
@@ -75,8 +75,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       const nuevaProgramacion = await prisma.programacion.create({
         data: {
-          cronograma_juego: programacionData.cronogramaJuego,
-          lugar_encuentro: programacionData.lugarEncuentro,
+          cronograma_juego: programacionData.competencia,
+          lugar_encuentro: programacionData.lugar,
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
@@ -86,7 +86,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       });
 
       await this.redisService.delete('programaciones:lista');
-      const devUp= await this.obtenerProgramaciones()
+      const devUp = await this.obtenerProgramaciones()
       await this.redisService.set('programacion:lista', JSON.stringify(devUp));
 
       return nuevaProgramacion;
@@ -177,7 +177,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           rama: string;
           fecha: string;
           dia: string;
-          categoria: string
+          categoria: string,
+          id: string | number
         }[];
       }> = {};
 
@@ -214,6 +215,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           rama: programacion.rama,
           fecha: fechaFormateada,
           dia: diaSemana,
+          id: programacion.id,
           categoria: programacion.equipoVisitante.categoria?.nombre_categoria ?? ''
         });
       }
@@ -303,13 +305,32 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
     }
   }
 
-  async actualizaProgramacion(programacionData: {
-    nombre?: string;
-    id: number | string;
-  }) {
+  async actualizaProgramacion(programacionData: ProgramacionDataUpdate) {
     try {
-      const { id, nombre } = programacionData;
-
+      const { id, rama, lugar, competencia, equipoLocal, equipoVisitante, torneo, categoria, hora } = programacionData;
+      console.log("Esto es programacionData", programacionData);
+      let fecha = programacionData.fecha;
+      /* {
+        "local": "LA CANTERA",
+        "visitante": "FORMADORES",
+        "hora": "10:22 p.m.",
+        "lugar": 1,
+        "rama": "M",
+        "fecha": "10/06/2025",
+        "dia": "martes",
+        "id": 5,
+        "categoria": "2011 M",
+        "competencia": "fecha 2",
+        "equipo_a": 10,
+        "equipo_b": 19
+      }
+      objetivo: 
+      "2023-12-31T14:30:00.000Z"
+      Fecha:
+      "fecha": "10/06/2025",
+      "hora": "10:22 p.m.",  
+      */
+      
       // Verificar si la programación existe
       const programacionExistente = await prisma.programacion.findUnique({
         where: { id: Number(id) }
@@ -323,9 +344,48 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         };
       }
 
+      if (fecha && hora) {
+        // Dividir la fecha: "10/06/2025" → día, mes, año
+        const [dia, mes, anio] = fecha.toString().split('/').map(Number);
+
+        // Convertir hora a 24 horas
+        const hora24 = (() => {
+          const [h, minPeriodo] = hora.split(':');
+          const [min, periodo] = minPeriodo.split(' ');
+          let horas = Number(h);
+          const minutos = Number(min);
+          const isPM = periodo.toLowerCase() === 'p.m.' || periodo.toLowerCase() === 'pm';
+          if (isPM && horas < 12) horas += 12;
+          if (!isPM && horas === 12) horas = 0;
+          return { horas, minutos };
+        })();
+
+        // Crear fecha UTC
+        const fechaCompleta = new Date(Date.UTC(anio, mes - 1, dia, hora24.horas, hora24.minutos));
+        console.log("Esto es fechaCompleta", fechaCompleta);
+        fecha = fechaCompleta.toString();
+      }
+
+      const fechaId = await prisma.fecha.findFirst({
+        where: {
+          fecha: fecha
+        },
+        select: {
+          id: true
+        }
+      })
+      console.log("Esto es fechaId", fechaId);
       // Preparar los nuevos datos
       const updates: any = {};
-      if (nombre) updates.cronograma_juego = nombre;
+      if (rama) updates.rama = rama;
+      if (fecha) updates.fecha_encuentro = fechaId?.id;
+      if (lugar) updates.lugar_encuentro = lugar;
+      if (competencia) updates.cronograma_juego = competencia;
+      if (equipoLocal) updates.id_equipo_local = equipoLocal;
+      if (equipoVisitante) updates.id_equipo_visitante = equipoVisitante;
+      if (torneo) updates.id_torneo = torneo;
+      /* if (categoria) updates.categoria = categoria; */
+       
 
       // Actualizar en base de datos
       const programacionActualizado = await prisma.programacion.update({

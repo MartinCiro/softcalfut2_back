@@ -6,7 +6,7 @@ import { ProgramacionService } from 'core/programaciones/programacionService';
 import { ResponseBody } from 'api/models/ResponseBody';
 import { CrearProgramacionDto } from './dtos/crearProgramacion.dto';
 import { ObtenerProgramacionesDto } from './dtos/obtenerProgramacion.dto';
-import { ActualizarProgramacionDto } from './dtos/actualizarProgramacion.dto';
+import { ActualizaProgramacionDto } from './dtos/actualizarProgramacion.dto';
 import { EliminarProgramacionDto } from './dtos/eliminarProgramacion.dto';
 import { AuthGuard } from 'core/auth/guards/auth.guard';
 import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
@@ -79,9 +79,9 @@ export class ProgramacionController {
       return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
     }
   }))
-  async actualizarProgramacion(@Body() body: ActualizarProgramacionDto): Promise<ResponseBody<string>> {
+  async actualizarProgramacion(@Body() body: ActualizaProgramacionDto): Promise<ResponseBody<string>> {
 
-    if (!body.rama && !body.lugar_encuentro && !body.cronograma_juego && !body.fecha_encuentro && !body.equipo_local && !body.equipo_visitante) throw new HttpException(
+    if (!body.rama && !body.fecha && !body.lugar && !body.competencia && !body.equipoLocal && !body.equipoVisitante && !body.torneo && !body.categoria) throw new HttpException(
       new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
       HttpStatus.BAD_REQUEST,
     );
