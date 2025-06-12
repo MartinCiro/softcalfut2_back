@@ -362,23 +362,21 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
         // Crear fecha UTC
         const fechaCompleta = new Date(Date.UTC(anio, mes - 1, dia, hora24.horas, hora24.minutos));
+        const fechaEncuentro = await prisma.fecha.upsert({
+          where: { fecha: fechaCompleta },
+          create: { fecha: fechaCompleta },
+          update: {},
+          select: { id: true }
+        });
         console.log("Esto es fechaCompleta", fechaCompleta);
-        fecha = fechaCompleta.toString();
+        fecha = fechaEncuentro.id.toString();
       }
 
-      const fechaId = await prisma.fecha.findFirst({
-        where: {
-          fecha: fecha
-        },
-        select: {
-          id: true
-        }
-      })
-      console.log("Esto es fechaId", fechaId);
+      console.log("Esto es fechaId", fecha);
       // Preparar los nuevos datos
       const updates: any = {};
       if (rama) updates.rama = rama;
-      if (fecha) updates.fecha_encuentro = fechaId?.id;
+      if (fecha) updates.fecha_encuentro = fecha;
       if (lugar) updates.lugar_encuentro = lugar;
       if (competencia) updates.cronograma_juego = competencia;
       if (equipoLocal) updates.id_equipo_local = equipoLocal;
