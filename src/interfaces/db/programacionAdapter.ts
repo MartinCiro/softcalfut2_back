@@ -183,8 +183,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       // Procesar las fechas y agrupar
       for (const programacion of programaciones) {
-        const fechaCompleta = new Date(programacion.fecha.fecha);
-
+        const fechaCompleta = programacion.fecha.fecha;
         const fechaFormateada = fechaCompleta.toLocaleDateString('es-ES', {
           day: '2-digit',
           month: '2-digit',
@@ -198,7 +197,6 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           minute: '2-digit',
           hour12: true
         }).toLowerCase().replace(/(\d)(\s?)(a|p)\.\s?m\./i, '$1 $3.m.');
-
         const key = `${programacion.cronograma_juego}__${fechaFormateada}`;
 
         if (!agrupado[key]) {

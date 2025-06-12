@@ -41,7 +41,6 @@ export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; 
         response.userInfo = verified;
         return response;
     } catch (error: any) {
-        console.error(error);
         throw error.name === 'TokenExpiredError' ? { ok: false, status_cod: 401, data: 'JWT expirado. Por favor inicie sesión nuevamente' } : { ok: false, status_cod: 401, data: "El JWT es inválido" };
     }
 };
