@@ -184,7 +184,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           dia: string;
           categoria: string,
           id: string | number,
-          torneo: string
+          torneo: string,
+          competencia: string
         }[];
       }> = {};
 
@@ -222,6 +223,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           fecha: fechaFormateada,
           dia: diaSemana,
           id: programacion.id,
+          competencia: programacion.cronograma_juego,
           torneo: programacion.torneo?.nombre_torneo ?? '',
           categoria: programacion.equipoVisitante.categoria?.nombre_categoria ?? ''
         });
