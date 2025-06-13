@@ -155,6 +155,11 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
                 }
               }
             }
+          },
+          torneo: {
+            select: {
+              nombre_torneo: true
+            }
           }
         }
       });
@@ -178,7 +183,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           fecha: string;
           dia: string;
           categoria: string,
-          id: string | number
+          id: string | number,
+          torneo: string
         }[];
       }> = {};
 
@@ -216,6 +222,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           fecha: fechaFormateada,
           dia: diaSemana,
           id: programacion.id,
+          torneo: programacion.torneo?.nombre_torneo ?? '',
           categoria: programacion.equipoVisitante.categoria?.nombre_categoria ?? ''
         });
       }
@@ -308,29 +315,9 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
   async actualizaProgramacion(programacionData: ProgramacionDataUpdate) {
     try {
       const { id, rama, lugar, competencia, equipoLocal, equipoVisitante, torneo, categoria, hora } = programacionData;
-      console.log("Esto es programacionData", programacionData);
+      console.log(programacionData);
       let fecha = programacionData.fecha;
-      /* {
-        "local": "LA CANTERA",
-        "visitante": "FORMADORES",
-        "hora": "10:22 p.m.",
-        "lugar": 1,
-        "rama": "M",
-        "fecha": "10/06/2025",
-        "dia": "martes",
-        "id": 5,
-        "categoria": "2011 M",
-        "competencia": "fecha 2",
-        "equipo_a": 10,
-        "equipo_b": 19
-      }
-      objetivo: 
-      "2023-12-31T14:30:00.000Z"
-      Fecha:
-      "fecha": "10/06/2025",
-      "hora": "10:22 p.m.",  
-      */
-      
+      fecha = fecha?.includes("T") ? fecha.split('T')[0].split('-').reverse().join('/') : fecha;
       // Verificar si la programación existe
       const programacionExistente = await prisma.programacion.findUnique({
         where: { id: Number(id) }
@@ -368,22 +355,19 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
           update: {},
           select: { id: true }
         });
-        console.log("Esto es fechaCompleta", fechaCompleta);
         fecha = fechaEncuentro.id.toString();
       }
 
-      console.log("Esto es fechaId", fecha);
       // Preparar los nuevos datos
       const updates: any = {};
       if (rama) updates.rama = rama;
-      if (fecha) updates.fecha_encuentro = fecha;
+      if (fecha) updates.fecha_encuentro = Number(fecha);
       if (lugar) updates.lugar_encuentro = lugar;
       if (competencia) updates.cronograma_juego = competencia;
       if (equipoLocal) updates.id_equipo_local = equipoLocal;
       if (equipoVisitante) updates.id_equipo_visitante = equipoVisitante;
       if (torneo) updates.id_torneo = torneo;
       /* if (categoria) updates.categoria = categoria; */
-       
 
       // Actualizar en base de datos
       const programacionActualizado = await prisma.programacion.update({
