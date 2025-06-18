@@ -317,7 +317,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
   async actualizaProgramacion(programacionData: ProgramacionDataUpdate) {
     try {
       const { id, rama, lugar, competencia, equipoLocal, equipoVisitante, torneo, categoria, hora } = programacionData;
-      console.log(programacionData);
+      
       let fecha = programacionData.fecha;
       fecha = fecha?.includes("T") ? fecha.split('T')[0].split('-').reverse().join('/') : fecha;
       // Verificar si la programación existe
