@@ -5,7 +5,7 @@ dotenvConfig(); // Ejecuta la carga de variables de entorno
 export default {
   // Server Config
   port: process.env.PORT_API || 3000,
-  env: process.env.env || 'Production',
+  env: process.env.env || 'production',
   //env: process.env.env || 'Dev',
 
   // DBConn
@@ -26,4 +26,11 @@ export default {
 
   // Nats
   NATS_URL: process.env.NATS_URL || 'nats://127.0.0.1:4222',
+
+  CORS_ORIGINS: process.env.CORS_ORIGINS ||  [
+    'http://localhost:*',
+    'http://192.168.0.20:*',
+  ],
+  ACCESS_EXPIRES_IN: process.env.ACCESS_EXPIRES_IN || '1h',
+  REFRESH_EXPIRES_IN: process.env.REFRESH_EXPIRES_IN || '1h',
 };

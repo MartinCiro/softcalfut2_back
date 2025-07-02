@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, HttpException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { verifyJWT } from 'core/auth/service/jwtService';
+import { verifyToken } from 'core/auth/service/jwtService';
 import { ResponseBody } from 'api/models/ResponseBody';
 
 // Caché en memoria para almacenar información de usuarios autenticados
@@ -38,7 +38,7 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const { userInfo, jwt } = await verifyJWT(token);
+      const { userInfo, newAccessToken } = await verifyToken(token);
 
       // Almacenar usuario en caché
       if (!userInfo.userInfo?.doc) {
@@ -52,7 +52,7 @@ export class AuthGuard implements CanActivate {
 
       // Adjuntar la información del usuario a la solicitud
       request.user = userInfo;
-      if (jwt) request.newToken = jwt;
+      if (newAccessToken) request.newToken = newAccessToken;
 
       return true;
     } catch (error: any) {
