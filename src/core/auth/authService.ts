@@ -11,7 +11,7 @@ export default class AuthService {
     constructor(
         @Inject('AuthPort') private authPort: AuthPort,
         private readonly redisService: RedisService
-    ) {}
+    ) {}    
 
     async loginUser({ documento, password }: { documento: string; password: string }): Promise<ResponseBody<any>> {
         try {

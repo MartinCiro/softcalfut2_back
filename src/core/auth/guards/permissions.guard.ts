@@ -3,19 +3,23 @@ import { Reflector } from '@nestjs/core';
 import { RedisService } from 'shared/cache/redis.service';
 import { ResponseBody } from 'src/interfaces/api/models/ResponseBody';
 import { HttpException } from '@nestjs/common';
+import { IS_PUBLIC_KEY  } from 'core/auth/decorators/permissions.decorator';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector, private redisService: RedisService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.get<boolean>(IS_PUBLIC_KEY, context.getHandler());
+    if (isPublic) return true;
+
     const requiredPermissions = this.reflector.get<string[]>('permissions', context.getHandler()) || [];
     if (!requiredPermissions.length) return true; 
 
     const request = context.switchToHttp().getRequest();
     const userId = request.user?.userInfo?.doc;
     
-    if (!userId) throw new ForbiddenException('No autenticado');
+    if (!userId) throw new HttpException(new ResponseBody(false, 401, 'No se ha proporcionado un usuario válido'), 401);
     
     let userData = await this.redisService.get(`user:${userId}`);
     if(typeof userData === 'string') userData = JSON.parse(userData);

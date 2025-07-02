@@ -2,15 +2,18 @@ import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, HttpE
 import { Reflector } from '@nestjs/core';
 import { verifyJWT } from 'core/auth/service/jwtService';
 import { ResponseBody } from 'api/models/ResponseBody';
+import { IS_PUBLIC_KEY  } from 'core/auth/decorators/permissions.decorator';
 
 // Caché en memoria para almacenar información de usuarios autenticados
 const userCache = new Map<string, any>();
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private reflector: Reflector) { }
+  constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.get<boolean>(IS_PUBLIC_KEY, context.getHandler());
+    if (isPublic) return true;
     const request = context.switchToHttp().getRequest();
     const rawToken = request.headers['jwt'] || request.headers['authorization'];
 
@@ -28,11 +31,9 @@ export class AuthGuard implements CanActivate {
     // Validar formato del token con una expresión regular
     const jwtRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
     if (!jwtRegex.test(token)) {
-      console.log('tokenTest:', jwtRegex.test(token));
-      console.error('Token inválido:', token);
       const error = new UnauthorizedException('El token proporcionado no tiene un formato válido');
       throw new HttpException(
-        new ResponseBody(false, 404, error.message),
+        new ResponseBody(false, 401, error.message),
         404
       );
     }
@@ -64,7 +65,6 @@ export class AuthGuard implements CanActivate {
       );
     }
   }
-
 
   /*   // Método estático para obtener información del usuario desde la caché
     static getUserInfo(id_user: string) {

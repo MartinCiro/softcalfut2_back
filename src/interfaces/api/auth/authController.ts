@@ -10,7 +10,6 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: AuthDto): Promise<ResponseBody<any>> {
     const { documento, enpass: password } = body;
-
     if (!documento || !password) throw new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, "Usuario y contraseña son obligatorios"), HttpStatus.BAD_REQUEST);
 
     try {
