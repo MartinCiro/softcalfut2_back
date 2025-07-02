@@ -76,6 +76,7 @@ export default class AuthService {
                         nombre: usuarioRetrieved.usuario,
                         rol: usuarioRetrieved.rol,
                         estado: usuarioRetrieved.estado,
+                        permisos: usuarioRetrieved.permisos
                     }
                 }
             };
