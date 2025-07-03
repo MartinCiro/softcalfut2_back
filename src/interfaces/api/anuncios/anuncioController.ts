@@ -10,7 +10,7 @@ import { ActualizarAnuncioDto } from './dtos/actualizarAnuncio.dto';
 import { EliminarAnuncioDto } from './dtos/eliminarAnuncio.dto';
 import { AuthGuard } from 'core/auth/guards/auth.guard';
 import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
+import { Permissions, Public } from 'core/auth/decorators/permissions.decorator';
 import { handleException } from 'api/utils/validaciones';
 
 @Controller('anuncios')
@@ -42,26 +42,15 @@ export class AnuncioController {
   }
 
   @Get()
-  @HttpCode(HttpStatus.OK)
+  @Public()
   @UseGuards(PermissionsGuard)
-  @Permissions('anuncios:Lee')
-  @UsePipes(new ValidationPipe({
-    whitelist: true, transform: true, exceptionFactory: (errors) => {
-      const mensajes = errors.map(err => ({
-        campo: err.property,
-        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-      }));
-      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-    }
-  }))
-  async obtenerAnuncios(@Body() body: ObtenerAnunciosDto): Promise<ResponseBody<any>> {
+  async obtenerAnuncios(): Promise<ResponseBody<any>> {
     try {
-      const anuncios = body.id
-        ? await this.anuncioService.obtenerAnuncioXid({ id: body.id })
-        : await this.anuncioService.obtenerAnuncios();
+      const anuncios = await this.anuncioService.obtenerAnuncios();
 
       return new ResponseBody<any>(true, 200, anuncios);
     } catch (error) {
+      console.error("Error al obtener anuncios:", error);
       handleException(error);
     }
   }
