@@ -17,7 +17,7 @@ export class PermissionsGuard implements CanActivate {
     if (!requiredPermissions.length) return true; 
 
     const request = context.switchToHttp().getRequest();
-    const userId = request.user?.userInfo?.doc;
+    const userId = request.user?.doc;
     
     if (!userId) throw new HttpException(new ResponseBody(false, 401, 'No se ha proporcionado un usuario válido'), 401);
     

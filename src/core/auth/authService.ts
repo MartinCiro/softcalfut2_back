@@ -81,6 +81,7 @@ export default class AuthService {
                 }
             };
         } catch (error: any) {
+            console.error('Error al iniciar sesión:', error);
             return {
                 ok: false,
                 statusCode: 401,

@@ -10,13 +10,29 @@ import { ActualizaProgramacionDto } from './dtos/actualizarProgramacion.dto';
 import { EliminarProgramacionDto } from './dtos/eliminarProgramacion.dto';
 import { AuthGuard } from 'core/auth/guards/auth.guard';
 import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
+import { Permissions, Public } from 'core/auth/decorators/permissions.decorator';
 import { handleException } from 'api/utils/validaciones';
+import { User } from 'core/auth/decorators/user.decorator';
 
 @Controller('programacion')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
 export class ProgramacionController {
-  constructor(private readonly rolService: ProgramacionService) { }
+  constructor(private readonly programacionService: ProgramacionService) { }
+    @Get()
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @UseGuards(PermissionsGuard)
+  async obtenerProgramaciones(@User() user?: any): Promise<ResponseBody<any>> {
+    const doc = user ? user.doc : null; 
+    console.log(user);
+    try {
+      const programaciones = await this.programacionService.obtenerProgramaciones(doc);
+
+      return new ResponseBody<any>(true, 200, programaciones);
+    } catch (error) {
+      handleException(error);
+    }
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -34,37 +50,14 @@ export class ProgramacionController {
 
   async crearProgramacion(@Body() body: CrearProgramacionDto): Promise<ResponseBody<string>> {
     try {
-      await this.rolService.crearProgramacion(body);
+      await this.programacionService.crearProgramacion(body);
       return new ResponseBody<string>(true, 201, "Se ha la programacion exitosamente");
     } catch (error) {
       handleException(error);
     }
   }
 
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(PermissionsGuard)
-  @Permissions('programaciones:Lee') 
-  @UsePipes(new ValidationPipe({
-    whitelist: true, transform: true, exceptionFactory: (errors) => {
-      const mensajes = errors.map(err => ({
-        campo: err.property,
-        mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-      }));
-      return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-    }
-  }))
-  async obtenerProgramaciones(@Body() body: ObtenerProgramacionesDto): Promise<ResponseBody<any>> {
-    try {
-      const programaciones = body.id
-        ? await this.rolService.obtenerProgramacionXid({ id: body.id })
-        : await this.rolService.obtenerProgramaciones();
 
-      return new ResponseBody<any>(true, 200, programaciones);
-    } catch (error) {
-      handleException(error);
-    }
-  }
 
   @Put()
   @HttpCode(HttpStatus.OK)
@@ -87,7 +80,7 @@ export class ProgramacionController {
     );
 
     try {
-      await this.rolService.upProgramacion(body);
+      await this.programacionService.upProgramacion(body);
       return new ResponseBody(true, HttpStatus.OK, "Programacion actualizado exitosamente.");
     } catch (error) {
       handleException(error);
@@ -109,7 +102,7 @@ export class ProgramacionController {
 
   async delProgramacion(@Body() eliminarProgramacionDto: EliminarProgramacionDto): Promise<ResponseBody<string>> {
     try {
-      await this.rolService.delProgramacion({ id: eliminarProgramacionDto.id });
+      await this.programacionService.delProgramacion({ id: eliminarProgramacionDto.id });
       return new ResponseBody(true, 201, "Se ha eliminado la programacion exitosamente");
     } catch (error) {
       handleException(error);

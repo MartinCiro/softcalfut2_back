@@ -50,7 +50,6 @@ export class AnuncioController {
 
       return new ResponseBody<any>(true, 200, anuncios);
     } catch (error) {
-      console.error("Error al obtener anuncios:", error);
       handleException(error);
     }
   }

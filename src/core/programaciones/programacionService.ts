@@ -8,8 +8,8 @@ export class ProgramacionService {
     @Inject('ProgramacionesPort') private programacionPort: ProgramacionesPort
   ) {}
 
-  async obtenerProgramaciones() {
-    return await this.programacionPort.obtenerProgramaciones();
+  async obtenerProgramaciones(doc?: any) {
+    return await this.programacionPort.obtenerProgramaciones(doc);
   }
 
   async crearProgramacion(programacionData: ProgramacionData) {

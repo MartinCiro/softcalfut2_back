@@ -6,11 +6,12 @@ interface JwtPayload {
     documento: string;
     id_rol: number;
     exp?: number;
+    doc?: string;
 }
 
 export const generateJWT = (userInfo: any): string => {
     if (!config.JWT_SECRETO) throw new Error("JWT_SECRETO no está definido en la configuración.");
-    return jwt.sign({ userInfo }, config.JWT_SECRETO, { expiresIn: 3600 });
+    return jwt.sign(userInfo, config.JWT_SECRETO, { expiresIn: 3600 });
 };
 
 export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; jwt?: string }> => {
@@ -18,7 +19,7 @@ export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; 
 
     // Decodificar sin verificar la firma
     const decoded = jwt.decode(token) as JwtPayload | null;
-    if (!decoded || !decoded.userInfo?.doc) throw { ok: false, status_cod: 401, data: "El JWT es inválido" };
+    if (!decoded || !decoded?.doc) throw { ok: false, status_cod: 401, data: "El JWT es inválido" };
     // Si está en entorno de desarrollo, retornar sin verificar
     if (config.env === 'Dev') return { userInfo: decoded };
 
@@ -41,6 +42,7 @@ export const verifyJWT = async (token: string): Promise<{ userInfo: JwtPayload; 
         response.userInfo = verified;
         return response;
     } catch (error: any) {
+        console.log(error);
         throw error.name === 'TokenExpiredError' ? { ok: false, status_cod: 401, data: 'JWT expirado. Por favor inicie sesión nuevamente' } : { ok: false, status_cod: 401, data: "El JWT es inválido" };
     }
 };
