@@ -120,7 +120,6 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
   }
 
   async obtenerProgramaciones(doc: string | undefined) {
-    console.log(doc);
     try {
       return doc ? await this.programacionesXUser(doc) : await this.obtenerProgramacionesPublicas();
     } catch (error: any) {
@@ -198,7 +197,6 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         }
       }
     });
-    console.log(programaciones.length);
     const resultado = this.procesarProgramaciones(programaciones);
     await this.redisService.set(cacheKey, JSON.stringify(resultado));
     return resultado;
