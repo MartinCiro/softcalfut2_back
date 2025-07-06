@@ -49,7 +49,7 @@ export class AuthGuard implements CanActivate {
 
       const exception = new UnauthorizedException(error?.message || 'Token inválido o expirado');
       throw new HttpException(
-        new ResponseBody(false, 404, exception.message),
+        new ResponseBody(false, 401, exception.message),
         404
       );
     }
