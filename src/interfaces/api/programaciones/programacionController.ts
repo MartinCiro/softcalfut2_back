@@ -23,10 +23,8 @@ export class ProgramacionController {
   @Public()
   @UseGuards(PermissionsGuard)
   async obtenerProgramaciones(@User() user?: any): Promise<ResponseBody<any>> {
-    const doc = user ? user.doc : null;
     try {
-      const programaciones = await this.programacionService.obtenerProgramaciones(doc);
-
+      const programaciones = await this.programacionService.obtenerProgramaciones(user?.doc, user?.rol);
       return new ResponseBody<any>(true, 200, programaciones);
     } catch (error) {
       handleException(error);

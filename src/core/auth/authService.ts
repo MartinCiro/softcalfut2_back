@@ -40,7 +40,7 @@ export default class AuthService {
                 userData = {
                     doc: usuarioRetrieved.documento,
                     nombre: usuarioRetrieved.usuario,
-                    id_rol: usuarioRetrieved.id_rol
+                    rol: usuarioRetrieved.rol
                 };
             
                 const userDataWithPermissions = {

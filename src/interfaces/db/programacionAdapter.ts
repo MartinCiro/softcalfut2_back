@@ -86,7 +86,7 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       });
 
       await this.redisService.delete('programaciones:lista');
-      const devUp = await this.obtenerProgramaciones(equipoLocal?.documento);
+      const devUp = await this.obtenerProgramaciones(equipoLocal?.documento, undefined);
       await this.redisService.set('programacion:lista', JSON.stringify(devUp));
 
       return nuevaProgramacion;
@@ -119,9 +119,9 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
     }
   }
 
-  async obtenerProgramaciones(doc: string | undefined) {
+  async obtenerProgramaciones(doc: string | undefined, rol: string | undefined) {
     try {
-      return doc ? await this.programacionesXUser(doc) : await this.obtenerProgramacionesPublicas();
+      return doc && !rol?.toLocaleLowerCase().includes('admin') ? await this.programacionesXUser(doc) : await this.obtenerProgramacionesPublicas();
     } catch (error: any) {
       throw {
         ok: error.ok || false,
