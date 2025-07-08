@@ -83,7 +83,7 @@ export class UsuarioController {
     }
   }))
   async actualizarUsuario(@Body() body: ActualizarUsuarioDto): Promise<ResponseBody<string>> {
-    if (!body.apellido || !body.nombres || !body.id_rol || !body.estado_id || !body.numero_documento) {
+    if (Object.keys(body).length === 0) {
       throw new HttpException(
         new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
         HttpStatus.BAD_REQUEST,
