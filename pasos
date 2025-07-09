@@ -1,4 +1,0 @@
-pasos:
-apk update; apk add openssh
-ssh-keygen -t rsa -b 4096 -C "martinciro11@gmail.com"
-cat ~/.ssh/id_rsa.pub

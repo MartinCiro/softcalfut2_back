@@ -37,9 +37,9 @@ export class AnuncioController {
     }
   }))
 
-  async crearAnuncio(@Body() body: CrearAnuncioDto, imagenUrl?: Express.Multer.File): Promise<ResponseBody<string>> {
+  async crearAnuncio(@Body() body: CrearAnuncioDto): Promise<ResponseBody<string>> {
     let url_image = '';
-    if (body.imagenUrl) url_image = await GitImageUploader.subirImagen(`${Date.now()}_${body?.imagenUrl.originalname}`, body?.imagenUrl.buffer);
+    if (body.imagenUrl) url_image = await GitImageUploader.subirImagen(`${Date.now()}_${(body?.imagenUrl as any).originalName.replace(/\s+/g, "_").toLowerCase()}`, body?.imagenUrl.buffer);
     try {
       await this.anuncioService.crearAnuncio({
       ...body,

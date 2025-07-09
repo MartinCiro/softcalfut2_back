@@ -3,31 +3,50 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import simpleGit from 'simple-git';
 import config from 'src/config';
 
-const REPO_URL = "git@github.com:MartinCiro/imagesSoftcalfut.git";
+const USER_NAME = config.USERNAME_GIT as string;
 const CLONE_DIR = join(__dirname, '..', '..', 'tmp', 'repo-img');
 
+const REPO = config.REPO_IMG!.split(':')[1].replace('.git', '')
+
+const REPO_URL = `https://${USER_NAME}:${config.TOKEN_AUTH_GIT}@github.com/${REPO}.git` 
+
+const branch = config.BRANCH_IMG as string
+
 export class GitImageUploader {
+  private static gitInstance: ReturnType<typeof simpleGit> | null = null;
+  private static initialized = false;
+
+  private static async initialize() {
+    if (!existsSync(CLONE_DIR)) {
+      mkdirSync(CLONE_DIR, { recursive: true });
+      await simpleGit().clone(REPO_URL, CLONE_DIR);
+    }
+
+    this.gitInstance = simpleGit(CLONE_DIR);
+
+    // Configuraciones que solo necesitan hacerse una vez
+    await this.gitInstance
+      .addConfig('user.name', USER_NAME, false, 'local')
+      .addConfig('user.email', config.EMAIL_GIT as string, false, 'local');
+
+    this.initialized = true;
+  }
+
   static async subirImagen(nombreArchivo: string, buffer: Buffer): Promise<string> {
-    const git = simpleGit();
-    
-    // Si no existe el directorio local, clónalo
-    if (!existsSync(CLONE_DIR)) await git.clone(REPO_URL, CLONE_DIR);
-    const gitRepo = simpleGit(CLONE_DIR);
-    
+    if (!this.initialized) await this.initialize();
+    if (!this.gitInstance) throw new Error('Git instance not initialized');
+
+    // Operaciones con archivos
     const rutaFinal = join(CLONE_DIR, 'imagenes', nombreArchivo);
     mkdirSync(join(CLONE_DIR, 'imagenes'), { recursive: true });
     writeFileSync(rutaFinal, buffer);
-    
-    // Commit y push
-    await gitRepo.add('./*');
-    await gitRepo.commit(`add image ${nombreArchivo}`);
-    const remotes = await gitRepo.getRemotes(true);
-    console.log(remotes);
-    await gitRepo.push('origin', 'main');
 
-    // Construir URL pública (si el repo es público)
-    const repoPath = config.REPO_IMG.split(':')[1].replace('.git', '');
-    const rawURL = `https://raw.githubusercontent.com/${repoPath}/main/imagenes/${nombreArchivo}`;
-    return rawURL;
+    // Git operations
+    await this.gitInstance
+      .add('./*')
+      .commit(`add image ${nombreArchivo}`)
+      .push('origin', branch);
+
+    return `https://raw.githubusercontent.com/${REPO}/${branch}/imagenes/${nombreArchivo}`;
   }
 }

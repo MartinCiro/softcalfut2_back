@@ -30,5 +30,7 @@ export default {
   TOKEN_AUTH_GIT: process.env.TOKEN_AUTH_GIT,
   TITLE_TOKEN_AUTH: process.env.TITLE_TOKEN_AUTH,
   EMAIL_GIT: process.env.EMAIL_GIT,
-  REPO_IMG: process.env.REPO_IMG || 'git@github.com:MartinCiro/imagesSoftcalfut.git',
+  REPO_IMG: process.env.REPO_IMG,
+  USERNAME_GIT: process.env.USERNAME_GIT,
+  BRANCH_IMG: process.env.BRANCH_IMG || 'main',
 };

@@ -13,6 +13,4 @@ RUN npm install @prisma/client
 RUN npx prisma generate
 
 COPY . .
-RUN git config --global user.email "martinciro11@gmail.com"
-RUN git config --global user.name "martinciro"
 EXPOSE 3002
