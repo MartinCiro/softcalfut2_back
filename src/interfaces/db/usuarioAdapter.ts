@@ -162,7 +162,16 @@ export default class UsuariosAdapter implements UsuariosPort {
           },
           rol: {
             select: {
-              nombre: true
+              nombre: true,
+              rolXPermiso: {
+                select: {
+                  permiso: {
+                    select: {
+                      nombre: true
+                    }
+                  }
+                }
+              }
             }
           },
           estado: {
@@ -179,20 +188,16 @@ export default class UsuariosAdapter implements UsuariosPort {
         };
       }
 
-      return usuarios.map((usuario:
-        {
-          email: any; 
-          nombres: any; 
-          apellido: any; 
-          documento: any; 
-          nom_user: any; 
-          info_perfil: any; 
-          num_contacto: any; 
-          rol: { nombre: any; };
-          estado: { nombre: any; }; 
-          fecha_nacimiento: { fecha: Date } | null;
-          fecha_registro: { fecha: Date } | null; 
-        }) => ({
+      return usuarios.map((usuario) => {
+        const permisosPlano = usuario.rol.rolXPermiso.map((permiso) => permiso.permiso.nombre);
+        const permisosAgrupados = permisosPlano.reduce((grupos: Record<string, string[]>, permiso: string) => {
+          const [categoria] = permiso.split(':');
+          if (!grupos[categoria]) grupos[categoria] = [];
+          grupos[categoria].push(permiso.split(':')[1]);
+          return grupos;
+        }, {});
+
+        return {
           nombres: usuario.nombres,
           apellido: usuario.apellido,
           estado: usuario.estado.nombre,
@@ -203,8 +208,10 @@ export default class UsuariosAdapter implements UsuariosPort {
           num_contacto: usuario.num_contacto,
           nom_user: usuario.nom_user,
           fecha_nacimiento: usuario.fecha_nacimiento?.fecha,
-          fecha_registro: usuario.fecha_registro?.fecha
-        }));
+          fecha_registro: usuario.fecha_registro?.fecha,
+          permisos: permisosAgrupados
+        };
+      });
     } catch (error: any) {
       throw {
         ok: error.ok || false,

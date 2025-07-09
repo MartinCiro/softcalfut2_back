@@ -1,6 +1,7 @@
 import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
+  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req,
+  UploadedFile, UseInterceptors
 } from '@nestjs/common';
 import { AnuncioService } from 'core/anuncios/anuncioService';
 import { ResponseBody } from 'api/models/ResponseBody';
@@ -12,6 +13,9 @@ import { AuthGuard } from 'core/auth/guards/auth.guard';
 import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
 import { Permissions, Public } from 'core/auth/decorators/permissions.decorator';
 import { handleException } from 'api/utils/validaciones';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { GitImageUploader } from 'api/utils/GitImageUploader';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('anuncios')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
@@ -22,6 +26,7 @@ export class AnuncioController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(PermissionsGuard)
   @Permissions('anuncios:Crea')
+  @FormDataRequest()
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -32,9 +37,14 @@ export class AnuncioController {
     }
   }))
 
-  async crearAnuncio(@Body() body: CrearAnuncioDto): Promise<ResponseBody<string>> {
+  async crearAnuncio(@Body() body: CrearAnuncioDto, imagenUrl?: Express.Multer.File): Promise<ResponseBody<string>> {
+    let url_image = '';
+    if (body.imagenUrl) url_image = await GitImageUploader.subirImagen(`${Date.now()}_${body?.imagenUrl.originalname}`, body?.imagenUrl.buffer);
     try {
-      await this.anuncioService.crearAnuncio(body);
+      await this.anuncioService.crearAnuncio({
+      ...body,
+      imagenUrl: url_image,
+    });
       return new ResponseBody<string>(true, 201, "Se ha creado el anuncio exitosamente");
     } catch (error) {
       handleException(error);

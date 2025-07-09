@@ -54,8 +54,6 @@ export class ProgramacionController {
     }
   }
 
-
-
   @Put()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
