@@ -288,10 +288,12 @@ export default class AnunciosAdapter implements AnunciosPort {
     id: number | string;
   }) {
     try {
-      const { id, nombre, contenido, imagenUrl, estado } = anuncioData;
+      const { nombre, contenido, imagenUrl, estado } = anuncioData;
+      let { id } = anuncioData;
+      id = Number(typeof id === "string" && id.includes(",") ? id.split(",")[0] : id)
       const updates: any = {};
       const anuncioExistente = await prisma.anuncio.findUnique({
-        where: { id: Number(id) }
+        where: { id: id}
       });
 
       if (!anuncioExistente) {
@@ -322,7 +324,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       if (imagenUrl) updates.imagenUrl = imagenUrl;
 
       const anuncioActualizado = await prisma.anuncio.update({
-        where: { id: Number(id) },
+        where: { id: id },
         data: updates
       });
 
