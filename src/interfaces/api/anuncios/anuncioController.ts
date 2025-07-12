@@ -16,7 +16,6 @@ import { handleException } from 'api/utils/validaciones';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GitImageUploader } from 'api/utils/GitImageUploader';
 import { FormDataRequest } from 'nestjs-form-data';
-import { url } from 'inspector';
 
 @Controller('anuncios')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
