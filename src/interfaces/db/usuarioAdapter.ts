@@ -1,28 +1,17 @@
 import UsuariosPort from 'core/usuarios/usuarioPort';
 import { Usuario } from 'core/auth/entities/Usuario';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
+import { UsuarioData, UsuarioDataUpdate, UsuarioDataXid } from 'api/usuarios/models/usuario.model';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export default class UsuariosAdapter implements UsuariosPort {
 
-  async crearUsuarios(usuarioData: {
-    nombres: string;
-    passwd: string;
-    id_rol?: number | string;
-    apellido: string;
-    numero_documento: string;
-    email: string;
-    estado_id?: number | string;
-    info_perfil?: string;
-    nom_user: string;
-    numero_contacto?: string;
-    fecha_nacimiento: string | Date;
-  }) {
+  async crearUsuarios(usuarioData: UsuarioData) {
     try {
       const fechaNacimiento = new Date(usuarioData.fecha_nacimiento);
       const fechaRegistro = new Date();
@@ -173,7 +162,16 @@ export default class UsuariosAdapter implements UsuariosPort {
           },
           rol: {
             select: {
-              nombre: true
+              nombre: true,
+              rolXPermiso: {
+                select: {
+                  permiso: {
+                    select: {
+                      nombre: true
+                    }
+                  }
+                }
+              }
             }
           },
           estado: {
@@ -190,21 +188,18 @@ export default class UsuariosAdapter implements UsuariosPort {
         };
       }
 
-      return usuarios.map((usuario:
-        {
-          email: any; 
-          nombres: any; 
-          apellido: any; 
-          documento: any; 
-          nom_user: any; 
-          info_perfil: any; 
-          num_contacto: any; 
-          rol: { nombre: any; };
-          estado: { nombre: any; }; 
-          fecha_nacimiento: { fecha: Date } | null;
-          fecha_registro: { fecha: Date } | null; 
-        }) => ({
-          nombres: usuario.nombres + " " + usuario.apellido,
+      return usuarios.map((usuario) => {
+        const permisosPlano = usuario.rol.rolXPermiso.map((permiso) => permiso.permiso.nombre);
+        const permisosAgrupados = permisosPlano.reduce((grupos: Record<string, string[]>, permiso: string) => {
+          const [categoria] = permiso.split(':');
+          if (!grupos[categoria]) grupos[categoria] = [];
+          grupos[categoria].push(permiso.split(':')[1]);
+          return grupos;
+        }, {});
+
+        return {
+          nombres: usuario.nombres,
+          apellido: usuario.apellido,
           estado: usuario.estado.nombre,
           rol: usuario.rol.nombre,
           documento: usuario.documento,
@@ -213,8 +208,10 @@ export default class UsuariosAdapter implements UsuariosPort {
           num_contacto: usuario.num_contacto,
           nom_user: usuario.nom_user,
           fecha_nacimiento: usuario.fecha_nacimiento?.fecha,
-          fecha_registro: usuario.fecha_registro?.fecha
-        }));
+          fecha_registro: usuario.fecha_registro?.fecha,
+          permisos: permisosAgrupados
+        };
+      });
     } catch (error: any) {
       throw {
         ok: error.ok || false,
@@ -224,7 +221,7 @@ export default class UsuariosAdapter implements UsuariosPort {
     }
   }
 
-  async obtenerUsuariosXid(usuarioData: { numero_documento: string | number; }) {
+  async obtenerUsuariosXid(usuarioData: UsuarioDataXid) {
     try {
       const usuario = await prisma.usuario.findUnique({
         where: { documento: usuarioData.numero_documento.toString() },
@@ -263,7 +260,7 @@ export default class UsuariosAdapter implements UsuariosPort {
     }
   }
 
-  async delUsuario(usuarioData: { numero_documento: string }) {
+  async delUsuario(usuarioData: UsuarioDataXid) {
     try {
       const usuario = await prisma.usuario.delete({
         where: { documento: usuarioData.numero_documento.toString() },
@@ -290,23 +287,31 @@ export default class UsuariosAdapter implements UsuariosPort {
     }
   }
 
-  async actualizaUsuario(usuarioData: {
-    nombres?: string;
-    apellido?: string;
-    estado_id?: number | string;
-    id_rol?: number | string;
-    numero_documento: number | string;
-  }) {
+  async actualizaUsuario(usuarioData: UsuarioDataUpdate) {
     try {
-      const { numero_documento, estado_id, id_rol, ...updates } = usuarioData;
+      const { numero_documento, estado_id, id_rol, fecha_nacimiento, numero_contacto, ...updates } = usuarioData;
+
+      // Convertir valores numéricos si están presentes
+      const dataToUpdate: Prisma.UsuarioUpdateInput = {
+        ...updates,
+        ...(numero_contacto !== undefined && { num_contacto: numero_contacto }),
+        ...(estado_id !== undefined && { estado: { connect: { id: Number(estado_id) } } }),
+        ...(id_rol !== undefined && { rol: { connect: { id: Number(id_rol) } } }),
+        ...(fecha_nacimiento !== undefined && { 
+          fecha_nacimiento: {
+            update: { fecha: fecha_nacimiento }
+          } 
+        })
+      };
 
       const usuarioActualizado = await prisma.usuario.update({
         where: { documento: numero_documento.toString() },
-        data: {
-          ...updates,
-          estado_id: estado_id !== undefined ? Number(estado_id) : undefined,
-          id_rol: id_rol ? Number(id_rol) : undefined,
-        },
+        data: dataToUpdate,
+        include: {
+          fecha_nacimiento: true,
+          rol: true,
+          estado: true
+        }
       });
 
       return {

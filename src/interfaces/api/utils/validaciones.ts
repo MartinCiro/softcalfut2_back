@@ -40,7 +40,7 @@ export function handleException(error: any): never {
     const data = typeof error.data === 'string' ? error.data : 'Error desconocido';
     throw new HttpException(new ResponseBody(false, statusCode, data), statusCode);
   }
-
+  console.error(error);
   throw new HttpException(
     new ResponseBody(false, HttpStatus.INTERNAL_SERVER_ERROR, 'Error interno del servidor'),
     HttpStatus.INTERNAL_SERVER_ERROR

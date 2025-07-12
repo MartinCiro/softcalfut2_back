@@ -1,21 +1,22 @@
 model Programacion {
-  id                  Int      @id @default(autoincrement())
-  lugar_encuentro     Int      @map("lugar_encuentro")
-  rama                String
-  
-  fecha_encuentro     Int      @map("fecha_encuentro")
-  cronograma_juego    String   @map("cronograma_juego")
-  
+  id                  Int             @id @default(autoincrement())
+  lugar_encuentro     Int             @map("lugar_encuentro")
+  rama                Genero          @default(M)
+
+  fecha_encuentro     Int             @map("fecha_encuentro")
+  cronograma_juego    String          @map("cronograma_juego")
+
   id_equipo_local     Int
   id_equipo_visitante Int
   id_torneo           Int
 
   // Relaciones
-  equipoLocal     Equipo    @relation("EquipoLocal", fields: [id_equipo_local], references: [id])
-  equipoVisitante Equipo    @relation("EquipoVisitante", fields: [id_equipo_visitante], references: [id])
-  fecha           Fecha     @relation("programacion_fecha", fields: [fecha_encuentro], references: [id])
-  torneo          Torneo    @relation("programacion_torneo", fields: [id_torneo], references: [id], onDelete: Cascade)
-  lugarEncuentro  LugarEncuentro @relation("lugar_encuentro", fields: [lugar_encuentro], references: [id])
+  equipoLocal         Equipo          @relation("EquipoLocal", fields: [id_equipo_local], references: [id])
+  equipoVisitante     Equipo          @relation("EquipoVisitante", fields: [id_equipo_visitante], references: [id])
+  fecha               Fecha           @relation("programacion_fecha", fields: [fecha_encuentro], references: [id])
+  torneo              Torneo          @relation("programacion_torneo", fields: [id_torneo], references: [id], onDelete: Cascade)
+  lugarEncuentro      LugarEncuentro  @relation("lugar_encuentro", fields: [lugar_encuentro], references: [id])
 
   @@map("programacion")
 }
+

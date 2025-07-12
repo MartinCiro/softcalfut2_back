@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ForbiddenException } from '@nestjs/common';
 import { RedisService } from 'shared/cache/redis.service';
 import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from 'api/programaciones/models/programacion.model';
-
+import { Genero } from '@prisma/client'
 
 const prisma = new PrismaClient();
 
@@ -18,16 +18,16 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       const [lugarEncuentro, equipoLocal, equipoVisitante, torneo] = await Promise.all([
         prisma.lugarEncuentro.findUnique({
-          where: { id: programacionData.lugarEncuentro },
+          where: { id: programacionData.lugar },
           select: { id: true }
         }),
         prisma.equipo.findUnique({
           where: { id: programacionData.equipoLocal },
-          select: { id: true }
+          select: { id: true, documento: true }
         }),
         prisma.equipo.findUnique({
           where: { id: programacionData.equipoVisitante },
-          select: { id: true }
+          select: { id: true, documento: true }
         }),
         prisma.torneo.findUnique({
           where: { id: programacionData.torneo },
@@ -52,20 +52,21 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       }
 
       const fechaEncuentro = await prisma.fecha.upsert({
-        where: { fecha: programacionData.fechaEncuentro },
-        create: { fecha: programacionData.fechaEncuentro },
+        where: { fecha: programacionData.fecha },
+        create: { fecha: programacionData.fecha },
         update: {},
         select: { id: true }
       });
 
+
       const verifiexiste = await prisma.programacion.findFirst({
         where: {
-          cronograma_juego: programacionData.cronogramaJuego,
-          lugar_encuentro: programacionData.lugarEncuentro,
+          cronograma_juego: programacionData.competencia,
+          lugar_encuentro: programacionData.lugar,
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
-          rama: programacionData.rama,
+          rama: programacionData.rama || Genero.M,
           id_torneo: programacionData.torneo
         }
       })
@@ -74,8 +75,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
 
       const nuevaProgramacion = await prisma.programacion.create({
         data: {
-          cronograma_juego: programacionData.cronogramaJuego,
-          lugar_encuentro: programacionData.lugarEncuentro,
+          cronograma_juego: programacionData.competencia,
+          lugar_encuentro: programacionData.lugar,
           fecha_encuentro: fechaEncuentro?.id,
           id_equipo_local: programacionData.equipoLocal,
           id_equipo_visitante: programacionData.equipoVisitante,
@@ -85,7 +86,8 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       });
 
       await this.redisService.delete('programaciones:lista');
-      await this.redisService.set('programacion:lista', JSON.stringify(nuevaProgramacion));
+      const devUp = await this.obtenerProgramaciones(equipoLocal?.documento, undefined);
+      await this.redisService.set('programacion:lista', JSON.stringify(devUp));
 
       return nuevaProgramacion;
     } catch (error: any) {
@@ -117,111 +119,9 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
     }
   }
 
-  async obtenerProgramaciones() {
+  async obtenerProgramaciones(doc: string | undefined, rol: string | undefined) {
     try {
-      const cacheKey = 'programaciones:lista';
-      const programacionesCache = await this.redisService.get(cacheKey);
-
-      //if (programacionesCache) return JSON.parse(programacionesCache);
-
-      const programaciones = await prisma.programacion.findMany({
-        select: {
-          id: true,
-          rama: true,
-          cronograma_juego: true,
-          fecha: {
-            select: {
-              fecha: true
-            }
-          },
-          lugarEncuentro: {
-            select: {
-              nombre: true
-            }
-          },
-          equipoLocal: {
-            select: {
-              nom_equipo: true
-            }
-          },
-          equipoVisitante: {
-            select: {
-              nom_equipo: true,
-              categoria: {
-                select: {
-                  nombre_categoria: true
-                }
-              }
-            }
-          }
-        }
-      });
-
-      if (programaciones.length === 0) {
-        throw {
-          ok: true,
-          status_cod: 200,
-          data: "No se ha encontrado ninguna programación"
-        };
-      }
-
-      const agrupado: Record<string, {
-        competencia: string;
-        eventos: {
-          local: string;
-          visitante: string;
-          hora: string;
-          lugar: string;
-          rama: string;
-          fecha: string;
-          dia: string;
-          categoria: string
-        }[];
-      }> = {};
-
-      // Procesar las fechas y agrupar
-      for (const programacion of programaciones) {
-        const fechaCompleta = new Date(programacion.fecha.fecha);
-
-        const fechaFormateada = fechaCompleta.toLocaleDateString('es-ES', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
-
-        const diaSemana = fechaCompleta.toLocaleDateString('es-ES', { weekday: 'long' });
-
-        const hora = fechaCompleta.toLocaleTimeString('es-ES', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
-        }).toLowerCase().replace(/(\d)(\s?)(a|p)\.\s?m\./i, '$1 $3.m.');
-
-        const key = `${programacion.cronograma_juego}__${fechaFormateada}`;
-
-        if (!agrupado[key]) {
-          agrupado[key] = {
-            competencia: programacion.cronograma_juego,
-            eventos: []
-          };
-        }
-
-        agrupado[key].eventos.push({
-          local: programacion.equipoLocal.nom_equipo,
-          visitante: programacion.equipoVisitante.nom_equipo,
-          hora,
-          lugar: programacion.lugarEncuentro?.nombre ?? '',
-          rama: programacion.rama,
-          fecha: fechaFormateada,
-          dia: diaSemana,
-          categoria: programacion.equipoVisitante.categoria?.nombre_categoria ?? ''
-        });
-      }
-
-      const listaFinal = Object.values(agrupado);
-      await this.redisService.set(cacheKey, JSON.stringify(listaFinal));
-      return listaFinal;
-
+      return doc && !rol?.toLocaleLowerCase().includes('admin') ? await this.programacionesXUser(doc) : await this.obtenerProgramacionesPublicas();
     } catch (error: any) {
       throw {
         ok: error.ok || false,
@@ -229,6 +129,195 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         data: error.message || error.data || "Ocurrió un error consultando las programaciones"
       };
     }
+  }
+
+  private async programacionesXUser(userId: string) {
+    const cacheKey = `programaciones:user:${userId}`;
+    const cached = await this.redisService.get(cacheKey);
+
+    //if (cached) return JSON.parse(cached);
+
+    // Obtener programaciones específicas para el usuario
+    const programaciones = await prisma.programacion.findMany({
+      where: {
+        OR: [
+        {
+          equipoLocal: {
+            usuariosxEquipo: {
+              some: {
+                documento_user: userId
+              }
+            }
+          }
+        },
+        {
+          equipoVisitante: {
+            usuariosxEquipo: {
+              some: {
+                documento_user: userId
+              }
+            }
+          }
+        }
+      ]
+    },
+      select: {
+        id: true,
+        rama: true,
+        cronograma_juego: true,
+        fecha: {
+          select: {
+            fecha: true
+          }
+        },
+        lugarEncuentro: {
+          select: {
+            nombre: true
+          }
+        },
+        equipoLocal: {
+          select: {
+            nom_equipo: true
+          }
+        },
+        equipoVisitante: {
+          select: {
+            nom_equipo: true,
+            categoria: {
+              select: {
+                nombre_categoria: true
+              }
+            }
+          }
+        },
+        torneo: {
+          select: {
+            nombre_torneo: true
+          }
+        }
+      }
+    });
+    const resultado = this.procesarProgramaciones(programaciones);
+    await this.redisService.set(cacheKey, JSON.stringify(resultado));
+    return resultado;
+  }
+
+  private async obtenerProgramacionesPublicas() {
+    const cacheKey = 'programaciones:publicas';
+    const cached = await this.redisService.get(cacheKey);
+
+    //if (cached) return JSON.parse(cached);
+
+    const programaciones = await prisma.programacion.findMany({
+      select: {
+        id: true,
+        rama: true,
+        cronograma_juego: true,
+        fecha: {
+          select: {
+            fecha: true
+          }
+        },
+        lugarEncuentro: {
+          select: {
+            nombre: true
+          }
+        },
+        equipoLocal: {
+          select: {
+            nom_equipo: true
+          }
+        },
+        equipoVisitante: {
+          select: {
+            nom_equipo: true,
+            categoria: {
+              select: {
+                nombre_categoria: true
+              }
+            }
+          }
+        },
+        torneo: {
+          select: {
+            nombre_torneo: true
+          }
+        }
+      }
+    });
+
+    const resultado = this.procesarProgramaciones(programaciones);
+    await this.redisService.set(cacheKey, JSON.stringify(resultado));
+    return resultado;
+  }
+
+  // Método privado para procesar y agrupar programaciones (compartido)
+  private procesarProgramaciones(programaciones: any[]) {
+    if (programaciones.length === 0) {
+      throw {
+        ok: true,
+        status_cod: 200,
+        data: "No se ha encontrado ninguna programación"
+      };
+    }
+
+    const agrupado: Record<string, {
+      competencia: string;
+      eventos: {
+        local: string;
+        visitante: string;
+        hora: string;
+        lugar: string;
+        rama: string;
+        fecha: string;
+        dia: string;
+        categoria: string;
+        id: string | number;
+        torneo: string;
+        competencia: string;
+      }[];
+    }> = {};
+
+    for (const programacion of programaciones) {
+      const fechaCompleta = programacion.fecha.fecha;
+      const fechaFormateada = fechaCompleta.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+
+      const diaSemana = fechaCompleta.toLocaleDateString('es-ES', { weekday: 'long' });
+      const hora = fechaCompleta.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }).toLowerCase().replace(/(\d)(\s?)(a|p)\.\s?m\./i, '$1 $3.m.');
+      
+      const key = `${programacion.cronograma_juego}__${fechaFormateada}`;
+
+      if (!agrupado[key]) {
+        agrupado[key] = {
+          competencia: programacion.cronograma_juego,
+          eventos: []
+        };
+      }
+
+      agrupado[key].eventos.push({
+        local: programacion.equipoLocal.nom_equipo,
+        visitante: programacion.equipoVisitante.nom_equipo,
+        hora,
+        lugar: programacion.lugarEncuentro?.nombre ?? '',
+        rama: programacion.rama,
+        fecha: fechaFormateada,
+        dia: diaSemana,
+        id: programacion.id,
+        competencia: programacion.cronograma_juego,
+        torneo: programacion.torneo?.nombre_torneo ?? '',
+        categoria: programacion.equipoVisitante.categoria?.nombre_categoria ?? ''
+      });
+    }
+
+    return Object.values(agrupado);
   }
 
 
@@ -267,15 +356,12 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
     }
   }
 
-
   async delProgramacion(programacionData: { id: string }) {
     try {
       const id = Number(programacionData.id);
 
       // Eliminar de la base de datos primero
-      const programacion = await prisma.programacion.delete({
-        where: { id },
-      });
+      await prisma.programacion.delete({where: { id }});
 
       // Borrar caché específica por ID
       await this.redisService.delete(`programacion:${id}`);
@@ -284,13 +370,12 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
       const programacionesCache = await this.redisService.get('programaciones:lista');
       if (programacionesCache) {
         const programaciones = JSON.parse(programacionesCache).filter((e: any) => e.id !== id);
-        await this.redisService.set('programaciones:lista', JSON.stringify(programaciones), 3600); // TTL de 1 hora
+        await this.redisService.set('programaciones:lista', JSON.stringify(programaciones));
       }
 
       return {
         ok: true,
-        message: "Categoría eliminada correctamente",
-        programacion: programacion.id,
+        message: "Categoría eliminada correctamente"
       };
 
     } catch (error: any) {
@@ -303,13 +388,12 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
     }
   }
 
-  async actualizaProgramacion(programacionData: {
-    nombre?: string;
-    id: number | string;
-  }) {
+  async actualizaProgramacion(programacionData: ProgramacionDataUpdate) {
     try {
-      const { id, nombre } = programacionData;
-
+      const { id, rama, lugar, competencia, equipoLocal, equipoVisitante, torneo, categoria, hora } = programacionData;
+      
+      let fecha = programacionData.fecha;
+      fecha = fecha?.includes("T") ? fecha.split('T')[0].split('-').reverse().join('/') : fecha;
       // Verificar si la programación existe
       const programacionExistente = await prisma.programacion.findUnique({
         where: { id: Number(id) }
@@ -323,9 +407,43 @@ export default class ProgramacionesAdapter implements ProgramacionesPort {
         };
       }
 
+      if (fecha && hora) {
+        // Dividir la fecha: "10/06/2025" → día, mes, año
+        const [dia, mes, anio] = fecha.toString().split('/').map(Number);
+
+        // Convertir hora a 24 horas
+        const hora24 = (() => {
+          const [h, minPeriodo] = hora.split(':');
+          const [min, periodo] = minPeriodo.split(' ');
+          let horas = Number(h);
+          const minutos = Number(min);
+          const isPM = periodo.toLowerCase() === 'p.m.' || periodo.toLowerCase() === 'pm';
+          if (isPM && horas < 12) horas += 12;
+          if (!isPM && horas === 12) horas = 0;
+          return { horas, minutos };
+        })();
+
+        // Crear fecha UTC
+        const fechaCompleta = new Date(Date.UTC(anio, mes - 1, dia, hora24.horas, hora24.minutos));
+        const fechaEncuentro = await prisma.fecha.upsert({
+          where: { fecha: fechaCompleta },
+          create: { fecha: fechaCompleta },
+          update: {},
+          select: { id: true }
+        });
+        fecha = fechaEncuentro.id.toString();
+      }
+
       // Preparar los nuevos datos
       const updates: any = {};
-      if (nombre) updates.cronograma_juego = nombre;
+      if (rama) updates.rama = rama;
+      if (fecha) updates.fecha_encuentro = Number(fecha);
+      if (lugar) updates.lugar_encuentro = lugar;
+      if (competencia) updates.cronograma_juego = competencia;
+      if (equipoLocal) updates.id_equipo_local = equipoLocal;
+      if (equipoVisitante) updates.id_equipo_visitante = equipoVisitante;
+      if (torneo) updates.id_torneo = torneo;
+      /* if (categoria) updates.categoria = categoria; */
 
       // Actualizar en base de datos
       const programacionActualizado = await prisma.programacion.update({
