@@ -40,6 +40,7 @@ export class AuthController {
 
       return new ResponseBody(auth.ok, auth.statusCode, responseData);
     } catch (error: any) {
+      console.log(error);
       if (typeof error === 'object' && error !== null && 'status_cod' in error && 'data' in error) {
         const err = error as { status_cod: unknown; data: unknown };
         const statusCode = typeof err.status_cod === 'number' ? err.status_cod : HttpStatus.INTERNAL_SERVER_ERROR;

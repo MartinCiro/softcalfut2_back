@@ -10,8 +10,9 @@ import AuthPort from './authPort';
 export default class AuthService {
     constructor(
         @Inject('AuthPort') private authPort: AuthPort,
-        private readonly redisService: RedisService,
-    ) {}
+        private readonly redisService: RedisService
+    ) {}    
+
 
     async loginUser({ documento, password }: { documento: string; password: string }): Promise<ResponseBody<any>> {
         try {
@@ -40,7 +41,7 @@ export default class AuthService {
                 userData = {
                     doc: usuarioRetrieved.documento,
                     nombre: usuarioRetrieved.usuario,
-                    id_rol: usuarioRetrieved.id_rol
+                    rol: usuarioRetrieved.rol
                 };
             
                 const userDataWithPermissions = {
@@ -84,6 +85,7 @@ export default class AuthService {
                 }
             };
         } catch (error: any) {
+            console.error('Error al iniciar sesión:', error);
             return {
                 ok: false,
                 statusCode: error.status_cod || 401,

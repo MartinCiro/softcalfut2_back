@@ -6,14 +6,13 @@ interface JwtPayload {
     documento: string;
     id_rol: number;
     exp?: number;
+    doc?: string;
 }
 
 export const generateJWT = (userInfo: any): { accessToken: string, refreshToken: string } => {
     if (!config.JWT_SECRETO) throw new Error("JWT_SECRETO no está definido en la configuración.");
-
     const accessToken = jwt.sign({ userInfo }, config.JWT_SECRETO, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ userInfo }, config.JWT_SECRETO, { expiresIn: '1h' });
-
     return { accessToken, refreshToken };
 };
 
@@ -22,6 +21,7 @@ export const verifyToken = async (token: string, isRefreshToken: boolean = false
 
     // Decodificar sin verificar la firma primero
     const decoded = jwt.decode(token) as JwtPayload | null;
+
     if (!decoded || !decoded.userInfo?.doc) throw { ok: false, status_cod: 401, data: "El token es inválido" };
 
     // Entorno de desarrollo: retornar sin verificar

@@ -27,6 +27,12 @@ export default {
   // Nats
   NATS_URL: process.env.NATS_URL || 'nats://127.0.0.1:4222',
 
+  TOKEN_AUTH_GIT: process.env.TOKEN_AUTH_GIT,
+  TITLE_TOKEN_AUTH: process.env.TITLE_TOKEN_AUTH,
+  EMAIL_GIT: process.env.EMAIL_GIT,
+  REPO_IMG: process.env.REPO_IMG,
+  USERNAME_GIT: process.env.USERNAME_GIT,
+  BRANCH_IMG: process.env.BRANCH_IMG || 'main',
   CORS_ORIGINS: process.env.CORS_ORIGINS ||  [
     'http://localhost:*',
     'http://192.168.0.20:*',
