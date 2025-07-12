@@ -3,7 +3,7 @@ import {
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
 import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
+import { Permissions, Public } from 'core/auth/decorators/permissions.decorator';
 import { ResponseBody } from 'api/models/ResponseBody';
 import { UsuarioService } from 'core/usuarios/usuarioService';
 import { handleException } from 'api/utils/validaciones';
@@ -17,23 +17,12 @@ import { ActualizarUsuarioDto } from './dtos/actualizarUsuario.dto';
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) { }
-  /* 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @UseGuards(PermissionsGuard)
-  @Permissions('usuarios:Crea')
-  @UsePipes(new ValidationPipe({ whitelist: true, transform: true, exceptionFactory: (errors) => {
-    const mensajes = errors.map(err => ({
-      campo: err.property,
-      mensaje: err.constraints ? Object.values(err.constraints).join(', ') : ''
-    }));
-    return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
-  }}))
-  */
- 
+
   @Post(['', 'register'])
   @HttpCode(HttpStatus.CREATED)
-  async crearUsuario(@Body() body: CrearUsuarioDto): Promise<ResponseBody<string>> {
+  @Public()
+  @UseGuards(PermissionsGuard)
+  async registerUsuario(@Body() body: CrearUsuarioDto): Promise<ResponseBody<string>> {
     try {
       await this.usuarioService.crearUsuario(body);
       return new ResponseBody<string>(true, 201, "Se ha creado el usuario exitosamente");
@@ -42,6 +31,19 @@ export class UsuarioController {
     }
   }
 
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(PermissionsGuard)
+  @Permissions('usuarios:Crea')
+  async crearUsuario(@Body() body: CrearUsuarioDto): Promise<ResponseBody<string>> {
+    try {
+      await this.usuarioService.crearUsuario(body);
+      return new ResponseBody<string>(true, 201, "Se ha creado el usuario exitosamente");
+    } catch (error) {
+      handleException(error);
+    }
+  }
+ 
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
@@ -81,7 +83,7 @@ export class UsuarioController {
     }
   }))
   async actualizarUsuario(@Body() body: ActualizarUsuarioDto): Promise<ResponseBody<string>> {
-    if (!body.apellido || !body.nombres || !body.id_rol || !body.estado_id || !body.numero_documento) {
+    if (Object.keys(body).length === 0) {
       throw new HttpException(
         new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
         HttpStatus.BAD_REQUEST,

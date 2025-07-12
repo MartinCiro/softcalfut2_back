@@ -10,13 +10,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: AuthDto): Promise<ResponseBody<any>> {
     const { documento, enpass: password } = body;
-
     if (!documento || !password) throw new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, "Usuario y contraseña son obligatorios"), HttpStatus.BAD_REQUEST);
 
     try {
       const auth = await this.authService.loginUser({ documento, password });
       return new ResponseBody(auth.ok, auth.statusCode, auth.result);
     } catch (error: any) {
+      console.log(error);
       if (typeof error === 'object' && error !== null && 'status_cod' in error && 'data' in error) {
         const err = error as { status_cod: unknown; data: unknown };
         const statusCode = typeof err.status_cod === 'number' ? err.status_cod : HttpStatus.INTERNAL_SERVER_ERROR;
