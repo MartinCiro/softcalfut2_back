@@ -1,5 +1,5 @@
 import { Usuario } from './entities/Usuario';
-import { generateJWT } from './service/jwtService';
+import { generateJWT, refreshAccessToken, verifyToken } from 'core/auth/service/jwtService';
 import { natsService } from 'src/lib/nats';
 import { Injectable, Inject } from '@nestjs/common';
 import { ResponseBody } from 'api/models/ResponseBody';
@@ -13,6 +13,7 @@ export default class AuthService {
         private readonly redisService: RedisService
     ) {}    
 
+
     async loginUser({ documento, password }: { documento: string; password: string }): Promise<ResponseBody<any>> {
         try {
             const usuarioRetrieved = await this.authPort.retrieveUser({ documento });
@@ -25,7 +26,7 @@ export default class AuthService {
                 true
             ).comparePassword(password);
 
-            if (!isPasswordValid) throw new Error('Usuario o contraseña inválida');
+            if (!isPasswordValid) throw { status_cod: 401, data: 'Usuario o contraseña inválida' };
 
             const userCacheKey = `user:${usuarioRetrieved.documento}`;
             const eventKey = `event:usuario.logeado:${usuarioRetrieved.documento}`;
@@ -51,8 +52,9 @@ export default class AuthService {
                 await this.redisService.set(userCacheKey, JSON.stringify(userDataWithPermissions));
             }
 
-            // Generar siempre un nuevo JWT para el usuario
-            const token = generateJWT(userData);
+            // Generar tokens
+            const { accessToken, refreshToken } = generateJWT(userData);
+
             // Verificar si el evento ya se publicó en Redis
             const eventExists = await this.redisService.get(eventKey);
 
@@ -66,11 +68,13 @@ export default class AuthService {
                 // Marcar el evento como enviado en Redis
                 await this.redisService.set(JSON.stringify(eventKey), 'true');
             }
+
             return {
                 ok: true,
                 statusCode: 200,
                 result: {
-                    token,
+                    token: accessToken,
+                    refreshToken: refreshToken,
                     usuario: {
                         doc: usuarioRetrieved.documento,
                         nombre: usuarioRetrieved.usuario,
@@ -84,9 +88,23 @@ export default class AuthService {
             console.error('Error al iniciar sesión:', error);
             return {
                 ok: false,
-                statusCode: 401,
-                result: error.data || 'Usuario o contraseña inválida'
+                statusCode: error.status_cod || 401,
+                result: error.data || 'Error en autenticación'
             };
+        }
+    }
+
+    async refreshTokens(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+        try {
+            // Verificar el refresh token existente
+            const { userInfo } = await verifyToken(refreshToken, true);
+            
+            // Generar nuevos tokens
+            const tokens = generateJWT(userInfo);
+            
+            return tokens;
+        } catch (error) {
+            throw { status_cod: 401, data: 'Sesión expirada' };
         }
     }
 }
