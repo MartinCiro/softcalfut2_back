@@ -79,14 +79,24 @@ export default class AnunciosAdapter implements AnunciosPort {
     }
   }
 
-  async obtenerAnuncios() {
+  async obtenerAnuncios(rol: string | undefined) {
     try {
-      const cacheKey = 'anuncios:lista';
-      const anunciosCache = await this.redisService.get(cacheKey);
+      const esAdmin = rol?.toLowerCase().includes('admin');
+      const cacheKey = esAdmin ? 'anuncios:lista:admin' : 'anuncios:lista:publico';
 
-      if (anunciosCache) return JSON.parse(anunciosCache);
+      const anunciosCache = await this.redisService.get(cacheKey);
+      //if (anunciosCache) return JSON.parse(anunciosCache);
+
+      const where = esAdmin
+        ? {} // Sin filtro si es admin
+        : {
+          estado: {
+            nombre: 'Activo'
+          }
+        };
 
       const anuncios = await prisma.anuncio.findMany({
+        where,
         select: {
           id: true,
           titulo: true,
@@ -118,18 +128,17 @@ export default class AnunciosAdapter implements AnunciosPort {
         };
       }
 
-      // Aquí solo transformamos los resultados necesarios
       const resultados = anuncios.map(anuncio => ({
         id: anuncio.id,
         titulo: anuncio.titulo,
         contenido: anuncio.contenido,
         imagenUrl: anuncio.imagenUrl,
         fechaCreacion: anuncio.fechaCreacion.fecha.toISOString(),
-        estado: anuncio.estado.nombre // Asegúrate de solo incluir 'estado.nombre'
+        estado: anuncio.estado.nombre
       }));
 
-      // Guarda en caché con TTL de 1 hora (opcional, configurable)
-      await this.redisService.set(cacheKey, JSON.stringify(resultados), 360);
+      // Guarda en caché con TTL de 1 hora (3600 segundos)
+      await this.redisService.set(cacheKey, JSON.stringify(resultados), 3600);
 
       return resultados;
 
@@ -141,6 +150,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       };
     }
   }
+
 
 
   async obtenerAnunciosXEstado(estadoData: { estado: string }) {
@@ -293,7 +303,7 @@ export default class AnunciosAdapter implements AnunciosPort {
       id = Number(typeof id === "string" && id.includes(",") ? id.split(",")[0] : id)
       const updates: any = {};
       const anuncioExistente = await prisma.anuncio.findUnique({
-        where: { id: id}
+        where: { id: id }
       });
 
       if (!anuncioExistente) {

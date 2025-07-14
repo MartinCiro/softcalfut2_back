@@ -18,7 +18,8 @@ import { User } from 'core/auth/decorators/user.decorator';
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
 export class ProgramacionController {
   constructor(private readonly programacionService: ProgramacionService) { }
-    @Get()
+  
+  @Get()
   @HttpCode(HttpStatus.OK)
   @Public()
   @UseGuards(PermissionsGuard)
