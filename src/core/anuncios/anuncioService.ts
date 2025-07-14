@@ -20,8 +20,8 @@ export class AnuncioService {
     @Inject('AnunciosPort') private AnuncioPort: AnunciosPort
   ) {}
 
-  async obtenerAnuncios() {
-    return await this.AnuncioPort.obtenerAnuncios();
+  async obtenerAnuncios(rol?: any) {
+    return await this.AnuncioPort.obtenerAnuncios(rol);
   }
 
   async crearAnuncio(AnuncioData: AnuncioData) {

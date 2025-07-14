@@ -1,5 +1,5 @@
 export default interface AnunciosPort {
-    obtenerAnuncios(): Promise<any>;
+    obtenerAnuncios(rol?: string): Promise<any>;
     delAnuncio(AnuncioData: { id: string | number; }): Promise<any>;
     crearAnuncios(AnuncioData: {
         nombre: string;
