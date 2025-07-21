@@ -4,7 +4,7 @@
   "description": "Backend para inventario",
   "main": "./src/index.ts",
   "scripts": {
-    "start": "node -r ts-node/register src/index.ts",
+    "start": "node dist/index.js",
     "dev": "npm-run-all merge gen && npm-run-all --parallel server docs",
     "server": "nodemon --exec \"node -r tsconfig-paths/register -r ts-node/register\" ./src/index.ts",
     "docs": "aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api",
@@ -14,7 +14,8 @@
     "migrate:deploy": "npx prisma migrate deploy",
     "migrate:reset": "npx prisma migrate reset",
     "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "build": "tsc"
   },
   "keywords": [
     "mims"
