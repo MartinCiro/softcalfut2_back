@@ -2,16 +2,16 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { TorneoService } from 'core/torneos/torneoService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { TorneoService } from '../../../core/torneos/torneoService';
+import { ResponseBody } from '../models/ResponseBody';
 import { CrearTorneoDto } from './dtos/crearTorneo.dto';
 import { ObtenerTorneosDto } from './dtos/obtenerTorneo.dto';
 import { ActualizarTorneoDto } from './dtos/actualizarTorneo.dto';
 import { EliminarTorneoDto } from './dtos/eliminarTorneo.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
+import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
+import { handleException } from '../utils/validaciones';
 
 @Controller('torneos')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

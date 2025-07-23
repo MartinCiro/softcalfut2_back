@@ -1,22 +1,20 @@
 import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req,
-  UploadedFile, UseInterceptors
+  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards
 } from '@nestjs/common';
-import { AnuncioService } from 'core/anuncios/anuncioService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { AnuncioService } from '../../../core/anuncios/anuncioService';
+import { ResponseBody } from '../../../interfaces/api/models/ResponseBody';
 import { CrearAnuncioDto } from './dtos/crearAnuncio.dto';
 import { ObtenerAnunciosDto } from './dtos/obtenerAnuncio.dto';
 import { ActualizarAnuncioDto } from './dtos/actualizarAnuncio.dto';
 import { EliminarAnuncioDto } from './dtos/eliminarAnuncio.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions, Public } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { GitImageUploader } from 'api/utils/GitImageUploader';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
+import { Permissions, Public } from '../../../core/auth/decorators/permissions.decorator';
+import { handleException } from '../../../interfaces/api/utils/validaciones';
+import { GitImageUploader } from '../../../interfaces/api/utils/GitImageUploader';
 import { FormDataRequest } from 'nestjs-form-data';
-import { User } from 'core/auth/decorators/user.decorator';
+import { User } from '../../../core/auth/decorators/user.decorator';
 
 @Controller('anuncios')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

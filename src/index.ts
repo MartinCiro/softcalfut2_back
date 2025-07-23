@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
-import createApp from 'src/app';
-import config from 'src/config';
-import { ensureSSHKey } from 'src/core/git/ensureSSHKey';
+import createApp from './app';
+import config from './config';
+import { ensureSSHKey } from './core/git/ensureSSHKey';
 
 const port = config.port || 3000;
 

@@ -2,16 +2,16 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { PermisoService } from 'core/permisos/permisoService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { PermisoService } from '../../../core/permisos/permisoService';
+import { ResponseBody } from '../models/ResponseBody';
 import { CrearPermisoDto } from './dtos/crearPermiso.dto';
 import { ObtenerPermisosDto } from './dtos/obtenerPermiso.dto';
 import { ActualizarPermisoDto } from './dtos/actualizarPermiso.dto';
 import { EliminarPermisoDto } from './dtos/eliminarPermiso.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
+import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
+import { handleException } from '../utils/validaciones';
 
 @Controller('permisos')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

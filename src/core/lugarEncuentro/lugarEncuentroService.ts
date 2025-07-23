@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import LugarEncuentroPort from './lugarEncuentroPort';
-import { LugarEncuentroData, LugarEncuentroDataUpdate } from 'api/lugarEncuentro/models/lugarEncuentro.model';
+import { LugarEncuentroData, LugarEncuentroDataUpdate } from '../../interfaces/api/lugarEncuentro/models/lugarEncuentro.model';
 
 
 @Injectable() 

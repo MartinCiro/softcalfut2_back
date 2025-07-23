@@ -2,17 +2,17 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { ProgramacionService } from 'core/programaciones/programacionService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { ProgramacionService } from '../../../core/programaciones/programacionService';
+import { ResponseBody } from '../models/ResponseBody';
 import { CrearProgramacionDto } from './dtos/crearProgramacion.dto';
 import { ObtenerProgramacionesDto } from './dtos/obtenerProgramacion.dto';
 import { ActualizaProgramacionDto } from './dtos/actualizarProgramacion.dto';
 import { EliminarProgramacionDto } from './dtos/eliminarProgramacion.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions, Public } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
-import { User } from 'core/auth/decorators/user.decorator';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
+import { Permissions, Public } from '../../../core/auth/decorators/permissions.decorator';
+import { handleException } from '../utils/validaciones';
+import { User } from '../../../core/auth/decorators/user.decorator';
 
 @Controller('programacion')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

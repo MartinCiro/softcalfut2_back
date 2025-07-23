@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { LugarEncuentroService } from 'core/lugarEncuentro/lugarEncuentroService';
+import { LugarEncuentroService } from '../../../core/lugarEncuentro/lugarEncuentroService';
 import { LugarEncuentroController } from './lugarEncuentroController';
-import { RedisService } from 'shared/cache/redis.service';
+import { RedisService } from '../../../shared/cache/redis.service';
 
-import LugarEncuentrosAdapter from 'db/lugarEncuentroAdapter';
+import LugarEncuentrosAdapter from '../../db/lugarEncuentroAdapter';
 import { LugarEncuentroPortToken } from './lugarEncuentro-port.token';
 
 @Module({

@@ -1,11 +1,10 @@
-import EstadosPort from 'core/estados/estadoPort';
 import { PrismaClient } from '@prisma/client';
-import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
-import { ForbiddenException } from '@nestjs/common';
-import { natsService } from 'src/lib/nats';
-import { RedisService } from 'shared/cache/redis.service';
 
+import { natsService } from '../../lib/nats';
+import EstadosPort from '../../core/estados/estadoPort';
+import { RedisService } from '../../shared/cache/redis.service';
+import { validarExistente, validarNoExistente } from '../../interfaces/api/utils/validaciones';
 const prisma = new PrismaClient();
 
 @Injectable()

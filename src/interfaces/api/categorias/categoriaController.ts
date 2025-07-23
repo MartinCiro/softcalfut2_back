@@ -2,16 +2,16 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { CategoriaService } from 'core/categorias/categoriaService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { CategoriaService } from '../../../core/categorias/categoriaService';
+import { ResponseBody } from '../../../interfaces/api/models/ResponseBody';
 import { CrearCategoriaDto } from './dtos/crearCategoria.dto';
 import { ObtenerCategoriasDto } from './dtos/obtenerCategoria.dto';
 import { ActualizarCategoriaDto } from './dtos/actualizarCategoria.dto';
 import { EliminarCategoriaDto } from './dtos/eliminarCategoria.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
+import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
+import { handleException } from '../utils/validaciones';
 
 @Controller('categorias')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

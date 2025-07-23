@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TorneoService } from 'core/torneos/torneoService';
+import { TorneoService } from '../../../core/torneos/torneoService';
 import { TorneoController } from './torneoController';
-import { RedisService } from 'shared/cache/redis.service';
+import { RedisService } from '../../../shared/cache/redis.service';
 
-import  TorneosAdapter  from 'db/torneoAdapter';
+import  TorneosAdapter  from '../../db/torneoAdapter';
 import { TorneosPortToken } from './torneo-port.token';
 
 @Module({

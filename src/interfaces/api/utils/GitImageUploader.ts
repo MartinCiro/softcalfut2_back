@@ -1,7 +1,8 @@
 import { join } from 'path';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import simpleGit from 'simple-git';
-import config from 'src/config';
+//import config from '@config/config';
+import config from '../../../config';
 
 const USER_NAME = config.USERNAME_GIT as string;
 const CLONE_DIR = join(__dirname, '..', '..', 'tmp', 'repo-img');

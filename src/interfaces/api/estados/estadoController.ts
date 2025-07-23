@@ -2,16 +2,16 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { EstadoService } from 'core/estados/estadoService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { EstadoService } from '../../../core/estados/estadoService';
+import { ResponseBody } from '../models/ResponseBody';
 import { CrearEstadoDto } from './dtos/crearEstado.dto';
 import { ObtenerEstadosDto } from './dtos/obtenerEstado.dto';
 import { ActualizarEstadoDto } from './dtos/actualizarEstado.dto';
 import { EliminarEstadoDto } from './dtos/eliminarEstado.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
+import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
+import { handleException } from '../utils/validaciones';
 
 @Controller('estados')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

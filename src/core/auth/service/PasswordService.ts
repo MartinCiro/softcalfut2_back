@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import config from 'src/config';
+import config from '../../../config';
 
 export class PasswordService {
   static encodePassword(password: string): string {

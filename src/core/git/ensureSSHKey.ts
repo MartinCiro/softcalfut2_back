@@ -2,7 +2,7 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 import path from 'path';
 import os from 'os';
-import config from 'src/config';
+import config from '../../config';
 
 const SSH_KEY_PATH = path.join(os.homedir(), '.ssh', 'id_rsa');
 const SSH_PUB_KEY_PATH = SSH_KEY_PATH + '.pub';

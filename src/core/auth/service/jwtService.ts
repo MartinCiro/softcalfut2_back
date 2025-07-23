@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import config from 'src/config';
+import config from '../../../config';
 
 interface JwtPayload {
     userInfo: any;

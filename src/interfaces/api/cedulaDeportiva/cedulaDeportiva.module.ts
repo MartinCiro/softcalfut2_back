@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CedulaDeportivaService } from 'core/cedulaDeportiva/cedulaDeportivaService';
+import { CedulaDeportivaService } from '../../../core/cedulaDeportiva/cedulaDeportivaService';
 import { CedulaDeportivaController } from './cedulaDeportivaController';
-import { RedisService } from 'shared/cache/redis.service';
+import { RedisService } from '../../../shared/cache/redis.service';
 
-import  CedulaDeportivaAdapter  from 'db/cedulaDeportivaAdapter';
+import  CedulaDeportivaAdapter  from '../../db/cedulaDeportivaAdapter';
 import { CedulaDeportivaPortToken } from './cedulaDeportiva-port.token';
 
 @Module({

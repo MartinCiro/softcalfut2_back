@@ -1,27 +1,27 @@
-import PermisosPort from 'core/permisos/permisoPort';
-import { PrismaClient } from '@prisma/client';
-import { validarExistente, capitalize } from 'api/utils/validaciones';
+import { PrismaClient, Permiso } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import { ForbiddenException } from '@nestjs/common';
+import PermisosPort from '../../core/permisos/permisoPort';
+import { validarExistente, capitalize } from '../api/utils/validaciones';
 
 const prisma = new PrismaClient();
 
 @Injectable()
 export default class PermisosAdapter implements PermisosPort {
 
-  async crearPermisos(permisoData: { permisos: string[]; descripcion?: string }) {
+
+async crearPermisos(permisoData: { permisos: string[]; descripcion?: string | null }) {
     const { permisos, descripcion } = permisoData;
 
     try {
-      const permisosCreados = [];
+      // Define explícitamente el tipo del array
+      const permisosCreados: Permiso[] = [];  // <--- Aquí está el fix
 
       for (const nombre of permisos) {
-        // Buscar si ya existe
         const permisoExistente = await prisma.permiso.findUnique({
           where: { nombre },
         });
 
-        if (permisoExistente) continue; 
+        if (permisoExistente) continue;
         
         const nuevoPermiso = await prisma.permiso.create({
           data: {
@@ -30,7 +30,7 @@ export default class PermisosAdapter implements PermisosPort {
           },
         });
 
-        permisosCreados.push(nuevoPermiso);
+        permisosCreados.push(nuevoPermiso);  // <--- Ahora no habrá error
       }
 
       return {
@@ -45,7 +45,7 @@ export default class PermisosAdapter implements PermisosPort {
         data: error.data || "Error inesperado creando permisos",
       };
     }
-  }
+}
 
   async obtenerPermisos() {
     try {
@@ -82,10 +82,12 @@ export default class PermisosAdapter implements PermisosPort {
       }
 
       // Convertir a array con el formato deseado
-      const resultado = Object.entries(agrupados).map(([entidad, { descripcion, acciones }]) => ({
-        descripcion,
-        [entidad]: Array.from(acciones)
-      }));
+      const resultado = Object.entries(agrupados).map(
+        ([entidad, grupo]: [string, { descripcion: string; acciones: Set<string> }]) => ({
+          descripcion: grupo.descripcion,
+          [entidad]: Array.from(grupo.acciones)
+        })
+      );
 
       return resultado;
 
@@ -117,7 +119,7 @@ export default class PermisosAdapter implements PermisosPort {
 
       // 3. Extraer nombres actuales y los que deben eliminarse
       const nombresActuales = permisosExistentes.map(p => p.nombre);
-      const permisosAEliminar = nombresActuales.filter(nombre => !permisos.includes(nombre));
+      const permisosAEliminar = nombresActuales.filter(nombre => !permisos.some(p => p === nombre));
 
       // 4. Eliminar los permisos que ya no están
       await Promise.all(
@@ -157,4 +159,3 @@ export default class PermisosAdapter implements PermisosPort {
     }
   }
 }
-

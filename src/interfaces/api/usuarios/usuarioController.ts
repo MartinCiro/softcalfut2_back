@@ -2,13 +2,13 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { Permissions, Public } from 'core/auth/decorators/permissions.decorator';
-import { ResponseBody } from 'api/models/ResponseBody';
-import { UsuarioService } from 'core/usuarios/usuarioService';
-import { handleException } from 'api/utils/validaciones';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { Permissions, Public } from '../../../core/auth/decorators/permissions.decorator';
+import { ResponseBody } from '../models/ResponseBody';
+import { UsuarioService } from '../../../core/usuarios/usuarioService';
+import { handleException } from '../utils/validaciones';
 import { CrearUsuarioDto } from './dtos/crearUsuario.dto';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
 import { ObtenerUsuariosDto } from './dtos/obtenerUsuario.dto';
 import { EliminarUsuarioDto } from './dtos/eliminarUsuario.dto';
 import { ActualizarUsuarioDto } from './dtos/actualizarUsuario.dto';

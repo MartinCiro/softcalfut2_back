@@ -1,10 +1,10 @@
-import NotasPort from 'core/notas/notaPort';
 import { PrismaClient } from '@prisma/client';
-import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
 import { Injectable } from '@nestjs/common';
-import { ForbiddenException } from '@nestjs/common';
-import { RedisService } from 'shared/cache/redis.service';
-import { NotaData, NotaDataUpdate } from 'api/notas/models/nota.model';
+
+import NotasPort from '../../core/notas/notaPort';
+import { RedisService } from '../../shared/cache/redis.service';
+import { NotaData, NotaDataUpdate } from '../api/notas/models/nota.model';
+import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
 
 const prisma = new PrismaClient();
 

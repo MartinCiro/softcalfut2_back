@@ -6,9 +6,9 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { verifyJWT } from 'core/auth/service/jwtService';
-import { ResponseBody } from 'api/models/ResponseBody';
-import { IS_PUBLIC_KEY } from 'core/auth/decorators/permissions.decorator';
+import { verifyJWT } from '../service/jwtService';
+import { ResponseBody } from '../../../interfaces/api/models/ResponseBody';
+import { IS_PUBLIC_KEY } from '../decorators/permissions.decorator';
 
 // Caché en memoria para usuarios autenticados
 const userCache = new Map<string, any>();

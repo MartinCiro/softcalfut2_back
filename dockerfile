@@ -1,45 +1,65 @@
+# syntax=docker/dockerfile:1.4
+
 # Fase de construcción
 FROM node:21-alpine3.19 AS builder
 
 WORKDIR /usr/src/app
 
-COPY package.json package-lock.json tsconfig.json ./
+# 1. Copia solo los archivos necesarios para dependencias primero
+COPY package.json package-lock.json .npmrc* ./
 
-RUN npm config set registry https://registry.npmmirror.com && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm install --include=dev && \
-    npm ci --only=production
+# 2. Instalación con caché de npm
+RUN target=/root/.npm \
+    npm ci --include=dev
 
+# 3. Copia el resto de archivos de configuración
+COPY tsconfig.json ./
 COPY prisma ./prisma
+RUN npx prisma generate
 
-RUN npm install --include=dev --no-optional
-
+# 4. Copia el código fuente
 COPY . .
-RUN npm run build
+
+# 5. Build con caché
+RUN target=/root/.npm \
+    npm run build
+
+# Instala openssh-client para ssh-keygen
+RUN apk add --no-cache openssh-client
 
 # Fase de producción final
 FROM node:21-alpine3.19
 
 WORKDIR /usr/src/app
 
-RUN npm install -g pm2
+# Instala PM2 y dependencias globales
+RUN apk add --no-cache openssh-client && \ 
+    npm install -g pm2@latest
 
-# Copia solo lo necesario desde la fase de construcción
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=builder /usr/src/app/prisma ./prisma
-COPY --from=builder /usr/src/app/dist ./dist 
+# Asegura que el home del usuario node y la carpeta .pm2 existen y son suyos
+RUN mkdir -p /home/node/.pm2 && chown -R node:node /home/node
 
-RUN npm install --omit=dev
+# Establece la variable de entorno HOME correctamente
+ENV HOME=/home/node
 
-# Limpieza y configuración
-RUN npm cache clean --force && \
-    rm -rf /tmp/*
+# Copia desde builder (con ownership)
+COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /usr/src/app/package*.json ./ 
+COPY --from=builder --chown=node:node /usr/src/app/prisma ./prisma
+COPY --from=builder --chown=node:node /usr/src/app/dist ./dist
+COPY --from=builder --chown=node:node /usr/src/app/ecosystem.config.js ./ecosystem.config.js
+COPY --chown=node:node .env ./ 
 
-ENV NODE_ENV=production
-ENV PORT=3000
+# Cambia al usuario no root
+RUN chown -R node:node /usr/src/app
+
+RUN mkdir -p /home/node/.ssh && \
+    chown -R node:node /home/node/.ssh && \
+    chmod 700 /home/node/.ssh
+    
+USER node
+
 EXPOSE 3000
 
-# Usa PM2 para producción
-CMD ["pm2-runtime", "start", "dist/index.js"] 
+# Ejecuta PM2 en modo producción sin daemon
+CMD ["pm2-runtime", "ecosystem.config.js"]

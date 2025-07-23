@@ -2,15 +2,15 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { CedulaDeportivaService } from 'core/cedulaDeportiva/cedulaDeportivaService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { CedulaDeportivaService } from '../../../core/cedulaDeportiva/cedulaDeportivaService';
+import { ResponseBody } from '../models/ResponseBody';
 import { CrearCedulaDeportivaDto } from './dtos/crearCedulaDeportiva.dto';
 import { ActualizarCedulaDeportivaDto } from './dtos/actualizarCedulaDeportiva.dto';
 import { EliminarCedulaDeportivaDto } from './dtos/eliminarCedulaDeportiva.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
+import { AuthGuard } from '../../../core/auth/guards/auth.guard';
+import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
+import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
+import { handleException } from '../utils/validaciones';
 
 @Controller('cedulaDeportiva')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

@@ -1,4 +1,4 @@
-import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from 'api/programaciones/models/programacion.model';
+import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from '../../interfaces/api/programaciones/models/programacion.model';
 export default interface ProgramacionesPort {
     obtenerProgramaciones(documento: string, rol: string): Promise<any>;
     crearProgramaciones(programacionData: ProgramacionData): Promise<any>;
