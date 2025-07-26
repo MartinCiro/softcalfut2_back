@@ -1,4 +1,4 @@
-import { LugarEncuentroData, LugarEncuentroDataUpdate } from '../../interfaces/api/lugarEncuentro/models/lugarEncuentro.model';
+import { LugarEncuentroData, LugarEncuentroDataUpdate } from '@api/lugarEncuentro/models/lugarEncuentro.model';
 
 export default interface LugarEncuentroPort {
     obtenerLugarEncuentro(): Promise<any>;

@@ -2,16 +2,16 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
 } from '@nestjs/common';
-import { RolService } from '../../../core/roles/rolService';
-import { ResponseBody } from '../models/ResponseBody';
+import { RolService } from '@core/roles/rolService';
+import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearRolDto } from './dtos/crearRol.dto';
 import { ObtenerRolesDto } from './dtos/obtenerRol.dto';
 import { ActualizarRolDto } from './dtos/actualizarRol.dto';
 import { EliminarRolDto } from './dtos/eliminarRol.dto';
-import { AuthGuard } from '../../../core/auth/guards/auth.guard';
-import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
-import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
-import { handleException } from '../utils/validaciones';
+import { AuthGuard } from '@core/auth/guards/auth.guard';
+import { PermissionsGuard } from '@core/auth/guards/permissions.guard';
+import { Permissions } from '@core/auth/decorators/permissions.decorator';
+import { handleException } from '@utils/validaciones';
 
 @Controller('roles')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

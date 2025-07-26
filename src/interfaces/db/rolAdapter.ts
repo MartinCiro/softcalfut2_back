@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable, ForbiddenException } from '@nestjs/common';
-import RolesPort from '../../core/roles/rolPort';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
+import RolesPort from '@core/roles/rolPort';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
 
 const prisma = new PrismaClient();
 

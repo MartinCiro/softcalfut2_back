@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable, ForbiddenException } from '@nestjs/common';
 
-import { RedisService } from '../../shared/cache/redis.service';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
-import CedulaDeportivaPort from '../../core/cedulaDeportiva/cedulaDeportivaPort';
+import { RedisService } from '@shared/cache/redis.service';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
+import CedulaDeportivaPort from '@core/cedulaDeportiva/cedulaDeportivaPort';
 const prisma = new PrismaClient();
 
 @Injectable()

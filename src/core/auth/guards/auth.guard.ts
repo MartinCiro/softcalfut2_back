@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { verifyJWT } from '../service/jwtService';
-import { ResponseBody } from '../../../interfaces/api/models/ResponseBody';
+import { ResponseBody } from '@api/models/ResponseBody';
 import { IS_PUBLIC_KEY } from '../decorators/permissions.decorator';
 
 // Caché en memoria para usuarios autenticados

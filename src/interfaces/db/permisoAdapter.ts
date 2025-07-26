@@ -1,7 +1,7 @@
 import { PrismaClient, Permiso } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import PermisosPort from '../../core/permisos/permisoPort';
-import { validarExistente, capitalize } from '../api/utils/validaciones';
+import PermisosPort from '@core/permisos/permisoPort';
+import { validarExistente, capitalize } from '@utils/validaciones';
 
 const prisma = new PrismaClient();
 

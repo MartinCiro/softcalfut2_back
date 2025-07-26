@@ -1,7 +1,7 @@
 import { Reflector } from '@nestjs/core';
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, HttpException } from '@nestjs/common';
-import { RedisService } from '../../../shared/cache/redis.service';
-import { ResponseBody } from '../../../interfaces/api/models/ResponseBody';
+import { RedisService } from '@shared/cache/redis.service';
+import { ResponseBody } from '@api/models/ResponseBody';
 import { IS_PUBLIC_KEY  } from '../decorators/permissions.decorator';
 
 @Injectable()

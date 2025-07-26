@@ -43,10 +43,10 @@ RUN mkdir -p /home/node/.pm2 && chown -R node:node /home/node
 ENV HOME=/home/node
 
 # Copia desde builder (con ownership)
-COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /usr/src/app/package*.json ./ 
-COPY --from=builder --chown=node:node /usr/src/app/prisma ./prisma
+COPY --from=builder --chown=node:node /usr/src/app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /usr/src/app/dist ./dist
+COPY --from=builder --chown=node:node /usr/src/app/prisma ./prisma
 COPY --from=builder --chown=node:node /usr/src/app/ecosystem.config.js ./ecosystem.config.js
 COPY --chown=node:node .env ./ 
 

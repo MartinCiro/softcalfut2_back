@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable, ForbiddenException } from '@nestjs/common';
-import CategoriasPort from '../../core/categorias/categoriaPort';
-import { RedisService } from '../../shared/cache/redis.service';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
+import CategoriasPort from '@core/categorias/categoriaPort';
+import { RedisService } from '@shared/cache/redis.service';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
 
 const prisma = new PrismaClient();
 

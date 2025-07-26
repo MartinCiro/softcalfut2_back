@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 
-import { RedisService } from '../../shared/cache/redis.service';
-import LugarEncuentroPort from '../../core/lugarEncuentro/lugarEncuentroPort';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
-import { LugarEncuentroData, LugarEncuentroDataUpdate } from '../api/lugarEncuentro/models/lugarEncuentro.model';
+import { RedisService } from '@shared/cache/redis.service';
+import LugarEncuentroPort from '@core/lugarEncuentro/lugarEncuentroPort';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
+import { LugarEncuentroData, LugarEncuentroDataUpdate } from '@api/lugarEncuentro/models/lugarEncuentro.model';
 
 const prisma = new PrismaClient();
 

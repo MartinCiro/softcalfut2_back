@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import TorneosPort from '../../core/torneos/torneoPort';
-import { RedisService } from '../../shared/cache/redis.service';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
+import TorneosPort from '@core/torneos/torneoPort';
+import { RedisService } from '@shared/cache/redis.service';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
 
 const prisma = new PrismaClient();
 

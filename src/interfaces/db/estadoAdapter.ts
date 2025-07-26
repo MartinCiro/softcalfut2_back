@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import EstadosPort from '../../core/estados/estadoPort';
-import { RedisService } from '../../shared/cache/redis.service';
-import { validarExistente, validarNoExistente } from '../../interfaces/api/utils/validaciones';
+import EstadosPort from '@core/estados/estadoPort';
+import { RedisService } from '@shared/cache/redis.service';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
 const prisma = new PrismaClient();
 
 @Injectable()

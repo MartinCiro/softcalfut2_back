@@ -1,10 +1,10 @@
 import { PrismaClient, Genero } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 
-import { RedisService } from '../../shared/cache/redis.service';
-import ProgramacionesPort from '../../core/programaciones/programacionPort';
-import { validarExistente, validarNoExistente } from '../api/utils/validaciones';
-import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from '../api/programaciones/models/programacion.model';
+import { RedisService } from '@shared/cache/redis.service';
+import ProgramacionesPort from '@core/programaciones/programacionPort';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
+import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from '@api/programaciones/models/programacion.model';
 
 const prisma = new PrismaClient();
 

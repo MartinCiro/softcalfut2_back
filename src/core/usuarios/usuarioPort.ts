@@ -1,4 +1,4 @@
-import { UsuarioData, UsuarioDataUpdate, UsuarioDataXid } from '../../interfaces/api/usuarios/models/usuario.model';
+import { UsuarioData, UsuarioDataUpdate, UsuarioDataXid } from '@api/usuarios/models/usuario.model';
 export default interface UsuariosPort {
     obtenerUsuarios(): Promise<any>;
     obtenerUsuariosXid(usuarioData: UsuarioDataXid): Promise<any>;

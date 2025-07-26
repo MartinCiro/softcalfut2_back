@@ -2,15 +2,15 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, UseGuards
 } from '@nestjs/common';
-import { LugarEncuentroService } from '../../../core/lugarEncuentro/lugarEncuentroService';
-import { ResponseBody } from '../models/ResponseBody';
+import { LugarEncuentroService } from '@core/lugarEncuentro/lugarEncuentroService';
+import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearLugarEncuentroDto } from './dtos/crearLugarEncuentro.dto';
 import { ObtenerLugarEncuentroDto } from './dtos/obtenerLugarEncuentro.dto';
 import { ActualizarLugarEncuentroDto } from './dtos/actualizarLugarEncuentro.dto';
-import { AuthGuard } from '../../../core/auth/guards/auth.guard';
-import { PermissionsGuard } from '../../../core/auth/guards/permissions.guard';
-import { Permissions } from '../../../core/auth/decorators/permissions.decorator';
-import { handleException } from '../utils/validaciones';
+import { AuthGuard } from '@core/auth/guards/auth.guard';
+import { PermissionsGuard } from '@core/auth/guards/permissions.guard';
+import { Permissions } from '@core/auth/decorators/permissions.decorator';
+import { handleException } from '@utils/validaciones';
 
 @Controller('lugarEncuentro')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

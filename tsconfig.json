@@ -16,13 +16,13 @@
     "rootDir": "./", 
     "baseUrl": "./",
     "paths": {
+      "@src/*": ["src/*"],
       "@core/*": ["src/core/*"],
-      "@db/*": ["src/interfaces/db/*"],
-      "@interfaces/*": ["src/interfaces/*"],
-      "@utils/*": ["src/interfaces/api/utils/*"],
-      "@modules/*": ["src/modules/*"],
       "@shared/*": ["src/shared/*"],
-      "@config/*": ["src/*"]
+      "@db/*": ["src/interfaces/db/*"],
+      "@api/*": ["src/interfaces/api/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@utils/*": ["src/interfaces/api/utils/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.js", "ecosystem.config.js"],
