@@ -1,7 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-
-import { natsService } from '../../lib/nats';
 import EstadosPort from '../../core/estados/estadoPort';
 import { RedisService } from '../../shared/cache/redis.service';
 import { validarExistente, validarNoExistente } from '../../interfaces/api/utils/validaciones';
@@ -19,12 +17,6 @@ export default class EstadosAdapter implements EstadosPort {
           nombre: estadoData.nombre,
           descripcion: estadoData.descripcion
         }
-      });
-      // Publicar evento en NATS
-      await natsService.publish('estado.creado', {
-        id: nuevoEstado.id,
-        nombre: nuevoEstado.nombre,
-        descripcion: nuevoEstado.descripcion
       });
 
       await this.redisService.delete('estados:lista');

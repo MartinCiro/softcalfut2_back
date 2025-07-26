@@ -46,6 +46,8 @@ Para desplegar un contenedor con **PostgreSQL** y exponer el puerto `5432`, ejec
 
 ```bash
 docker run --name psql -e POSTGRES_USER=ciro -e POSTGRES_PASSWORD=tu_contraseña -p 5432:5432 -d postgres
+
+docker run --name psql -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=secreto123 -e POSTGRES_DB=softcalfut_prod -v postgres_data:/var/lib/postgresql/data -p 5432:5432 -d postgres:16-alpine
 ```
 
 ---

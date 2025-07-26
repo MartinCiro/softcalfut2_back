@@ -7,6 +7,7 @@ export class RedisService {
   private client;
 
   constructor() {
+    console.log('Connecting to Redis at:', config.REDIS_URL);
     this.client = createClient({
       url: config.REDIS_URL,
     });
