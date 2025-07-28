@@ -4,7 +4,8 @@
   "description": "Backend para softcalfut",
   "main": "./src/index.ts",
   "scripts": {
-    "start": "node -r ts-node/register src/index.ts",
+    "build": "tsc --build",
+    "start": "node dist/index.js",
     "dev": "npm-run-all merge gen && npm-run-all --parallel server docs",
     "server": "nodemon --exec \"node -r tsconfig-paths/register -r ts-node/register\" ./src/index.ts",
     "docs": "aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api",

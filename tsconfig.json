@@ -23,5 +23,14 @@
       "api/*": ["src/interfaces/api/*"],
     }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "node_modules",
+    "dist"
+  ],
+  "files": [
+    "src/**/*.ts"
+  ]
 }
