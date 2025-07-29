@@ -16,6 +16,7 @@ import { handleException } from 'api/utils/validaciones';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GitImageUploader } from 'api/utils/GitImageUploader';
 import { FormDataRequest } from 'nestjs-form-data';
+import { User } from 'core/auth/decorators/user.decorator';
 
 @Controller('anuncios')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
@@ -52,11 +53,12 @@ export class AnuncioController {
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   @Public()
   @UseGuards(PermissionsGuard)
-  async obtenerAnuncios(): Promise<ResponseBody<any>> {
+  async obtenerAnuncios(@User() user?: any): Promise<ResponseBody<any>> {
     try {
-      const anuncios = await this.anuncioService.obtenerAnuncios();
+      const anuncios = await this.anuncioService.obtenerAnuncios(user?.rol);
 
       return new ResponseBody<any>(true, 200, anuncios);
     } catch (error) {
