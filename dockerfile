@@ -33,7 +33,7 @@ FROM node:21-alpine3.19
 WORKDIR /usr/src/app
 
 # Instala PM2 y dependencias globales
-RUN apk add --no-cache openssh-client && \ 
+RUN apk add --no-cache openssh-client git && \ 
     npm install -g pm2@latest
 
 # Asegura que el home del usuario node y la carpeta .pm2 existen y son suyos
