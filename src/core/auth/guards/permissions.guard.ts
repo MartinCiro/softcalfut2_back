@@ -1,9 +1,8 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RedisService } from 'shared/cache/redis.service';
-import { ResponseBody } from 'src/interfaces/api/models/ResponseBody';
-import { HttpException } from '@nestjs/common';
-import { IS_PUBLIC_KEY  } from 'core/auth/decorators/permissions.decorator';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, HttpException } from '@nestjs/common';
+import { RedisService } from '@shared/cache/redis.service';
+import { ResponseBody } from '@api/models/ResponseBody';
+import { IS_PUBLIC_KEY  } from '../decorators/permissions.decorator';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

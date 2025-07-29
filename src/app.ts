@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from 'src/routes';
-import cookieParser = require('cookie-parser');
-import config from 'src/config';
-import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './routes';
+
 
 async function createApp() {
   const app = await NestFactory.create(AppModule);

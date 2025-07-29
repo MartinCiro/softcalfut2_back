@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import ProgramacionesPort from './programacionPort';
-import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from 'api/programaciones/models/programacion.model';
+import { ProgramacionData, ProgramacionDataUpdate, ProgramacionDataXid } from '@api/programaciones/models/programacion.model';
 
 @Injectable() 
 export class ProgramacionService {

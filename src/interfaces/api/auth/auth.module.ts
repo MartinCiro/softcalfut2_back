@@ -1,14 +1,11 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
+import AuthService from '@core/auth/authService';
+import { AuthController } from '@api/auth/authController';
 
-import config from 'src/config';
-import  AuthAdapter  from 'db/authAdapter';
-import AuthService from 'core/auth/authService';
-import { AuthPort } from 'api/auth/auth-port.token';
-import { CacheModule } from 'shared/cache/cache.module';
-import { AuthController } from 'api/auth/authController';
-import { JwtAuthService } from 'core/auth/service/jwt.service';
+import  AuthAdapter  from '@db/authAdapter';
+import { AuthPort } from '@api/auth/auth-port.token';
+import { CacheModule } from '@shared/cache/cache.module';
+
 
 @Module({
   imports: [

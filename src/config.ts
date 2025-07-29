@@ -22,7 +22,7 @@ export default {
 
   // Redis
   REDIS_TTL: process.env.REDIS_TTL ? Number(process.env.REDIS_TTL) : 3600,
-  REDIS_URL: process.env.REDIS_URL || 'redis://redis_service:6379',
+  REDIS_URL: process.env.REDIS_URL || 'redis://:pass@redis_service:6379',
 
   // Nats
   NATS_URL: process.env.NATS_URL || 'nats://127.0.0.1:4222',

@@ -1,20 +1,21 @@
-import { RolModule } from 'api/roles/rol.module';
-import { AuthModule } from 'api/auth/auth.module';
-import { EstadoModule } from 'api/estados/estado.module';
-import { PermisoModule } from 'api/permisos/permiso.module';
-import { AppController } from 'src/app.controller';
-import { UsuarioModule } from 'api/usuarios/usuario.module';
-import { CategoriaModule } from 'api/categorias/categoria.module';
-import { EquipoModule } from 'api/equipos/equipo.module';
-import { NotaModule } from 'api/notas/nota.module';
-import { LugarEncuentroModule } from 'api/lugarEncuentro/lugarEncuentro.module';
-import { AnuncioModule } from 'api/anuncios/anuncio.module';
-import { CedulaDeportivaModule } from 'api/cedulaDeportiva/cedulaDeportiva.module';
-import { TorneoModule } from 'api/torneos/torneo.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { Module } from '@nestjs/common';
-import { ProgramacionModule } from 'api/programaciones/programacion.module';
+import { AppController } from './app.controller';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
+import { RolModule } from '@api/roles/rol.module';
+import { AuthModule } from '@api/auth/auth.module';
+import { NotaModule } from '@api/notas/nota.module';
+import { TorneoModule } from '@api/torneos/torneo.module';
+import { EquipoModule } from '@api/equipos/equipo.module';
+import { EstadoModule } from '@api/estados/estado.module';
+import { PermisoModule } from '@api/permisos/permiso.module';
+import { UsuarioModule } from '@api/usuarios/usuario.module';
+import { AnuncioModule } from '@api/anuncios/anuncio.module';
+import { CategoriaModule } from '@api/categorias/categoria.module';
+import { ProgramacionModule } from '@api/programaciones/programacion.module';
+import { LugarEncuentroModule } from '@api/lugarEncuentro/lugarEncuentro.module';
+import { CedulaDeportivaModule } from '@api/cedulaDeportiva/cedulaDeportiva.module';
 
 @Module({
   imports: [

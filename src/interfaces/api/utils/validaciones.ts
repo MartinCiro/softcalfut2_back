@@ -1,7 +1,7 @@
 
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common/enums/http-status.enum';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { ResponseBody } from '@api/models/ResponseBody';
 
 export const validarBlank = (valor: any, nombre: string): void => {
   if (!valor) {

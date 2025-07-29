@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import UsuariosPort from './usuarioPort';
-import { UsuarioData, UsuarioDataUpdate, UsuarioDataXid } from 'api/usuarios/models/usuario.model';
+import { UsuarioData, UsuarioDataUpdate, UsuarioDataXid } from '@api/usuarios/models/usuario.model';
 
 @Injectable() 
 export class UsuarioService {

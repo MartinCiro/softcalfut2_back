@@ -1,9 +1,8 @@
-import EquiposPort from 'core/equipos/equipoPort';
 import { PrismaClient } from '@prisma/client';
-import { validarExistente, validarNoExistente } from 'api/utils/validaciones';
-import { Injectable } from '@nestjs/common';
-import { ForbiddenException } from '@nestjs/common';
-import { RedisService } from 'shared/cache/redis.service';
+import { Injectable, ForbiddenException } from '@nestjs/common';
+import EquiposPort from '@core/equipos/equipoPort';
+import { RedisService } from '@shared/cache/redis.service';
+import { validarExistente, validarNoExistente } from '@utils/validaciones';
 
 const prisma = new PrismaClient();
 

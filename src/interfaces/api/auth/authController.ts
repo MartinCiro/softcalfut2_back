@@ -1,10 +1,7 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Res } from '@nestjs/common';
-import { Response } from 'express';
-import AuthService from 'core/auth/authService';
+import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import AuthService  from '@core/auth/authService';
 import { AuthDto } from './dtos/auth.dto';
-import { ResponseBody } from 'api/models/ResponseBody';
-import { Cookies } from 'core/auth/decorators/cookies.decorator';
-import config from 'src/config';
+import { ResponseBody } from '@api/models/ResponseBody';
 
 @Controller('auth')
 export class AuthController {

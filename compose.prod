@@ -1,0 +1,108 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${USER_DB}           # Mapeo directo (tu variable actual)
+      POSTGRES_PASSWORD: ${PASS_DB}       # Mapeo directo
+      POSTGRES_DB: ${NAME_DB}             # Mapeo directo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - docker_app_network
+    # Sin puertos expuestos (comunicación interna)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_service
+    restart: unless-stopped
+    networks:
+      - docker_app_network
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  nats:
+    image: nats:2.9-alpine
+    container_name: nats_server
+    restart: unless-stopped
+    networks:
+      - docker_app_network
+    command: "--auth ${NATS_TOKEN}"
+
+  swag:
+    image: linuxserver/swag
+    container_name: swag_proxy
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Lima  # Ajusta tu zona horaria
+      - URL=${DOMINIO}.duckdns.org
+      - SUBDOMAINS=wildcard
+      - VALIDATION=duckdns
+      - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
+      - EMAIL=${EMAIL}  # Para certificados Let's Encrypt
+    volumes:
+      - ./swag/config:/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "80:80"    # HTTP
+      - "443:443"  # HTTPS
+    networks:
+      - docker_app_network
+    depends_on:
+      - softcalfut_back
+
+
+  softcalfut_back:
+    image: ${AWS_ECR_URI}/proyecto_softcalfut_softcalfut_back:latest
+    container_name: softcalfut_back
+    restart: unless-stopped
+    environment:
+      - DB_HOST=${HOST_DB}                # Usará "postgres_db" (definido en tu .env actualizado)
+      - DB_PORT=${PORT_DB}                # Usará 5432
+      - DB_USER=${USER_DB}                # Mapeo directo
+      - DB_PASSWORD=${PASS_DB}            # Mapeo directo
+      - DB_NAME=${NAME_DB}                # Mapeo directo
+      - NATS_URL=nats://${NATS_HOST}:${NATS_PORT}  # Mapeo directo (usará "nats_server")
+      - REDIS_URL=redis://${REDIS_HOST}:${REDIS_PORT}  # Mapeo directo (usará "redis_service")
+      - JWT_SECRET=${JWT_SECRETO}         # Renombrado solo aquí (sin afectar tu código)
+      - JWT_SALT=${JWT_SALT}              # Mapeo directo
+      - VITE_API_URL=${VITE_API_URL}      # Mapeo directo (ahora con HTTPS)
+
+    networks:
+      - docker_app_network
+
+    depends_on:
+      - postgres
+      - redis
+      - nats
+
+  softcalfut_front:
+    image: ${AWS_ECR_URI}/proyecto_softcalfut_softcalfut_front:latest
+    container_name: softcalfut_front
+    restart: unless-stopped
+    networks:
+      - docker_app_network
+    environment:
+      - VITE_API_URL=https://api.${DOMINIO}.duckdns.org
+    depends_on:
+      - swag
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  docker_app_network:
+    driver: bridge

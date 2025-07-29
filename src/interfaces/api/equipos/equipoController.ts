@@ -2,15 +2,15 @@ import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
   UsePipes, ValidationPipe, Get, Put, UseGuards
 } from '@nestjs/common';
-import { EquipoService } from 'core/equipos/equipoService';
-import { ResponseBody } from 'api/models/ResponseBody';
+import { EquipoService } from '@core/equipos/equipoService';
+import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearEquipoDto } from './dtos/crearEquipo.dto';
 import { ObtenerEquiposDto } from './dtos/obtenerEquipo.dto';
 import { ActualizarEquipoDto } from './dtos/actualizarEquipo.dto';
-import { AuthGuard } from 'core/auth/guards/auth.guard';
-import { PermissionsGuard } from 'core/auth/guards/permissions.guard';
-import { Permissions } from 'core/auth/decorators/permissions.decorator';
-import { handleException } from 'api/utils/validaciones';
+import { AuthGuard } from '@core/auth/guards/auth.guard';
+import { PermissionsGuard } from '@core/auth/guards/permissions.guard';
+import { Permissions } from '@core/auth/decorators/permissions.decorator';
+import { handleException } from '@utils/validaciones';
 
 @Controller('equipos')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación

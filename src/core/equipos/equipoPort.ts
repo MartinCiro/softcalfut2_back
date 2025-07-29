@@ -1,4 +1,4 @@
-import { EquipoCompleto } from "core/equipos/equipoService";
+import { EquipoCompleto } from "../equipos/equipoService";
 
 export default interface EquiposPort {
     obtenerEquipos(): Promise<EquipoCompleto[]>;
