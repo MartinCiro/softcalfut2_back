@@ -3,10 +3,9 @@ module.exports = {
     name: 'api',
     script: 'dist/src/index.js',
     interpreter: "node",
-    node_args: '',  // <- Eliminado tsconfig-paths
+    node_args: '',
     env: {
-      NODE_ENV: 'production',
-      // TS_CONFIG_PATHS ya no es necesario
+      NODE_ENV: 'dev',
     },
     error_file: 'logs/err.log',
     out_file: 'logs/out.log',

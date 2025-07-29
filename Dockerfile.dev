@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.4
+
+# Fase de construcción
+FROM node:21-alpine3.19
+
+WORKDIR /usr/src/app
+
+# 1. Copia solo los archivos necesarios para dependencias primero
+COPY package.json package-lock.json .npmrc* ./
+
+# 2. Instalación con caché de npm
+RUN npm install --legacy-peer-deps
+
+# 3. Copia el código fuente
+COPY . .
+
+# 4. Genera el cliente de Prisma
+RUN npx prisma generate
+
+# Instala openssh-client para ssh-keygen
+RUN apk add --no-cache openssh-client

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc --build",
     "start": "node dist/index.js",
-    "dev": "npm-run-all merge gen && npm-run-all --parallel server docs",
+    "dev": "nodemon --exec \"node -r tsconfig-paths/register -r ts-node/register\" ./src/index.ts",
     "server": "nodemon --exec \"node -r tsconfig-paths/register -r ts-node/register\" ./src/index.ts",
     "docs": "aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api",
     "gen": "npx prisma generate",
