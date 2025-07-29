@@ -5,7 +5,7 @@ dotenvConfig(); // Ejecuta la carga de variables de entorno
 export default {
   // Server Config
   port: process.env.PORT_API || 3000,
-  env: process.env.env || 'Production',
+  env: process.env.env || 'production',
   //env: process.env.env || 'Dev',
 
   // DBConn
@@ -33,4 +33,10 @@ export default {
   REPO_IMG: process.env.REPO_IMG,
   USERNAME_GIT: process.env.USERNAME_GIT,
   BRANCH_IMG: process.env.BRANCH_IMG || 'main',
+  CORS_ORIGINS: process.env.CORS_ORIGINS ||  [
+    'http://localhost:*',
+    'http://192.168.0.20:*',
+  ],
+  ACCESS_EXPIRES_IN: process.env.ACCESS_EXPIRES_IN || '1h',
+  REFRESH_EXPIRES_IN: process.env.REFRESH_EXPIRES_IN || '1h',
 };

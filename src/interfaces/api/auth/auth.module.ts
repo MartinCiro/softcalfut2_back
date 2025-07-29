@@ -6,16 +6,29 @@ import  AuthAdapter  from '@db/authAdapter';
 import { AuthPort } from '@api/auth/auth-port.token';
 import { CacheModule } from '@shared/cache/cache.module';
 
+
 @Module({
+  imports: [
+    CacheModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async () => ({
+        secret: config.JWT_SECRETO,
+        signOptions: {
+          expiresIn: config.ACCESS_EXPIRES_IN
+        }
+      })
+    })
+  ],
   controllers: [AuthController],
-  imports: [CacheModule],
   providers: [
     AuthService,
+    JwtAuthService,
     {
       provide: AuthPort, 
-      useClass: AuthAdapter,   
-    },
+      useClass: AuthAdapter   
+    }
   ],
-  exports: [AuthService],
+  exports: [AuthService, JwtAuthService]
 })
 export class AuthModule {}
