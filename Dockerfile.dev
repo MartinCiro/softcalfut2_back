@@ -9,14 +9,17 @@ WORKDIR /usr/src/app
 # 1. Copia solo los archivos necesarios para dependencias primero
 COPY package.json package-lock.json .npmrc* ./
 
+# Instala openssh-client para ssh-keygen
+RUN apk update && apk add --no-cache openssh git
+
 # 2. Instalación con caché de npm
 RUN npm install --legacy-peer-deps
+RUN npm install -g nodemon typescript ts-node
+RUN npm install --save-dev prisma
+RUN npm install @prisma/client
 
 # 3. Copia el código fuente
 COPY . .
 
 # 4. Genera el cliente de Prisma
 RUN npx prisma generate
-
-# Instala openssh-client para ssh-keygen
-RUN apk add --no-cache openssh-client
