@@ -1,0 +1,14 @@
+model AfiliadoInfo {
+  id                        Int         @id @default(autoincrement())
+  logo                      String      @db.VarChar(255) // Ruta o URL del logo
+  
+  equipo_id                 Int         @unique
+  lugar_entrenamiento_id    Int
+  estado_id                 Int
+  
+  lugar_entrenamiento    LugarEncuentro @relation(fields: [lugar_entrenamiento_id], references: [id])
+  estado                 Estado         @relation(fields: [estado_id], references: [id])
+  equipo                 Equipo         @relation(fields: [equipo_id], references: [id])
+  
+  @@map("afiliado_info")
+}

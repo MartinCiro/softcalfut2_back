@@ -13,6 +13,7 @@ model Equipo {
   // Relaciones adicionales
   cedulas          CedulaDeportiva[]
   usuariosxEquipo  UsuarioXEquipo[]
+  info_afiliado    AfiliadoInfo[]
   categoria        Categoria? @relation("equipo", fields: [categoria_id], references: [id])
 
   @@map("equipo")

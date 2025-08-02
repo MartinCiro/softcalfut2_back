@@ -3,6 +3,7 @@ model LugarEncuentro {
   nombre       String?           @map("nombre")
   direccion    String?           @map("direccion")
   programacion  Programacion[]   @relation("lugar_encuentro")
+  info_afiliado AfiliadoInfo[]
 
   @@map("lugar_encuentro")
 }

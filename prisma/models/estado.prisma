@@ -3,10 +3,11 @@ model Estado {
   nombre      String  @unique @map("nombre_estado")
   descripcion String?
 
-  usuarios    Usuario[]
+  usuarios        Usuario[]
   cedulaDeportiva CedulaDeportiva[]
-  estado_anuncio Anuncio[]        @relation("estado_anuncio")
-  estado_jugador UsuarioXEquipo[] @relation("estado_jugador")
+  estado_anuncio  Anuncio[]        @relation("estado_anuncio")
+  estado_jugador  UsuarioXEquipo[] @relation("estado_jugador")
+  info_afiliado   AfiliadoInfo[]
 
   @@map("estado") 
 }
