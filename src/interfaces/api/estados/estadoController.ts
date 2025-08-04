@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, Patch, Delete, UseGuards, Req } from '@nestjs/common';
 import { EstadoService } from '@core/estados/estadoService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearEstadoDto } from './dtos/crearEstado.dto';
@@ -66,7 +63,7 @@ export class EstadoController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('estados:Actualiza') 

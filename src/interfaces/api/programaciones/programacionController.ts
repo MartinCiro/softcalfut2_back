@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, Delete, UseGuards, Req, Patch } from '@nestjs/common';
 import { ProgramacionService } from '@core/programaciones/programacionService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearProgramacionDto } from './dtos/crearProgramacion.dto';
@@ -55,7 +52,7 @@ export class ProgramacionController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('programaciones:Actualiza') 

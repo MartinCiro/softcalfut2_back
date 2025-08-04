@@ -18,13 +18,13 @@
     "test:watch": "jest --watch"
   },
   "_moduleAliases": {
-    "@src": "./dist/src",
-    "@core": "./dist/src/core",
-    "@db": "./dist/src/interfaces/db",
-    "@api": "./dist/src/interfaces/api",
-    "@interfaces": "./dist/src/interfaces",
-    "@utils": "./dist/src/interfaces/api/utils",
-    "@shared": "./dist/src/shared"
+    "@src": "./src",
+    "@core": "./src/core",
+    "@db": "./src/interfaces/db",
+    "@api": "./src/interfaces/api",
+    "@interfaces": "./src/interfaces",
+    "@utils": "./src/interfaces/api/utils",
+    "@shared": "./src/shared"
   },
   "keywords": [
     "mims"

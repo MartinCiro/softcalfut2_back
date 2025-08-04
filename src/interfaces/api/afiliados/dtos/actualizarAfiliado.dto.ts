@@ -1,25 +1,23 @@
-import { IsString, IsOptional, IsNumber, IsNotEmpty, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsNotEmpty, IsUrl, IsInt } from 'class-validator';
 
 export class ActualizarAfiliadoDto {
   @IsOptional()
-  @IsNotEmpty({ message: 'El nombre del afiliado es obligatorio' })
-  @IsString({ message: 'El texto del nombre del afiliado no es válido' })
-  readonly nom_afiliado?: string
+  @IsInt({ message: 'El ID del equipo debe ser un número entero' })
+  @IsNotEmpty({ message: 'El ID del equipo es obligatorio' })
+  readonly equipo?: number;
 
-  @IsOptional()
-  @IsNotEmpty({ message: 'El documento del encargado es obligatorio' })
-  @IsString({ message: 'El numero de documento del encargado debe ser un texto válido' })
-  readonly encargado?: string
+  @IsInt({ message: 'El ID del lugar de encuentro debe ser un número entero' })
+  @IsNotEmpty({ message: 'El ID del lugar de encuentro es obligatorio' })
+  readonly lugar_entrenamiento?: number;
 
+  @IsInt({ message: 'El ID del estado debe ser un número entero' })
   @IsOptional()
-  @IsNotEmpty({ message: 'La categoria es obligatoria' })
-  @IsString({ message: 'El nombre de la categoria no es válido' })
-  readonly categoria?: string
+  readonly estado?: number;
 
+  @IsString({ message: 'La URL del logo debe ser una cadena de texto válida' })
+  @IsUrl({}, { message: 'La URL del logo no es válida' })
   @IsOptional()
-  @IsArray({ message: 'Debe ser una lista de jugadores' })
-  @IsString({ each: true, message: 'Cada permiso debe ser un texto válido' })
-  readonly jugadores?: string[];
+  readonly logo?: string;
 
   @IsNotEmpty({ message: 'El id del afiliado es obligatorio' })
   @IsNumber({}, { message: 'El id del afiliado debe ser un número' })

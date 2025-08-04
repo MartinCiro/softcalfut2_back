@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, Delete, UseGuards, Req, Patch } from '@nestjs/common';
 import { RolService } from '@core/roles/rolService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearRolDto } from './dtos/crearRol.dto';
@@ -65,7 +62,7 @@ export class RolController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('roles:Actualiza') 

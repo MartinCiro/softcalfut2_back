@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, Delete, UseGuards, Patch } from '@nestjs/common';
 import { AnuncioService } from '@core/anuncios/anuncioService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearAnuncioDto } from './dtos/crearAnuncio.dto';
@@ -64,7 +61,7 @@ export class AnuncioController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('anuncios:Actualiza')

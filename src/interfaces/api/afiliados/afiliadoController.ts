@@ -1,6 +1,7 @@
 import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, UseGuards
+  UsePipes, ValidationPipe, Get, Put, UseGuards,
+  Patch
 } from '@nestjs/common';
 import { AfiliadoService } from '@core/afiliados/afiliadoService';
 import { ResponseBody } from '@api/models/ResponseBody';
@@ -62,7 +63,7 @@ export class AfiliadoController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('afiliados:Actualiza')
@@ -77,10 +78,7 @@ export class AfiliadoController {
   }))
   async actualizarAfiliado(@Body() body: ActualizarAfiliadoDto): Promise<ResponseBody<string>> {
 
-    if (!body.nom_afiliado && !body.encargado && (!body.jugadores || body.jugadores.length === 0) && !body.categoria) throw new HttpException(
-      new ResponseBody(false, HttpStatus.BAD_REQUEST, "Debe proporcionar al menos un campo para actualizar."),
-      HttpStatus.BAD_REQUEST,
-    );
+    if (!body.id && !body.equipo && !body.lugar_entrenamiento && !body.estado && !body.logo) throw new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, "El ID del afiliado es obligatorio"), HttpStatus.BAD_REQUEST);
 
     try {
       await this.afiliadoService.upAfiliado(body);

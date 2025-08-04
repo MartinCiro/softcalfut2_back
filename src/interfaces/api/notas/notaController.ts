@@ -1,6 +1,7 @@
 import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, UseGuards
+  UsePipes, ValidationPipe, Get, UseGuards,
+  Patch
 } from '@nestjs/common';
 import { NotaService } from '@core/notas/notaService';
 import { ResponseBody } from '@api/models/ResponseBody';
@@ -62,7 +63,7 @@ export class NotaController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('notas:Actualiza')

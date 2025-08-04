@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, Delete, UseGuards, Req, Patch } from '@nestjs/common';
 import { CedulaDeportivaService } from '@core/cedulaDeportiva/cedulaDeportivaService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearCedulaDeportivaDto } from './dtos/crearCedulaDeportiva.dto';
@@ -63,7 +60,7 @@ export class CedulaDeportivaController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('cedula:Actualiza') 

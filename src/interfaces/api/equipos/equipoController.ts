@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, UseGuards
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, UseGuards, Patch } from '@nestjs/common';
 import { EquipoService } from '@core/equipos/equipoService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearEquipoDto } from './dtos/crearEquipo.dto';
@@ -62,7 +59,7 @@ export class EquipoController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('equipos:Actualiza')

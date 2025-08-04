@@ -1,6 +1,7 @@
 import {
   Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
+  UsePipes, ValidationPipe, Get, Delete, UseGuards, Req,
+  Patch
 } from '@nestjs/common';
 import { PermisoService } from '@core/permisos/permisoService';
 import { ResponseBody } from '@api/models/ResponseBody';
@@ -61,7 +62,7 @@ export class PermisoController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('permisos:Actualiza')

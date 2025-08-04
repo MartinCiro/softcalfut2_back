@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, UseGuards
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, UseGuards, Patch } from '@nestjs/common';
 import { LugarEncuentroService } from '@core/lugarEncuentro/lugarEncuentroService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearLugarEncuentroDto } from './dtos/crearLugarEncuentro.dto';
@@ -62,7 +59,7 @@ export class LugarEncuentroController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('lugarEncuentro:Actualiza')

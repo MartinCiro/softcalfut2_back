@@ -16,13 +16,19 @@
     "rootDir": "./", 
     "baseUrl": "./",
     "paths": {
-      "@src/*": ["src/*"],
-      "@core/*": ["src/core/*"],
-      "@shared/*": ["src/shared/*"],
-      "@db/*": ["src/interfaces/db/*"],
-      "@api/*": ["src/interfaces/api/*"],
-      "@interfaces/*": ["src/interfaces/*"],
-      "@utils/*": ["src/interfaces/api/utils/*"]
+      "@src/*": ["src/*", "dist/src/*"],
+      "@core/*": ["src/core/*", "dist/src/core/*"],
+      "@interfaces/*": ["src/interfaces/*", "dist/src/interfaces/*"],
+      "@services/*": ["src/services/*", "dist/src/services/*"],
+      "@controllers/*": ["src/controllers/*", "dist/src/controllers/*"],
+      "@shared/*": ["src/shared/*", "dist/src/shared/*"],
+      "@middlewares/*": ["src/middlewares/*", "dist/src/middlewares/*"],
+      "@models/*": ["src/models/*", "dist/src/models/*"],
+      "@routes/*": ["src/routes/*", "dist/src/routes/*"],
+      "@config/*": ["src/config/*", "dist/src/config/*"],
+      "@db/*": ["src/interfaces/db/*", "dist/src/interfaces/db/*"],
+      "@api/*": ["src/interfaces/api/*", "dist/src/interfaces/api/*"],
+      "@utils/*": ["src/interfaces/api/utils/*", "dist/src/interfaces/api/utils/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.js", "ecosystem.config.js"],

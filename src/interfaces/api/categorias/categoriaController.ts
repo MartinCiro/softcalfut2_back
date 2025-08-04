@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, Delete, UseGuards, Req, Patch } from '@nestjs/common';
 import { CategoriaService } from '@core/categorias/categoriaService';
 import { ResponseBody } from '@api/models/ResponseBody';
 import { CrearCategoriaDto } from './dtos/crearCategoria.dto';
@@ -66,7 +63,7 @@ export class CategoriaController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('categorias:Actualiza') 

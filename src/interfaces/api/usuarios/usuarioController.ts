@@ -1,7 +1,4 @@
-import {
-  Controller, Post, Body, HttpException, HttpStatus, HttpCode,
-  UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, HttpCode, UsePipes, ValidationPipe, Get, Put, Delete, UseGuards, Req, Patch } from '@nestjs/common';
 import { AuthGuard } from '@core/auth/guards/auth.guard';
 import { Permissions, Public } from '@core/auth/decorators/permissions.decorator';
 import { ResponseBody } from '@api/models/ResponseBody';
@@ -69,7 +66,7 @@ export class UsuarioController {
     }
   }
 
-  @Put()
+  @Patch()
   @HttpCode(HttpStatus.OK)
   @UseGuards(PermissionsGuard)
   @Permissions('usuarios:Actualiza')
