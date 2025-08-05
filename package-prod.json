@@ -1,0 +1,85 @@
+{
+  "name": "softcalfut-backend",
+  "version": "1.0.0",
+  "description": "Backend para softcalfut",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec \"node -r tsconfig-paths/register -r ts-node/register\" ./src/index.ts",
+    "server": "nodemon --exec \"node -r tsconfig-paths/register -r ts-node/register\" ./src/index.ts",
+    "docs": "aglio -i ./api-docs.apib -s --header 'Authorization' --prefix /api",
+    "gen": "npx prisma generate",
+    "merge": "node prisma/mergeModels.mjs",
+    "migrate:init": "npx prisma migrate dev --name init",
+    "migrate:deploy": "npx prisma migrate deploy",
+    "migrate:reset": "npx prisma migrate reset",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "_moduleAliases": {
+    "@src": "./dist/src",
+    "@core": "./dist/src/core",
+    "@db": "./dist/src/interfaces/db",
+    "@api": "./dist/src/interfaces/api",
+    "@interfaces": "./dist/src/interfaces",
+    "@utils": "./dist/src/interfaces/api/utils",
+    "@shared": "./dist/src/shared"
+  },
+  "keywords": [
+    "mims"
+  ],
+  "author": "Martin Ciro",
+  "license": "ISC",
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testMatch": [
+      "**/?(*.)+(spec|test).[jt]s?(x)"
+    ]
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.10",
+    "@nestjs/core": "^11.0.10",
+    "@nestjs/platform-express": "^11.0.10",
+    "@nestjs/serve-static": "^5.0.3",
+    "@prisma/client": "^6.4.1",
+    "@types/jsonwebtoken": "^9.0.8",
+    "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
+    "nats": "^2.29.2",
+    "nestjs-form-data": "^1.9.93",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.11.0",
+    "redis": "^4.7.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "simple-git": "^3.28.0",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.11",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^22.13.2",
+    "@types/pg": "^8.11.11",
+    "aglio": "^2.3.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "npm-run-all": "^4.1.5",
+    "ts-jest": "^29.2.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}
