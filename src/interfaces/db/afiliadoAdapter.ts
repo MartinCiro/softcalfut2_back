@@ -101,14 +101,24 @@ export default class AfiliadosAdapter implements AfiliadosPort {
     }
   }
 
-  async obtenerAfiliados(): Promise<any> {
+  async obtenerAfiliados(rol?: string): Promise<any> {
+    const esAdmin = rol?.toLowerCase().includes('admin');
     try {
-      const cacheKey = 'afiliados:lista';
+      const cacheKey = esAdmin ? 'anuncios:lista:admin' : 'anuncios:lista:publico';
       const afiliadosCache = await this.redisService.get(cacheKey);
 
       // if (afiliadosCache) return JSON.parse(afiliadosCache);
 
+      const where = esAdmin
+        ? {} // Sin filtro si es admin
+        : {
+          estado: {
+            nombre: 'Activo'
+          }
+        };
+
       const afiliados = await prisma.afiliadoInfo.findMany({
+        where,
         include: {
           equipo: {
             include: {

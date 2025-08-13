@@ -10,8 +10,9 @@ import { ObtenerAfiliadosDto } from './dtos/obtenerAfiliado.dto';
 import { ActualizarAfiliadoDto } from './dtos/actualizarAfiliado.dto';
 import { AuthGuard } from '@core/auth/guards/auth.guard';
 import { PermissionsGuard } from '@core/auth/guards/permissions.guard';
-import { Permissions } from '@core/auth/decorators/permissions.decorator';
+import { Permissions, Public } from '@core/auth/decorators/permissions.decorator';
 import { handleException } from '@utils/validaciones';
+import { User } from '@core/auth/decorators/user.decorator';
 
 @Controller('afiliados')
 @UseGuards(AuthGuard) // Todas las rutas requieren autenticación
@@ -43,8 +44,8 @@ export class AfiliadoController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @Public()
   @UseGuards(PermissionsGuard)
-  @Permissions('afiliados:Lee')
   @UsePipes(new ValidationPipe({
     whitelist: true, transform: true, exceptionFactory: (errors) => {
       const mensajes = errors.map(err => ({
@@ -54,9 +55,9 @@ export class AfiliadoController {
       return new HttpException(new ResponseBody(false, HttpStatus.BAD_REQUEST, mensajes), HttpStatus.BAD_REQUEST);
     }
   }))
-  async obtenerAfiliados(): Promise<ResponseBody<any>> {
+  async obtenerAfiliados(@User() user?: any): Promise<ResponseBody<any>> {
     try {
-      const afiliados = await this.afiliadoService.obtenerAfiliados();
+      const afiliados = await this.afiliadoService.obtenerAfiliados(user?.rol);
       return new ResponseBody<any>(true, 200, afiliados);
     } catch (error) {
       handleException(error);

@@ -9,8 +9,8 @@ export class AfiliadoService {
     @Inject('AfiliadosPort') private afiliadoPort: AfiliadosPort
   ) {}
 
-  async obtenerAfiliados(): Promise<any[]> {
-    return await this.afiliadoPort.obtenerAfiliados();
+  async obtenerAfiliados(rol?: any): Promise<any[]> {
+    return await this.afiliadoPort.obtenerAfiliados(rol);
   }
 
   async crearAfiliado(afiliadoData: AfiliadoData) {
