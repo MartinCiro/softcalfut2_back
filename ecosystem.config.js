@@ -5,7 +5,7 @@ module.exports = {
     interpreter: "node",
     node_args: '',
     env: {
-      NODE_ENV: 'dev',
+      NODE_ENV: 'production',
     },
     error_file: 'logs/err.log',
     out_file: 'logs/out.log',
